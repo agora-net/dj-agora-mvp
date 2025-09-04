@@ -13,6 +13,11 @@ migrate:
 runserver:
     @uv run python manage.py runserver
 
+# Run the frontend hot reload
+[working-directory: "frontend/@agora/agora"]
+dev-frontend:
+    @pnpm dev
+
 # Shortcut for manage.py commands
 manage *ARGS:
     @uv run python manage.py {{ARGS}}
