@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Project Management
+
+Project tasks must be tracked in @/docs/tasks.md
+
+You must track the current task being worked on. You must only work on one task at a time. If a task is complex, it must be broken up into smaller tasks. If you have any uncertainty whatsoever you must ask me for clarification. Never attempt to do too much at once.

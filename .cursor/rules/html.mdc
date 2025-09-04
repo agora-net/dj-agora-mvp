@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.html
+alwaysApply: false
+---
+
+# HTML
+
+We use tailwind inside django templates.

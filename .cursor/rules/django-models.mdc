@@ -1,0 +1,18 @@
+---
+description: 
+globs: *models.py
+alwaysApply: false
+---
+
+# Django Models
+
+- use UniqueConstraint instead of unique_together
+- always disable Django's automatic indexes on FKs, define them explicitly in Meta. Not all FKs require indexes.
+- ensure all models have a Meta with sensible verbose names
+- add translation everywhere
+- prioritize aeshetics
+- use uuid7's for IDs e.g. `id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)`
+- ensure that all time fields are postfixed with \_at, for eg. updated_at, created_at
+- for nullable FKs, add partial indexes where they are not null
+- the ordering of model fields: id, datimetime fields, other, FKs
+- ensure all models have a nicely formatted **str**

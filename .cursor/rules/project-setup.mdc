@@ -1,0 +1,12 @@
+---
+description: Project rules for Agora
+globs:
+alwaysApply: true
+---
+
+# Project setup - Agora
+
+- Containers: Use `podman`, not `docker`
+- HTTP: Use `http`, not `curl`
+- Repeatable commands: Use `just` and @/Justfile
+- Base information is in @/AGENT.md

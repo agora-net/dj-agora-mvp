@@ -1,0 +1,27 @@
+---
+description: Formats python files
+globs: *.py
+alwaysApply: false
+---
+
+# Formatting
+
+- You must format Python files by running ruff format.
+- When using docstrings """, please ensure they are neatly multilined, for example:
+  """
+  I am a docstring
+  """
+
+  instead of """I am a docstring""".
+
+- I prefer multiple lines instead of trying to keep things on one line. Prefer to use trailing commas.
+- Always run `just lint-backend` and `just format-backend` regularly to be sure
+
+## Imports
+
+- Don't use relative imports unless specifically necesary
+- Always ensure imports are sorted correctly using ruff
+
+## Types
+
+Where possible, use python type annotations. I know it is difficult (and sometimes impossible) to specify types for Django models. Readability is paramount, so do not worry about type annotations where they add complexity (for example in the admin).

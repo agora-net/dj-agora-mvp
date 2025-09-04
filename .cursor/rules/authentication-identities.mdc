@@ -1,0 +1,12 @@
+---
+description: When making changes to identities, authentication, oauth, open id connect (OIDC) or authorization
+alwaysApply: false
+---
+
+# Authentication & Identities
+
+- Security is the TOP PRIORITY
+- We use Keycloak as our external IDP
+- Requests are validated before hitting the application with an OAuth proxy
+- We interact with the Keycloak admin API securely
+- Our authentication routes are defined in @internal/routes.go

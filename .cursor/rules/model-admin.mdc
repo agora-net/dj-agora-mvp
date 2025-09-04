@@ -1,0 +1,12 @@
+---
+description: 
+globs: *models.py,*admin.py
+alwaysApply: false
+---
+
+# Django Model Admin
+
+- Ensure that all fields in a model are adequately represented in the admin.
+- Ensure that we use the @admin.register decorator.
+- Ensure that appropriate fields are read-only.
+- Ensure that when defining models, IDs and dates and times are first priority.

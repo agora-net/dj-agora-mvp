@@ -1,0 +1,10 @@
+---
+description: 
+globs: *.py
+alwaysApply: false
+---
+
+# Python Testing
+
+- All tests should be written using django.test.TestCase and the builtin `unittest`.
+- Tests should be run at appropriate milestones (tasks).
