@@ -1,0 +1,16 @@
+[project]
+name = "dj-agora-mvp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=5.2.6",
+    "django-vite>=3.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "lefthook>=1.12.3",
+    "ruff>=0.12.11",
+]
