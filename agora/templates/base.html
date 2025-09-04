@@ -1,0 +1,25 @@
+{% load django_vite %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agora{% endblock %}</title>
+    <link rel="stylesheet" href="{% vite_asset_url 'src/tailwind.css' %}">
+    {% vite_hmr_client %}
+    {% vite_react_refresh %}
+</head>
+<body>
+    {% comment %} https://design-system.service.gov.uk/styles/page-template/ {% endcomment %}
+    {% block bodyStart %}{% endblock bodyStart %}
+    {% block skipLink %}{% endblock skipLink %}
+    {% block header %}{% endblock header %}
+    {% block main %}
+        {% block beforeContent %}{% endblock beforeContent %}
+        {% block content %}{% endblock content %}
+        {% block afterContent %}{% endblock afterContent %}
+    {% endblock main %}
+    {% block footer %}{% endblock footer %}
+    {% block bodyEnd %}{% endblock bodyEnd %}
+</body>
+</html>
