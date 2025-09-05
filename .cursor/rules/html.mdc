@@ -6,4 +6,8 @@ alwaysApply: false
 
 # HTML
 
-We use tailwind inside django templates.
+We use tailwind and daisy ui inside django templates.
+
+When choosing colours, don't use hardcoded colours, use semantic color utility classes.
+
+e.g. use `bg-primary` and not `bg-blue-300`.
