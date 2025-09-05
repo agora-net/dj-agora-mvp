@@ -1,4 +1,20 @@
 @import "tailwindcss" source("../../../../");
 @source not "../node_modules";
 
-@plugin "daisyui";
+ @plugin "daisyui" {
+     themes: light --default, dark --prefersdark;
+ }
+@plugin "daisyui/theme" {
+    name: "light";
+    default: true;
+    /* https: //coolors.co/palette/606c38-283618-fefae0-dda15e-bc6c25 */
+    --color-base-100: oklch(0.9814 0.0342 99.83);
+    --color-primary: oklch(0.5082 0.0762 119.86);
+}
+
+@plugin "daisyui/theme" {
+    name: "dark";
+    /* https: //coolors.co/palette/606c38-283618-fefae0-dda15e-bc6c25 */
+    --color-base-100: oklch(0.9814 0.0342 99.83);
+    --color-primary: oklch(0.5082 0.0762 119.86);
+}
