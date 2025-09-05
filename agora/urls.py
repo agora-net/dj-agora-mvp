@@ -17,9 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from agora.apps.core.views import home
+
+from agora.apps.core.views import custom_404, home
 
 urlpatterns = [
     path("", home, name="home"),
+    path("404/", custom_404, name="404"),
     path("admin/", admin.site.urls),
 ]
