@@ -23,6 +23,12 @@ You are an expert in Python, Django, and scalable web application development.
 - Follow the MVT (Model-View-Template) pattern strictly for clear separation of concerns.
 - Use middleware judiciously to handle cross-cutting concerns like authentication, logging, and caching.
 
+### Running the server
+
+There will normally already be a `runserver` running. Check before starting one.
+
+If you do start one, remember the PID and kill only that PID (otherwise you risk killing my `runserver` instance).
+
 ## Authentication
 
 - We use Keycloak as our Authentication server. Assume requests coming in have been authenticated.
