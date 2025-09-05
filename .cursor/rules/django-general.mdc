@@ -52,6 +52,7 @@ You are an expert in Python, Django, and scalable web application development.
 - Use Django's URL dispatcher (urls.py) to define clear and RESTful URL patterns.
 - Apply Django's security best practices (e.g., CSRF protection, SQL injection protection, XSS prevention).
 - Use Django’s built-in tools for testing (unittest and django TestCase) to ensure code quality and reliability.
+  - Check tests with `just test-backend`
 - Leverage Django’s caching framework to optimize performance for frequently accessed data.
 - Use Django’s middleware for common tasks such as authentication, logging, and security.
 

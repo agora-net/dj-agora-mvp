@@ -8,3 +8,4 @@ alwaysApply: false
 
 - All tests should be written using django.test.TestCase and the builtin `unittest`.
 - Tests should be run at appropriate milestones (tasks).
+- Test frequently with `just test-backend`. If only testing the new cases use `just test-backend only.these.tests`
