@@ -18,6 +18,10 @@ runserver:
 dev-frontend:
     @pnpm dev
 
+# Test the backend code
+test-backend *ARGS:
+    @uv run python manage.py test {{ARGS}}
+
 # Shortcut for manage.py commands
 manage *ARGS:
     @uv run python manage.py {{ARGS}}
