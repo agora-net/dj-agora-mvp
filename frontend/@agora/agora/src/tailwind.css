@@ -1,2 +1,4 @@
 @import "tailwindcss" source("../../../../");
 @source not "../node_modules";
+
+@plugin "daisyui";
