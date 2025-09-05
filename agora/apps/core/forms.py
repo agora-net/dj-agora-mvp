@@ -1,3 +1,4 @@
+import nh3
 from django import forms
 
 
@@ -21,5 +22,5 @@ class WaitlistSignupForm(forms.Form):
         """Validate and normalize the email address."""
         email = self.cleaned_data.get("email")
         if email:
-            email = email.lower().strip()
+            email = nh3.clean(email.lower().strip())
         return email
