@@ -24,5 +24,26 @@ class WaitingList(BaseModel):
     def type_id(self):
         return TypeID.from_uuid(prefix=self._type, uuid=self.id)
 
+    @property
+    def waiting_list_position(self):
+        """
+        Calculate the position in the waiting list.
+
+        Position is based on:
+        - People who joined before this person (earlier created_at)
+        - Who haven't had their invite accepted yet (invite_accepted_at is null)
+
+        Returns:
+            int: The position in the waiting list (1-based)
+        """
+        # Count people who joined before this person and haven't accepted their invite
+        people_ahead = WaitingList.objects.filter(
+            created_at__lt=self.created_at,
+            invite_accepted_at__isnull=True,
+        ).count()
+
+        # Position is 1-based (first person is position 1)
+        return people_ahead + 1
+
     def __str__(self):
         return self.email
