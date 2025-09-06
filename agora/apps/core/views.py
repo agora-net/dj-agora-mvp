@@ -32,6 +32,7 @@ def signup(request):
                 waiting_list_entry = add_to_waiting_list(form.cleaned_data["email"])
                 return HttpResponse(
                     f"Successfully added to waiting list! "
+                    f"Your position: #{waiting_list_entry.waiting_list_position}, "
                     f"Your invite code: {waiting_list_entry.invite_code}",
                     status=200,
                 )
