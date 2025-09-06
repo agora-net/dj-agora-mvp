@@ -54,7 +54,7 @@ class WaitingList(BaseModel):
         ).count()
 
         # Position is 1-based (first person is position 1)
-        position = people_ahead + 1
+        position = max(1, people_ahead + 1)
 
         # Cache the result for configured timeout
         cache.set(cache_key, position, timeout=self._cache_timeout)
@@ -66,8 +66,29 @@ class WaitingList(BaseModel):
         Invalidate the cached waiting list position for this instance.
         Call this when the position might have changed (e.g., when someone accepts an invite).
         """
-        cache_key = f"waiting_list_position_{self.id}"
+        cache_key = str(self.type_id)
         cache.delete(cache_key)
+
+    def pre_cache_position(self):
+        """
+        Pre-cache the waiting list position for this instance.
+        Useful when creating a new entry that will be accessed immediately.
+        """
+        cache_key = str(self.type_id)
+
+        # Count people who joined before this person and haven't accepted their invite
+        people_ahead = WaitingList.objects.filter(
+            created_at__lt=self.created_at,
+            invite_accepted_at__isnull=True,
+        ).count()
+
+        # Position is 1-based (first person is position 1)
+        position = max(1, people_ahead + 1)
+
+        # Cache the result for configured timeout
+        cache.set(cache_key, position, timeout=self._cache_timeout)
+
+        return position
 
     def save(self, *args, **kwargs):
         """

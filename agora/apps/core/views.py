@@ -31,12 +31,8 @@ def signup(request):
             try:
                 # Save the email to the waiting list using the service
                 waiting_list_entry = add_to_waiting_list(form.cleaned_data["email"])
-                return HttpResponse(
-                    f"Successfully added to waiting list! "
-                    f"Your position: #{waiting_list_entry.waiting_list_position}, "
-                    f"Your invite code: {waiting_list_entry.invite_code}",
-                    status=200,
-                )
+                # Redirect to the signup detail view showing their position and UUID
+                return redirect("signup_status", signup_id=waiting_list_entry.id)
             except IntegrityError:
                 return HttpResponse(
                     "This email address is already on our waiting list.",
@@ -54,22 +50,27 @@ def signup(request):
 
 def signup_status(request, signup_id):
     """
-    View to show waiting list position for a specific signup ID.
+    View to show waiting list details for a specific signup ID.
 
     Args:
         signup_id: The UUID of the waiting list entry
 
     Returns:
-        HttpResponse with position information or 404 if not found
+        HttpResponse with position, UUID, and invite code information or 404 if not found
     """
     try:
         # Look up the waiting list entry by ID
         waiting_list_entry = get_object_or_404(WaitingList, id=signup_id)
 
-        # Return the current position
+        # Return comprehensive waiting list information
         return HttpResponse(
-            f"Your current position in the waiting list: "
-            f"#{waiting_list_entry.waiting_list_position}",
+            f"Successfully added to waiting list!\n\n"
+            f"Your position: #{waiting_list_entry.waiting_list_position}\n"
+            f"Your UUID: {waiting_list_entry.id}\n"
+            f"Your invite code: {waiting_list_entry.invite_code}\n"
+            f"Your TypeID: {waiting_list_entry.type_id}\n\n"
+            f"You can bookmark this URL to check your position anytime: "
+            f"{request.build_absolute_uri()}",
             status=200,
         )
     except Http404:

@@ -30,6 +30,8 @@ def add_to_waiting_list(sanitized_email_address: str) -> WaitingList:
             email=sanitized_email_address,
             invite_code=invite_code,
         )
+        # Pre-cache the position since it will be accessed immediately
+        waiting_list_entry.pre_cache_position()
         return waiting_list_entry
     except IntegrityError as e:
         if "email" in str(e):
@@ -41,6 +43,8 @@ def add_to_waiting_list(sanitized_email_address: str) -> WaitingList:
                 email=sanitized_email_address,
                 invite_code=invite_code,
             )
+            # Pre-cache the position since it will be accessed immediately
+            waiting_list_entry.pre_cache_position()
             return waiting_list_entry
         else:
             raise

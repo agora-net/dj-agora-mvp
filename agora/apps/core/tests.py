@@ -1,6 +1,10 @@
+from django.core.cache import cache
 from django.test import TestCase
+from django.urls import reverse
 
 from agora.apps.core.forms import WaitlistSignupForm
+from agora.apps.core.models import WaitingList
+from agora.apps.core.services import add_to_waiting_list
 
 
 class WaitlistSignupFormTestCase(TestCase):
@@ -171,3 +175,266 @@ class WaitlistSignupFormTestCase(TestCase):
                     form.is_valid(),
                     f"Email '{email}' should be invalid but form is valid",
                 )
+
+
+class SignupViewTestCase(TestCase):
+    """
+    Test cases for the signup view functionality.
+    """
+
+    def test_successful_signup_redirects_to_detail_view(self):
+        """
+        Test that successful signup redirects to the signup detail view.
+        """
+        form_data = {"email": "test@example.com"}
+        response = self.client.post(reverse("signup"), data=form_data)
+
+        # Should redirect to the signup status page
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/signup/"))
+
+        # Follow the redirect to verify the detail view works
+        detail_response = self.client.get(response.url)
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertIn("Successfully added to waiting list!", detail_response.content.decode())
+        self.assertIn("Your position:", detail_response.content.decode())
+        self.assertIn("Your UUID:", detail_response.content.decode())
+        self.assertIn("Your invite code:", detail_response.content.decode())
+
+    def test_signup_status_view_shows_correct_information(self):
+        """
+        Test that the signup status view shows the correct information.
+        """
+        # Create a waiting list entry
+        waiting_list_entry = WaitingList.objects.create(
+            email="test@example.com", invite_code="test-invite-code"
+        )
+
+        # Access the signup status view
+        response = self.client.get(
+            reverse("signup_status", kwargs={"signup_id": waiting_list_entry.id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+
+        # Check that all expected information is present
+        self.assertIn("Successfully added to waiting list!", content)
+        self.assertIn("Your position:", content)
+        self.assertIn("Your UUID:", content)
+        self.assertIn("Your invite code:", content)
+        self.assertIn("Your TypeID:", content)
+        self.assertIn("You can bookmark this URL", content)
+
+        # Check that the actual values are present
+        self.assertIn(str(waiting_list_entry.id), content)
+        self.assertIn(waiting_list_entry.invite_code, content)
+        self.assertIn(str(waiting_list_entry.waiting_list_position), content)
+
+    def test_signup_status_view_404_for_invalid_uuid(self):
+        """
+        Test that the signup status view returns 404 for invalid UUID.
+        """
+        import uuid
+
+        invalid_uuid = uuid.uuid4()
+
+        response = self.client.get(reverse("signup_status", kwargs={"signup_id": invalid_uuid}))
+
+        self.assertEqual(response.status_code, 404)
+
+
+class WaitingListCachingTestCase(TestCase):
+    """
+    Test cases for the WaitingList caching functionality.
+    """
+
+    def setUp(self):
+        """Clear cache before each test."""
+        cache.clear()
+
+    def test_pre_cache_position_method(self):
+        """
+        Test that pre_cache_position method caches the position correctly.
+        """
+        # Create a waiting list entry
+        waiting_list_entry = WaitingList.objects.create(
+            email="test@example.com", invite_code="test-invite-code"
+        )
+
+        # Verify cache is empty initially
+        cache_key = str(waiting_list_entry.type_id)
+        self.assertIsNone(cache.get(cache_key))
+
+        # Pre-cache the position
+        position = waiting_list_entry.pre_cache_position()
+
+        # Verify position is cached
+        cached_position = cache.get(cache_key)
+        self.assertEqual(cached_position, position)
+        self.assertEqual(cached_position, 1)  # First entry should be position 1
+
+    def test_waiting_list_position_property_uses_cache(self):
+        """
+        Test that waiting_list_position property uses cached value when available.
+        """
+        # Create a waiting list entry
+        waiting_list_entry = WaitingList.objects.create(
+            email="test@example.com", invite_code="test-invite-code"
+        )
+
+        # Pre-cache the position
+        expected_position = waiting_list_entry.pre_cache_position()
+
+        # Access the position property - should use cached value
+        actual_position = waiting_list_entry.waiting_list_position
+
+        self.assertEqual(actual_position, expected_position)
+        self.assertEqual(actual_position, 1)
+
+    def test_add_to_waiting_list_pre_caches_position(self):
+        """
+        Test that add_to_waiting_list service pre-caches the position.
+        """
+        # Add to waiting list using the service
+        waiting_list_entry = add_to_waiting_list("test@example.com")
+
+        # Verify position is cached
+        cache_key = str(waiting_list_entry.type_id)
+        cached_position = cache.get(cache_key)
+
+        self.assertIsNotNone(cached_position)
+        self.assertEqual(cached_position, 1)  # First entry should be position 1
+
+        # Verify accessing the position property uses the cached value
+        position = waiting_list_entry.waiting_list_position
+        self.assertEqual(position, cached_position)
+
+    def test_multiple_entries_position_caching(self):
+        """
+        Test position caching with multiple entries.
+        """
+        # Create first entry
+        first_entry = add_to_waiting_list("first@example.com")
+        first_position = first_entry.waiting_list_position
+        self.assertEqual(first_position, 1)
+
+        # Create second entry
+        second_entry = add_to_waiting_list("second@example.com")
+        second_position = second_entry.waiting_list_position
+        self.assertEqual(second_position, 2)
+
+        # Verify both positions are cached
+        first_cache_key = str(first_entry.type_id)
+        second_cache_key = str(second_entry.type_id)
+
+        self.assertEqual(cache.get(first_cache_key), 1)
+        self.assertEqual(cache.get(second_cache_key), 2)
+
+    def test_invalidate_position_cache(self):
+        """
+        Test that invalidate_position_cache removes the cached position.
+        """
+        # Create and pre-cache position
+        waiting_list_entry = WaitingList.objects.create(
+            email="test@example.com", invite_code="test-invite-code"
+        )
+        waiting_list_entry.pre_cache_position()
+
+        # Verify position is cached
+        cache_key = str(waiting_list_entry.type_id)
+        self.assertIsNotNone(cache.get(cache_key))
+
+        # Invalidate cache
+        waiting_list_entry.invalidate_position_cache()
+
+        # Verify cache is cleared
+        self.assertIsNone(cache.get(cache_key))
+
+    def test_position_never_below_one(self):
+        """
+        Test that position calculation never returns a value below 1.
+        This tests the max(1, people_ahead + 1) logic.
+        """
+        # Create a waiting list entry
+        waiting_list_entry = WaitingList.objects.create(
+            email="test@example.com", invite_code="test-invite-code"
+        )
+
+        # Verify position is at least 1
+        position = waiting_list_entry.waiting_list_position
+        self.assertGreaterEqual(position, 1)
+
+        # Verify pre-cached position is also at least 1
+        pre_cached_position = waiting_list_entry.pre_cache_position()
+        self.assertGreaterEqual(pre_cached_position, 1)
+
+    def test_position_calculation_with_max_logic(self):
+        """
+        Test that both waiting_list_position and pre_cache_position use max(1, people_ahead + 1).
+        """
+        # Create a waiting list entry
+        waiting_list_entry = WaitingList.objects.create(
+            email="test@example.com", invite_code="test-invite-code"
+        )
+
+        # Test waiting_list_position property
+        position_property = waiting_list_entry.waiting_list_position
+        self.assertEqual(position_property, 1)  # First entry should be position 1
+
+        # Test pre_cache_position method
+        position_method = waiting_list_entry.pre_cache_position()
+        self.assertEqual(position_method, 1)  # First entry should be position 1
+
+        # Both should return the same value
+        self.assertEqual(position_property, position_method)
+
+    def test_multiple_entries_position_ordering(self):
+        """
+        Test that multiple entries get correct positions with max() logic.
+        """
+        # Create multiple entries
+        first_entry = WaitingList.objects.create(
+            email="first@example.com", invite_code="first-invite-code"
+        )
+        second_entry = WaitingList.objects.create(
+            email="second@example.com", invite_code="second-invite-code"
+        )
+        third_entry = WaitingList.objects.create(
+            email="third@example.com", invite_code="third-invite-code"
+        )
+
+        # Verify positions are correct and >= 1
+        self.assertEqual(first_entry.waiting_list_position, 1)
+        self.assertEqual(second_entry.waiting_list_position, 2)
+        self.assertEqual(third_entry.waiting_list_position, 3)
+
+        # Verify pre-cached positions are also correct
+        self.assertEqual(first_entry.pre_cache_position(), 1)
+        self.assertEqual(second_entry.pre_cache_position(), 2)
+        self.assertEqual(third_entry.pre_cache_position(), 3)
+
+    def test_position_consistency_between_property_and_method(self):
+        """
+        Test that waiting_list_position property and pre_cache_position method
+        return consistent results.
+        """
+        # Create a waiting list entry
+        waiting_list_entry = WaitingList.objects.create(
+            email="test@example.com", invite_code="test-invite-code"
+        )
+
+        # Clear any existing cache
+        cache_key = str(waiting_list_entry.type_id)
+        cache.delete(cache_key)
+
+        # Get position from property (should calculate and cache)
+        position_from_property = waiting_list_entry.waiting_list_position
+
+        # Get position from method (should use same logic)
+        position_from_method = waiting_list_entry.pre_cache_position()
+
+        # Both should return the same value
+        self.assertEqual(position_from_property, position_from_method)
+        self.assertEqual(position_from_property, 1)
+        self.assertEqual(position_from_method, 1)
