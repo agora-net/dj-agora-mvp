@@ -199,8 +199,37 @@ class SignupViewTestCase(TestCase):
         content = detail_response.content.decode()
         self.assertIn("Welcome to the Agora waitlist!", content)
         self.assertIn("Your position in line", content)
-        self.assertIn("Your ID:", content)
-        self.assertIn("Invite Code:", content)
+        self.assertIn("Bookmark this page", content)
+
+    def test_duplicate_email_redirects_to_existing_position(self):
+        """
+        Test that signing up with an existing email redirects to their current position.
+        """
+        # Create an existing waiting list entry
+        existing_entry = WaitingList.objects.create(
+            email="existing@example.com", invite_code="existing-invite-code"
+        )
+
+        # Try to sign up with the same email
+        form_data = {"email": "existing@example.com"}
+        response = self.client.post(reverse("signup"), data=form_data)
+
+        # Should redirect to the existing entry's position page
+        self.assertEqual(response.status_code, 302)
+        expected_url = reverse("signup_status", kwargs={"signup_id": existing_entry.id})
+        self.assertEqual(response.url, expected_url)
+
+        # Follow the redirect to verify it shows the existing position
+        detail_response = self.client.get(response.url)
+        self.assertEqual(detail_response.status_code, 200)
+        content = detail_response.content.decode()
+        self.assertIn("Welcome to the Agora waitlist!", content)
+        self.assertIn("Your position in line", content)
+        self.assertIn("Bookmark this page", content)
+        self.assertIn("existing@example.com", content)
+
+        # Verify no new entry was created
+        self.assertEqual(WaitingList.objects.filter(email="existing@example.com").count(), 1)
 
     def test_signup_status_view_shows_correct_information(self):
         """
@@ -222,14 +251,10 @@ class SignupViewTestCase(TestCase):
         # Check that all expected information is present
         self.assertIn("Welcome to the Agora waitlist!", content)
         self.assertIn("Your position in line", content)
-        self.assertIn("Your ID:", content)
-        self.assertIn("Invite Code:", content)
-        self.assertIn("TypeID:", content)
         self.assertIn("Bookmark this page", content)
+        self.assertIn("test@example.com", content)
 
-        # Check that the actual values are present
-        self.assertIn(str(waiting_list_entry.id), content)
-        self.assertIn(waiting_list_entry.invite_code, content)
+        # Check that the position number is present
         self.assertIn(str(waiting_list_entry.waiting_list_position), content)
 
     def test_signup_status_view_404_for_invalid_uuid(self):

@@ -28,18 +28,26 @@ def signup(request):
     if request.method == "POST":
         form = WaitlistSignupForm(request.POST)
         if form.is_valid():
+            email = form.cleaned_data["email"]
+
+            # Check if email already exists
             try:
-                # Save the email to the waiting list using the service
-                waiting_list_entry = add_to_waiting_list(form.cleaned_data["email"])
-                # Redirect to the signup detail view showing their position and UUID
-                return redirect("signup_status", signup_id=waiting_list_entry.id)
-            except IntegrityError:
-                return HttpResponse(
-                    "This email address is already on our waiting list.",
-                    status=400,
-                )
-            except ValueError as e:
-                return HttpResponse(f"Invalid email address: {e}", status=400)
+                existing_entry = WaitingList.objects.get(email=email)
+                # Email already exists - redirect to their existing position
+                return redirect("signup_status", signup_id=existing_entry.id)
+            except WaitingList.DoesNotExist:
+                # Email doesn't exist, create new entry
+                try:
+                    waiting_list_entry = add_to_waiting_list(email)
+                    # Redirect to the signup detail view showing their position and UUID
+                    return redirect("signup_status", signup_id=waiting_list_entry.id)
+                except IntegrityError:
+                    # Race condition - email was added between our check and creation
+                    # Try to get the existing entry again
+                    existing_entry = WaitingList.objects.get(email=email)
+                    return redirect("signup_status", signup_id=existing_entry.id)
+                except ValueError as e:
+                    return HttpResponse(f"Invalid email address: {e}", status=400)
         else:
             # Return form validation errors
             return HttpResponse(f"Form validation failed: {form.errors}", status=400)
