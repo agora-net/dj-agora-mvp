@@ -196,10 +196,11 @@ class SignupViewTestCase(TestCase):
         # Follow the redirect to verify the detail view works
         detail_response = self.client.get(response.url)
         self.assertEqual(detail_response.status_code, 200)
-        self.assertIn("Successfully added to waiting list!", detail_response.content.decode())
-        self.assertIn("Your position:", detail_response.content.decode())
-        self.assertIn("Your UUID:", detail_response.content.decode())
-        self.assertIn("Your invite code:", detail_response.content.decode())
+        content = detail_response.content.decode()
+        self.assertIn("Welcome to the Agora waitlist!", content)
+        self.assertIn("Your position in line", content)
+        self.assertIn("Your ID:", content)
+        self.assertIn("Invite Code:", content)
 
     def test_signup_status_view_shows_correct_information(self):
         """
@@ -219,12 +220,12 @@ class SignupViewTestCase(TestCase):
         content = response.content.decode()
 
         # Check that all expected information is present
-        self.assertIn("Successfully added to waiting list!", content)
-        self.assertIn("Your position:", content)
-        self.assertIn("Your UUID:", content)
-        self.assertIn("Your invite code:", content)
-        self.assertIn("Your TypeID:", content)
-        self.assertIn("You can bookmark this URL", content)
+        self.assertIn("Welcome to the Agora waitlist!", content)
+        self.assertIn("Your position in line", content)
+        self.assertIn("Your ID:", content)
+        self.assertIn("Invite Code:", content)
+        self.assertIn("TypeID:", content)
+        self.assertIn("Bookmark this page", content)
 
         # Check that the actual values are present
         self.assertIn(str(waiting_list_entry.id), content)

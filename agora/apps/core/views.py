@@ -56,23 +56,14 @@ def signup_status(request, signup_id):
         signup_id: The UUID of the waiting list entry
 
     Returns:
-        HttpResponse with position, UUID, and invite code information or 404 if not found
+        Rendered HTML template with position, UUID, and invite code information or 404 if not found
     """
     try:
         # Look up the waiting list entry by ID
         waiting_list_entry = get_object_or_404(WaitingList, id=signup_id)
 
-        # Return comprehensive waiting list information
-        return HttpResponse(
-            f"Successfully added to waiting list!\n\n"
-            f"Your position: #{waiting_list_entry.waiting_list_position}\n"
-            f"Your UUID: {waiting_list_entry.id}\n"
-            f"Your invite code: {waiting_list_entry.invite_code}\n"
-            f"Your TypeID: {waiting_list_entry.type_id}\n\n"
-            f"You can bookmark this URL to check your position anytime: "
-            f"{request.build_absolute_uri()}",
-            status=200,
-        )
+        # Render the signup template with the waiting list entry
+        return render(request, "signup.html", {"waiting_list_entry": waiting_list_entry})
     except Http404:
         # This will be handled by get_object_or_404, but we can add custom logic here if needed
         raise

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Your Position - Agora{% endblock %}
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center bg-base-100">
+        <div class="text-center">
+            <!-- Main position square -->
+            <div class="bg-primary text-primary-content rounded-2xl p-12 shadow-2xl mb-8">
+                <div class="text-6xl font-bold mb-4">#{{ waiting_list_entry.waiting_list_position|intcomma }}</div>
+                <div class="text-xl opacity-90">Your position in line</div>
+            </div>
+            <!-- Additional information -->
+            <div class="max-w-md mx-auto space-y-4">
+                <div class="bg-base-200 rounded-lg p-6">
+                    <h2 class="text-lg font-semibold mb-3">Welcome to the Agora waitlist!</h2>
+                    <p class="text-base-content/70 mb-4">You're successfully signed up. We'll notify you when it's your turn to join.</p>
+                </div>
+                <div class="text-sm text-base-content/60">
+                    <p>Bookmark this page to check your position anytime.</p>
+                    <p class="mt-1">
+                        We'll send updates to: <strong>{{ waiting_list_entry.email }}</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
