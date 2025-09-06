@@ -86,6 +86,21 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "diskcache.DjangoCache",
+        "LOCATION": BASE_DIR / "cache",
+        "TIMEOUT": 300,
+        # ^-- Django setting for default timeout of each key.
+        "SHARDS": 8,
+        "DATABASE_TIMEOUT": 0.010,  # 10 milliseconds
+        # ^-- Timeout for each DjangoCache database transaction.
+        "OPTIONS": {
+            "size_limit": 2**30  # 1 gigabyte
+        },
+    },
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -107,6 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.RemoteUserBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 
