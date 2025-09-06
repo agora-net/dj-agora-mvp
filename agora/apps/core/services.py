@@ -53,4 +53,4 @@ def _generate_invite_code() -> str:
     Returns:
         str: A unique invite code
     """
-    return secrets.token_urlsafe(64)
+    return secrets.token_urlsafe(32)
