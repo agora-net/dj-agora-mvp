@@ -1,8 +1,9 @@
 from django.db import IntegrityError
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 
 from agora.apps.core.forms import WaitlistSignupForm
+from agora.apps.core.models import WaitingList
 from agora.apps.core.services import add_to_waiting_list
 
 
@@ -49,6 +50,31 @@ def signup(request):
 
     # Fallback for other methods
     return HttpResponse("Method not allowed", status=405)
+
+
+def signup_status(request, signup_id):
+    """
+    View to show waiting list position for a specific signup ID.
+
+    Args:
+        signup_id: The UUID of the waiting list entry
+
+    Returns:
+        HttpResponse with position information or 404 if not found
+    """
+    try:
+        # Look up the waiting list entry by ID
+        waiting_list_entry = get_object_or_404(WaitingList, id=signup_id)
+
+        # Return the current position
+        return HttpResponse(
+            f"Your current position in the waiting list: "
+            f"#{waiting_list_entry.waiting_list_position}",
+            status=200,
+        )
+    except Http404:
+        # This will be handled by get_object_or_404, but we can add custom logic here if needed
+        raise
 
 
 def custom_404(request):
