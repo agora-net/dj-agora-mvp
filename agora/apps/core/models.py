@@ -25,7 +25,7 @@ class WaitingList(BaseModel):
 
     @property
     def type_id(self):
-        return TypeID.from_uuid(prefix=self._type, uuid=self.id)
+        return TypeID.from_uuid(prefix=self._type, suffix=self.id)
 
     @property
     def waiting_list_position(self):
