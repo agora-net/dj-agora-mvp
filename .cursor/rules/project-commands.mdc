@@ -1,0 +1,14 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Project Commands
+
+- Check @Justfile and use just task runner
+- If running the Django or Vite dev servers, check if they're running first
+  - Example `pgrep -f "just runserver"`
+  - Example `pgrep -f "pnpm dev"`
+- Test code changes often
+- Lint code changes often
