@@ -25,3 +25,7 @@ alwaysApply: false
 ## Types
 
 Where possible, use python type annotations. I know it is difficult (and sometimes impossible) to specify types for Django models. Readability is paramount, so do not worry about type annotations where they add complexity (for example in the admin).
+
+## Named arguments
+
+For new functions (and all functions in `services.py` and `selectors.py`) make sure to use named arguments. `def function_name(*, arg_1: str)`.
