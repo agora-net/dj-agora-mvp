@@ -12,6 +12,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         tailwind: "src/tailwind.css",
+        confetti: "src/confetti.ts",
       },
     },
   },
