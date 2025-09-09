@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 import re
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +29,11 @@ SECRET_KEY = "django-insecure-o%$@g&78r!xof&6*fq4^tem0qjx*=v&&y3&j8s8o=j@=-zu&&u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
+
 ALLOWED_HOSTS = []
+
+INTERNAL_IPS = ["127.0.0.1"]
 
 
 # Application definition
@@ -54,6 +60,16 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if not TESTING:
+    INSTALLED_APPS = [
+        *INSTALLED_APPS,
+        "debug_toolbar",
+    ]
+    MIDDLEWARE = [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        *MIDDLEWARE,
+    ]
 
 ROOT_URLCONF = "agora.urls"
 
