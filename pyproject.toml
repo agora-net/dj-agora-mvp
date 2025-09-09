@@ -14,11 +14,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "djlint>=1.36.4",
-    "lefthook>=1.12.3",
-    "ruff>=0.12.11",
-]
+dev = ["djlint>=1.36.4", "lefthook>=1.12.3", "ruff>=0.12.11"]
 
 [tool.isort]
 profile = "black"
@@ -69,3 +65,9 @@ ignore = [
 [tool.djlint]
 profile = "django"
 ignore = "H030,H031,H021"
+preserve_leading_space = false
+extension = "html"
+preserve_blank_lines = true
+use_gitignore = true
+custom_html = ""
+custom_blocks = ""
