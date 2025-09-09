@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load humanize django_vite %}
 {% block title %}
     Your Position - Agora
 {% endblock title %}
@@ -27,3 +27,6 @@
         </div>
     </div>
 {% endblock content %}
+{% block bodyEndScripts %}
+    {% vite_asset 'src/confetti.ts' %}
+{% endblock bodyEndScripts %}
