@@ -1,31 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Agora{% endblock %}
+{% block title %}
+    Home - Agora
+{% endblock title %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-base-content">Home</h1>
-    
-    <div class="mt-8 max-w-md">
-        <h2 class="text-xl font-semibold text-base-content mb-4">Join the Waitlist</h2>
-        <form method="post" action="{% url 'signup' %}">
-            {% csrf_token %}
-            <div class="form-control">
-                {{ form.email.label_tag }}
-                {{ form.email }}
-                {% if form.email.help_text %}
-                    <div class="label">
-                        <span class="label-text-alt text-base-content/70">{{ form.email.help_text }}</span>
-                    </div>
-                {% endif %}
-                {% if form.email.errors %}
-                    <div class="label">
-                        <span class="label-text-alt text-error">{{ form.email.errors.0 }}</span>
-                    </div>
-                {% endif %}
-            </div>
-            <button type="submit" class="btn btn-primary mt-4">Join Waitlist</button>
-        </form>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-base-content">Home</h1>
+
+        <div class="mt-8 max-w-md">
+            <h2 class="text-xl font-semibold text-base-content mb-4">Join the Waitlist</h2>
+            <form method="post" action="{% url 'signup' %}">
+                {% csrf_token %}
+                <div class="form-control">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                    {% if form.email.help_text %}
+                        <div class="label">
+                            <span class="label-text-alt text-base-content/70">{{ form.email.help_text }}</span>
+                        </div>
+                    {% endif %}
+                    {% if form.email.errors %}
+                        <div class="label">
+                            <span class="label-text-alt text-error">{{ form.email.errors.0 }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary mt-4">Join Waitlist</button>
+            </form>
+        </div>
     </div>
-</div>
-{% endblock %}
+{% endblock content %}
