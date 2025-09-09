@@ -4,17 +4,75 @@
  @plugin "daisyui" {
      themes: light --default, dark --prefersdark;
  }
+
 @plugin "daisyui/theme" {
+    /* https: //daisyui.com/theme-generator/#theme=eJx9lOtu4yAQhV8FWVppKzUIhvu-DbFxY9UxETja7q767iVQJbi4-5OZb87MHLD_dYs9u-5XN08vp7V77no_-3CI_cltwodDSRxtdAdKSEr517k__TT6ByKYEEDAFdbMPH2loaZloRkCybHg0NCspqHQstCMNnTvl9Ut670CaK5gPFdIKeqKS5jONvy5w5xl2AhEpcSGsh246ZB2T1WI1Gx0iRpqaZ33pKAQEIWJ0rt4O342k3KKwFBM9MZM2_c1W1oQSMYLwNrwlm2HL4ZyKPaYjT2Lu67Bzg97ePEy6UusCeywTYP_voZpGf2dFCSverspDljxhmy1VdamaSAmsdzME69p4Rgf6nlRKjiiItVIswN_NzxNRZpgtWnw24ZlWl4eDURuIBniGhujd9jv9NONGYFBqbrGheDDw_qirjWiLF1TS7ba5TXQ9JYBc_icPdhhusb04GbXr1mfBHeuU-Pk5mEnfvRvdTROf91GBoPY5O46VeLow-BuNL285cDgLuvpBuXT4qd4-8XQdBrcaK9zWme0c3TP3SW40YWYPpLXz9j7B40vUac */
     name: "light";
-    default: true;
-    /* https: //coolors.co/palette/606c38-283618-fefae0-dda15e-bc6c25 */
-    --color-base-100: oklch(0.9814 0.0342 99.83);
-    --color-primary: oklch(0.5082 0.0762 119.86);
+    default: false;
+    prefersdark: false;
+    color-scheme: "light";
+    --color-base-100: oklch(98% 0.002 247.839);
+    --color-base-200: oklch(96% 0.003 264.542);
+    --color-base-300: oklch(92% 0.006 264.531);
+    --color-base-content: oklch(21% 0.034 264.665);
+    --color-primary: oklch(43% 0.095 166.913);
+    --color-primary-content: oklch(100% 0 0);
+    --color-secondary: oklch(86% 0.127 207.078);
+    --color-secondary-content: oklch(28% 0.141 291.089);
+    --color-accent: oklch(86% 0.022 252.894);
+    --color-accent-content: oklch(12% 0.042 264.695);
+    --color-neutral: oklch(44% 0.03 256.802);
+    --color-neutral-content: oklch(98% 0.002 247.839);
+    --color-info: oklch(50% 0.134 242.749);
+    --color-info-content: oklch(97% 0.013 236.62);
+    --color-success: oklch(52% 0.154 150.069);
+    --color-success-content: oklch(98% 0.014 180.72);
+    --color-warning: oklch(55% 0.163 48.998);
+    --color-warning-content: oklch(98% 0.022 95.277);
+    --color-error: oklch(45% 0.188 13.697);
+    --color-error-content: oklch(96% 0.015 12.422);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 1;
 }
 
 @plugin "daisyui/theme" {
+    /* https: //daisyui.com/theme-generator/#theme=eJx9lOtu4yAQhV8FWVppKzUIhvu-DbFxY9UxETja7q767iVQJbi4-5OZb87MHLD_dYs9u-5XN08vp7V77no_-3CI_cltwodDSRxtdAdKSEr517k__TT6ByKYEEDAFdbMPH2loaZloRkCybHg0NCspqHQstCMNnTvl9Ut670CaK5gPFdIKeqKS5jONvy5w5xl2AhEpcSGsh246ZB2T1WI1Gx0iRpqaZ33pKAQEIWJ0rt4O342k3KKwFBM9MZM2_c1W1oQSMYLwNrwlm2HL4ZyKPaYjT2Lu67Bzg97ePEy6UusCeywTYP_voZpGf2dFCSverspDljxhmy1VdamaSAmsdzME69p4Rgf6nlRKjiiItVIswN_NzxNRZpgtWnw24ZlWl4eDURuIBniGhujd9jv9NONGYFBqbrGheDDw_qirjWiLF1TS7ba5TXQ9JYBc_icPdhhusb04GbXr1mfBHeuU-Pk5mEnfvRvdTROf91GBoPY5O46VeLow-BuNL285cDgLuvpBuXT4qd4-8XQdBrcaK9zWme0c3TP3SW40YWYPpLXz9j7B40vUac */
     name: "dark";
-    /* https: //coolors.co/palette/606c38-283618-fefae0-dda15e-bc6c25 */
-    --color-base-100: oklch(0.9814 0.0342 99.83);
-    --color-primary: oklch(0.5082 0.0762 119.86);
+    default: false;
+    prefersdark: false;
+    color-scheme: "dark";
+    --color-base-100: oklch(21% 0.006 56.043);
+    --color-base-200: oklch(26% 0.007 34.298);
+    --color-base-300: oklch(37% 0.01 67.558);
+    --color-base-content: oklch(21% 0.034 264.665);
+    --color-primary: oklch(43% 0.095 166.913);
+    --color-primary-content: oklch(100% 0 0);
+    --color-secondary: oklch(86% 0.127 207.078);
+    --color-secondary-content: oklch(28% 0.141 291.089);
+    --color-accent: oklch(86% 0.022 252.894);
+    --color-accent-content: oklch(12% 0.042 264.695);
+    --color-neutral: oklch(44% 0.03 256.802);
+    --color-neutral-content: oklch(98% 0.002 247.839);
+    --color-info: oklch(50% 0.134 242.749);
+    --color-info-content: oklch(97% 0.013 236.62);
+    --color-success: oklch(52% 0.154 150.069);
+    --color-success-content: oklch(98% 0.014 180.72);
+    --color-warning: oklch(55% 0.163 48.998);
+    --color-warning-content: oklch(98% 0.022 95.277);
+    --color-error: oklch(45% 0.188 13.697);
+    --color-error-content: oklch(96% 0.015 12.422);
+    --radius-selector: 0rem;
+    --radius-field: 0rem;
+    --radius-box: 0rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 1;
 }
