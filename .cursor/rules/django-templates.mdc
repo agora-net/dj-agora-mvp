@@ -1,0 +1,16 @@
+---
+globs: *.html
+alwaysApply: false
+---
+
+# Django Templates
+
+Regurlarly run `uv run djlint {FILE} --reformat` to format and `uv run djlint {FILE} --lint` to lint. Where `{FILE}` is the template you're modifying.
+
+## Content blocks
+
+Ensure that all endblocks are named.
+
+BAD: `{% block content %}{% endblock %}`
+
+GOOD: `{% block content %}{% endblock content %}`
