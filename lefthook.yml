@@ -1,0 +1,42 @@
+pre-commit:
+  jobs:
+    - name: Markdown fix
+      run: uv run pymarkdown fix {staged_files}
+      stage_fixed: true
+      glob: "*.md"
+    - name: Markdown lint
+      # Will fail if there are lint errors after fixing
+      run: uv run pymarkdown scan {staged_files}
+      glob: "*.md"
+    - name: "Lint Python files"
+      run: uv run ruff check {staged_files} --fix
+      stage_fixed: true
+      glob:
+        - "*.py"
+    - name: "Format Python files"
+      run: uv run ruff format {staged_files}
+      stage_fixed: true
+      glob:
+        - "*.py"
+    - name: "Format Django templates"
+      run: uv run djlint --reformat {staged_files}
+      stage_fixed: true
+      glob:
+        - "*.html"
+    - name: "Lint Django templates"
+      run: uv run djlint --lint {staged_files}
+      stage_fixed: true
+      glob:
+        - "*.html"
+    # - name: "Check frontend"
+    #   root: "frontend/@agora/agora"
+    #   run: pnpm biome check --write {staged_files}
+    #   stage_fixed: true
+    #   glob:
+    #     - "*.{js,ts,jsx,tsx}"
+    #     - "*.css"
+    #     - "*.{json,jsonc}"
+    - name: "Fail if staged files have been changed"
+      run: git diff --name-only --exit-code {staged_files}
+      glob:
+        - "*.{py,html,js,ts,jsx,tsx,css,json,jsonc}"
