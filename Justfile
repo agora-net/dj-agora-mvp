@@ -1,6 +1,14 @@
 _default:
     @just --list
 
+# Install lefthook
+install-lefthook:
+    @uv run lefthook install
+
+# Install the development dependencies
+install-dev:
+    @uv sync
+
 # Create new database migrations
 makemigrations:
     @uv run python manage.py makemigrations
