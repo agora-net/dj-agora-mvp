@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from agora.apps.core.forms import WaitlistSignupForm
 from agora.apps.core.models import WaitingList
+from agora.apps.core.selectors import format_waiting_list_count, round_to_nearest
 from agora.apps.core.services import add_to_waiting_list
 
 
@@ -464,3 +465,142 @@ class WaitingListCachingTestCase(TestCase):
         self.assertEqual(position_from_property, position_from_method)
         self.assertEqual(position_from_property, 1)
         self.assertEqual(position_from_method, 1)
+
+
+class RoundToNearestTestCase(TestCase):
+    """
+    Test cases for the round_to_nearest function.
+    """
+
+    def test_round_to_nearest_basic_cases(self):
+        """
+        Test basic rounding functionality.
+        """
+        # Test rounding to nearest 10
+        self.assertEqual(round_to_nearest(5, 10), 0)
+        self.assertEqual(round_to_nearest(10, 10), 10)
+        self.assertEqual(round_to_nearest(15, 10), 10)
+        self.assertEqual(round_to_nearest(20, 10), 20)
+
+    def test_round_to_nearest_different_intervals(self):
+        """
+        Test rounding with different interval values.
+        """
+        # Test rounding to nearest 5
+        self.assertEqual(round_to_nearest(3, 5), 0)
+        self.assertEqual(round_to_nearest(7, 5), 5)
+        self.assertEqual(round_to_nearest(10, 5), 10)
+
+        # Test rounding to nearest 100
+        self.assertEqual(round_to_nearest(50, 100), 0)
+        self.assertEqual(round_to_nearest(150, 100), 100)
+        self.assertEqual(round_to_nearest(200, 100), 200)
+
+        # Test rounding to nearest 1000
+        self.assertEqual(round_to_nearest(500, 1000), 0)
+        self.assertEqual(round_to_nearest(1500, 1000), 1000)
+        self.assertEqual(round_to_nearest(2000, 1000), 2000)
+
+    def test_round_to_nearest_edge_cases(self):
+        """
+        Test edge cases for rounding.
+        """
+        # Test with zero
+        self.assertEqual(round_to_nearest(0, 10), 0)
+
+        # Test with negative numbers (should still work mathematically)
+        self.assertEqual(round_to_nearest(-5, 10), -10)
+        self.assertEqual(round_to_nearest(-15, 10), -20)
+
+        # Test with very small intervals
+        self.assertEqual(round_to_nearest(1, 1), 1)
+        self.assertEqual(round_to_nearest(2, 1), 2)
+
+    def test_round_to_nearest_large_numbers(self):
+        """
+        Test rounding with large numbers.
+        """
+        # Test with large numbers
+        self.assertEqual(round_to_nearest(12345, 1000), 12000)
+        self.assertEqual(round_to_nearest(99999, 10000), 90000)
+        self.assertEqual(round_to_nearest(100000, 10000), 100000)
+
+
+class FormatWaitingListCountTestCase(TestCase):
+    """
+    Test cases for the format_waiting_list_count function.
+    """
+
+    def test_format_count_under_100(self):
+        """
+        Test formatting for counts under 100 (rounds to nearest 10).
+        """
+        # Test various counts under 100
+        self.assertEqual(format_waiting_list_count(1), 0)
+        self.assertEqual(format_waiting_list_count(5), 0)
+        self.assertEqual(format_waiting_list_count(10), 10)
+        self.assertEqual(format_waiting_list_count(15), 10)
+        self.assertEqual(format_waiting_list_count(25), 20)
+        self.assertEqual(format_waiting_list_count(99), 90)
+
+    def test_format_count_100_to_999(self):
+        """
+        Test formatting for counts between 100 and 999 (rounds to nearest 100).
+        """
+        # Test various counts between 100 and 999
+        self.assertEqual(format_waiting_list_count(100), 100)
+        self.assertEqual(format_waiting_list_count(150), 100)
+        self.assertEqual(format_waiting_list_count(250), 200)
+        self.assertEqual(format_waiting_list_count(500), 500)
+        self.assertEqual(format_waiting_list_count(750), 700)
+        self.assertEqual(format_waiting_list_count(999), 900)
+
+    def test_format_count_1000_and_above(self):
+        """
+        Test formatting for counts 1000 and above (rounds to nearest 1000).
+        """
+        # Test various counts 1000 and above
+        self.assertEqual(format_waiting_list_count(1000), 1000)
+        self.assertEqual(format_waiting_list_count(1500), 1000)
+        self.assertEqual(format_waiting_list_count(2500), 2000)
+        self.assertEqual(format_waiting_list_count(5000), 5000)
+        self.assertEqual(format_waiting_list_count(7500), 7000)
+        self.assertEqual(format_waiting_list_count(9999), 9000)
+
+    def test_format_count_boundary_values(self):
+        """
+        Test formatting at boundary values where rounding behavior changes.
+        """
+        # Test exact boundary values
+        self.assertEqual(format_waiting_list_count(99), 90)  # Just under 100
+        self.assertEqual(format_waiting_list_count(100), 100)  # Exactly 100
+        self.assertEqual(format_waiting_list_count(101), 100)  # Just over 100
+
+        self.assertEqual(format_waiting_list_count(999), 900)  # Just under 1000
+        self.assertEqual(format_waiting_list_count(1000), 1000)  # Exactly 1000
+        self.assertEqual(format_waiting_list_count(1001), 1000)  # Just over 1000
+
+    def test_format_count_zero_and_negative(self):
+        """
+        Test formatting with zero and negative values.
+        """
+        # Test with zero
+        self.assertEqual(format_waiting_list_count(0), 0)
+
+        # Test with negative values (edge case)
+        self.assertEqual(format_waiting_list_count(-1), -10)
+        self.assertEqual(format_waiting_list_count(-10), -10)
+
+    def test_format_count_very_large_numbers(self):
+        """
+        Test formatting with very large numbers.
+        """
+        # Test with very large numbers
+        self.assertEqual(format_waiting_list_count(10000), 10000)
+        self.assertEqual(format_waiting_list_count(15000), 15000)
+        self.assertEqual(format_waiting_list_count(25000), 25000)
+        self.assertEqual(format_waiting_list_count(50000), 50000)
+        self.assertEqual(format_waiting_list_count(75000), 75000)
+        self.assertEqual(format_waiting_list_count(99999), 99000)
+        self.assertEqual(format_waiting_list_count(100000), 100000)
+        self.assertEqual(format_waiting_list_count(100001), 100000)
