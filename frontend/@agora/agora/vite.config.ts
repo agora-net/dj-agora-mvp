@@ -13,6 +13,7 @@ export default defineConfig({
       input: {
         tailwind: "src/tailwind.css",
         confetti: "src/confetti.ts",
+        themeChange: "src/theme-change.ts",
       },
     },
   },
