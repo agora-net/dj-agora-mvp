@@ -3,8 +3,8 @@
     <div class="navbar-start"></div>
     <div class="navbar-center">
         <a href="{% url 'home' %}">
-            {% include "svgs/agora-logo_horizontal--dark.svg" with extraClass="h-12 w-full dark:hidden" %}
-            {% include "svgs/agora-logo_horizontal--light.svg" with extraClass="h-12 w-full hidden dark:block" %}
+            {% include "svgs/agora-logo_horizontal--dark.svg" with extraClass="h-12 w-full [[data-theme=dark]_&]:hidden" %}
+            {% include "svgs/agora-logo_horizontal--light.svg" with extraClass="h-12 w-full hidden [[data-theme=dark]_&]:block" %}
             <span class="sr-only">Agora</span>
         </a>
     </div>
