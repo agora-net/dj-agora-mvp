@@ -15,9 +15,14 @@ import re
 import sys
 from pathlib import Path
 
+import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parenti
 PROJECT_DIR = BASE_DIR / "agora"
+
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -174,6 +179,8 @@ STATIC_URL = STATIC_HOST + "/static/"
 STATICFILES_DIRS = [BASE_DIR / "frontend" / "@agora" / "agora" / "dist"]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+CLOUDFLARE_TURNSTILE_SECRET = env.str("CLOUDFLARE_TURNSTILE_SECRET")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
