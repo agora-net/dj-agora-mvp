@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",  # Use whitenoise to serve static files in development
     "django.contrib.staticfiles",
     "django_vite",
     "agora.apps.core",
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -72,6 +74,12 @@ if not TESTING:
     ]
 
 ROOT_URLCONF = "agora.urls"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 TEMPLATES = [
     {
@@ -158,7 +166,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+
+# todo: set this from env
+STATIC_HOST = "" if not DEBUG else ""
+STATIC_URL = STATIC_HOST + "/static/"
 
 STATICFILES_DIRS = [BASE_DIR / "frontend" / "@agora" / "agora" / "dist"]
 
