@@ -1,7 +1,11 @@
+{% load static %}
 <div class="navbar bg-base-100 shadow-sm">
     <div class="navbar-start"></div>
     <div class="navbar-center">
-        <a class="btn btn-ghost text-xl">Agora</a>
+        <a href="{% url 'home' %}">
+            {% include "svgs/agora-logo_horizontal--dark.svg" with extraClass="h-12 w-full" %}
+            <span class="sr-only">Agora</span>
+        </a>
     </div>
     <div class="navbar-end"></div>
 </div>
