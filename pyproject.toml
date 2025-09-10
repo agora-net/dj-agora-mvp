@@ -12,6 +12,7 @@ dependencies = [
     "gunicorn>=23.0.0",
     "nh3>=0.3.0",
     "typeid-python>=0.3.2",
+    "whitenoise>=6.10.0",
 ]
 
 [dependency-groups]
