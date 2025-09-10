@@ -1,9 +1,10 @@
-import { createIcons, Menu, ArrowRight, Globe } from 'lucide';
+import { createIcons, Palette, Sun, Moon, SunMoon } from 'lucide';
 
 createIcons({
   icons: {
-    Menu,
-    ArrowRight,
-    Globe
+    Palette,
+    Sun,
+    Moon,
+    SunMoon,
   }
 });
