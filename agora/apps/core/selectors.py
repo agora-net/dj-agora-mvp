@@ -1,6 +1,21 @@
+import math
+
 from django.core.cache import cache
 
 from agora.apps.core.models import WaitingList
+
+
+def round_to_nearest(n, m):
+    return m * math.floor(n / m)
+
+
+def format_waiting_list_count(count: int) -> int:
+    if count < 100:
+        return round_to_nearest(count, 10)
+    elif count < 1000:
+        return round_to_nearest(count, 100)
+    else:
+        return round_to_nearest(count, 1000)
 
 
 def get_waiting_list_count(*, cache_timeout: int = 300) -> int:
@@ -21,6 +36,8 @@ def get_waiting_list_count(*, cache_timeout: int = 300) -> int:
     if count is None:
         # Cache miss - fetch from database
         count = WaitingList.objects.count()
+        # Round the count to the nearest 10
+        count = format_waiting_list_count(count)
         # Store in cache with timeout
         cache.set(cache_key, count, cache_timeout)
 
