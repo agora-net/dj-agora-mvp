@@ -3,9 +3,33 @@
     <div class="navbar-start"></div>
     <div class="navbar-center">
         <a href="{% url 'home' %}">
-            {% include "svgs/agora-logo_horizontal--dark.svg" with extraClass="h-12 w-full" %}
+            {% include "svgs/agora-logo_horizontal--dark.svg" with extraClass="h-12 w-full dark:hidden" %}
+            {% include "svgs/agora-logo_horizontal--light.svg" with extraClass="h-12 w-full hidden dark:block" %}
             <span class="sr-only">Agora</span>
         </a>
     </div>
-    <div class="navbar-end"></div>
+    <div class="navbar-end">
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost m-1">
+                <i data-lucide="palette"></i>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu rounded-box z-1 w-52 p-2">
+                <li>
+                    <button data-set-theme="light" class="btn btn-ghost">
+                        <i data-lucide="sun"></i> Light
+                    </button>
+                </li>
+                <li>
+                    <button data-set-theme="dark" class="btn btn-ghost">
+                        <i data-lucide="moon"></i> Dark
+                    </button>
+                </li>
+                <li>
+                    <button data-set-theme="auto" class="btn btn-ghost">
+                        <i data-lucide="sun-moon"></i> Auto
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
