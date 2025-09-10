@@ -72,4 +72,11 @@
             </div>
         </div>
     </div>
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAAB0bBgh__cs3wnca"></div>
 {% endblock content %}
+
+{% block bodyEndScripts %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            async
+            defer></script>
+{% endblock bodyEndScripts %}
