@@ -1,5 +1,6 @@
 import secrets
 
+from django.core.cache import cache
 from django.db import IntegrityError
 
 from agora.apps.core.models import WaitingList
@@ -32,6 +33,8 @@ def add_to_waiting_list(sanitized_email_address: str) -> WaitingList:
         )
         # Pre-cache the position since it will be accessed immediately
         waiting_list_entry.pre_cache_position()
+        # Clear the waiting_list_count cache
+        cache.delete("waiting_list_count")
         return waiting_list_entry
     except IntegrityError as e:
         if "email" in str(e):
