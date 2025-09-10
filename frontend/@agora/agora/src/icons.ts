@@ -1,4 +1,4 @@
-import { createIcons, Palette, Sun, Moon, SunMoon } from 'lucide';
+import { createIcons, Palette, Sun, Moon, SunMoon, CircleUser } from 'lucide';
 
 createIcons({
   icons: {
@@ -6,5 +6,6 @@ createIcons({
     Sun,
     Moon,
     SunMoon,
+    CircleUser,
   }
 });
