@@ -16,9 +16,12 @@
             </div>
             <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
                 <div class="card-body">
-                    <form method="post" action="{% url 'signup' %}">
+                    <form method="post"
+                          action="{% url 'signup' %}"
+                          aria-label="Waitlist signup form">
                         {% csrf_token %}
                         <fieldset class="fieldset">
+                            <legend class="sr-only">Waitlist signup form</legend>
                             <label class="label">{{ form.email.label_tag }}</label>
                             {{ form.email }}
                             {% if form.email.help_text %}
