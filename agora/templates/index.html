@@ -9,10 +9,15 @@
     <div class="hero bg-base-200 py-16 lg:py-32">
         <div class="hero-content max-w-5xl mx-auto flex-col lg:flex-row-reverse">
             <div class="text-center lg:text-left">
-                <h1 class="text-5xl font-bold">Join the Waitlist</h1>
-                <p class="py-6 text-balance">
-                    If you're here you're probably interested in a voluntary digital ID. We're inviting people in small batches as we build the product so enter your email and we'll notify you when it's your turn to join.
-                </p>
+                {% if not has_signed_up %}
+                    <h1 class="text-5xl font-bold">Join the Waitlist</h1>
+                    <p class="py-6 text-balance">
+                        If you're here you're probably interested in a voluntary digital ID. We're inviting people in small batches as we build the product so enter your email and we'll notify you when it's your turn to join.
+                    </p>
+                {% else %}
+                    <h1 class="text-5xl font-bold">Thank you</h1>
+                    <p class="py-6 text-balance">You're on the waitlist! We'll notify you when it's your turn to join.</p>
+                {% endif %}
             </div>
             <div class="w-full max-w-sm shrink-0 flex flex-col gap-4">
                 {% if has_signed_up %}
