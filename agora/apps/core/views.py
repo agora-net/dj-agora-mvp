@@ -14,9 +14,31 @@ def home(request):
     Home page view with waitlist signup form.
     """
     form = WaitlistSignupForm()
-    return render(
-        request, "index.html", {"form": form, "waiting_list_count": get_waiting_list_count()}
-    )
+    context = {
+        "form": form,
+        "waiting_list_count": get_waiting_list_count(),
+        "has_signed_up": False,
+        "signup_id": None,
+    }
+
+    # Check if user has already signed up in this session
+    signup_id = request.session.get("signup_id")
+    if signup_id:
+        try:
+            # Verify the signup still exists
+            waiting_list_entry = WaitingList.objects.get(id=signup_id)
+            context.update(
+                {
+                    "has_signed_up": True,
+                    "signup_id": signup_id,
+                    "waiting_list_entry": waiting_list_entry,
+                }
+            )
+        except WaitingList.DoesNotExist:
+            # Signup no longer exists, clear from session
+            del request.session["signup_id"]
+
+    return render(request, "index.html", context)
 
 
 def signup(request):
@@ -46,18 +68,24 @@ def signup(request):
             # Check if email already exists
             try:
                 existing_entry = WaitingList.objects.get(email=email)
+                # Store signup_id in session for future visits
+                request.session["signup_id"] = str(existing_entry.id)
                 # Email already exists - redirect to their existing position
                 return redirect("signup_status", signup_id=existing_entry.id)
             except WaitingList.DoesNotExist:
                 # Email doesn't exist, create new entry
                 try:
                     waiting_list_entry = add_to_waiting_list(email)
+                    # Store signup_id in session for future visits
+                    request.session["signup_id"] = str(waiting_list_entry.id)
                     # Redirect to the signup detail view showing their position and UUID
                     return redirect("signup_status", signup_id=waiting_list_entry.id)
                 except IntegrityError:
                     # Race condition - email was added between our check and creation
                     # Try to get the existing entry again
                     existing_entry = WaitingList.objects.get(email=email)
+                    # Store signup_id in session for future visits
+                    request.session["signup_id"] = str(existing_entry.id)
                     return redirect("signup_status", signup_id=existing_entry.id)
                 except ValueError as e:
                     return HttpResponse(f"Invalid email address: {e}", status=400)

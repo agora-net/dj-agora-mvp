@@ -15,37 +15,50 @@
                 </p>
             </div>
             <div class="w-full max-w-sm shrink-0 flex flex-col gap-4">
-                <div class="card bg-base-100 w-fullß shadow-2xl">
-                    <div class="card-body flex flex-col gap-4">
-                        <form method="post"
-                              action="{% url 'signup' %}"
-                              aria-label="Waitlist signup form">
-                            {% csrf_token %}
-                            <fieldset class="fieldset">
-                                <legend class="sr-only">Waitlist signup form</legend>
-                                <label class="label">{{ form.email.label_tag }}</label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="label">
-                                        <span class="label-text-alt text-error">{{ form.email.errors.0 }}</span>
-                                    </div>
-                                {% endif %}
-                                <div class="cf-turnstile w-full" data-sitekey="0x4AAAAAAB0bBgh__cs3wnca"></div>
-                                <button class="btn btn-primary mt-4">Join Waitlist</button>
-                            </fieldset>
-                        </form>
-
-                        <p class="text-sm text-base-content/70">
-                            By joining the waitlist, you agree to our <a href="{% url 'home' %}" class="link link-primary">privacy policy</a>.
-                        </p>
+                {% if has_signed_up %}
+                    <div class="card bg-base-100 w-full shadow-2xl">
+                        <div class="card-body flex flex-col gap-4">
+                            <div class="text-center">
+                                <div class="text-6xl mb-4">🎉</div>
+                                <h3 class="text-xl font-bold mb-2">You're on the waitlist!</h3>
+                                <a href="{% url 'signup_status' signup_id=signup_id %}"
+                                   class="btn btn-primary">View Your Status</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="flex items-center gap-2 justify-center">
-                    <span class="text-sm text-base-content/70">
-                        <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
-                    </span>
-                    <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
-                </div>
+                {% else %}
+                    <div class="card bg-base-100 w-full shadow-2xl">
+                        <div class="card-body flex flex-col gap-4">
+                            <form method="post"
+                                  action="{% url 'signup' %}"
+                                  aria-label="Waitlist signup form">
+                                {% csrf_token %}
+                                <fieldset class="fieldset">
+                                    <legend class="sr-only">Waitlist signup form</legend>
+                                    <label class="label">{{ form.email.label_tag }}</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="label">
+                                            <span class="label-text-alt text-error">{{ form.email.errors.0 }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="cf-turnstile w-full" data-sitekey="0x4AAAAAAB0bBgh__cs3wnca"></div>
+                                    <button class="btn btn-primary mt-4">Join Waitlist</button>
+                                </fieldset>
+                            </form>
+
+                            <p class="text-sm text-base-content/70">
+                                By joining the waitlist, you agree to our <a href="{% url 'home' %}" class="link link-primary">privacy policy</a>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 justify-center">
+                        <span class="text-sm text-base-content/70">
+                            <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
+                        </span>
+                        <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
