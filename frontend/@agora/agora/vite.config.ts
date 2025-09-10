@@ -14,6 +14,7 @@ export default defineConfig({
         tailwind: "src/tailwind.css",
         confetti: "src/confetti.ts",
         themeChange: "src/theme-change.ts",
+        icons: "src/icons.ts",
       },
     },
   },
