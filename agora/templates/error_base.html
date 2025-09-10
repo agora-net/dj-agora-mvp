@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>An error occurred!</title>
-    </head>
-    <body>An error occurred! Please try again later.</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}
+    An error occurred!
+{% endblock title %}
+{% block content %}
+    An error occurred! Please try again later.
+{% endblock content %}
