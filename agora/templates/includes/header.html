@@ -1,8 +1,10 @@
 {% load static %}
-<div class="navbar bg-base-100 shadow-sm">
+<nav class="navbar bg-base-100 shadow-sm"
+     role="navigation"
+     aria-label="Main navigation">
     <div class="navbar-start"></div>
     <div class="navbar-center">
-        <a href="{% url 'home' %}">
+        <a href="{% url 'home' %}" aria-label="Agora - Go to homepage">
             {% include "svgs/agora-logo_horizontal--dark.svg" with extraClass="h-12 w-full [[data-theme=dark]_&]:hidden" %}
             {% include "svgs/agora-logo_horizontal--light.svg" with extraClass="h-12 w-full hidden [[data-theme=dark]_&]:block" %}
             <span class="sr-only">Agora</span>
@@ -10,26 +12,49 @@
     </div>
     <div class="navbar-end">
         <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost m-1">
-                <i data-lucide="palette"></i>
-            </div>
-            <ul tabindex="0" class="dropdown-content menu rounded-box z-1 w-52 p-2">
-                <li>
-                    <button data-set-theme="light" class="btn btn-ghost">
-                        <i data-lucide="sun"></i> Light
+            <button tabindex="0"
+                    role="button"
+                    class="btn btn-ghost m-1"
+                    aria-label="Theme switcher"
+                    aria-expanded="false"
+                    aria-haspopup="menu"
+                    data-dropdown-toggle="theme-menu">
+                <i data-lucide="palette" aria-hidden="true"></i>
+                <span class="sr-only">Change theme</span>
+            </button>
+            <ul tabindex="0"
+                class="dropdown-content menu rounded-box z-1 w-52 p-2"
+                role="menu"
+                aria-labelledby="theme-menu"
+                id="theme-menu">
+                <li role="none">
+                    <button data-set-theme="light"
+                            class="btn btn-ghost"
+                            role="menuitem"
+                            aria-label="Switch to light theme">
+                        <i data-lucide="sun" aria-hidden="true"></i>
+                        <span>Light</span>
                     </button>
                 </li>
-                <li>
-                    <button data-set-theme="dark" class="btn btn-ghost">
-                        <i data-lucide="moon"></i> Dark
+                <li role="none">
+                    <button data-set-theme="dark"
+                            class="btn btn-ghost"
+                            role="menuitem"
+                            aria-label="Switch to dark theme">
+                        <i data-lucide="moon" aria-hidden="true"></i>
+                        <span>Dark</span>
                     </button>
                 </li>
-                <li>
-                    <button data-set-theme="auto" class="btn btn-ghost">
-                        <i data-lucide="sun-moon"></i> Auto
+                <li role="none">
+                    <button data-set-theme="auto"
+                            class="btn btn-ghost"
+                            role="menuitem"
+                            aria-label="Switch to automatic theme (follows system preference)">
+                        <i data-lucide="sun-moon" aria-hidden="true"></i>
+                        <span>Auto</span>
                     </button>
                 </li>
             </ul>
         </div>
     </div>
-</div>
+</nav>
