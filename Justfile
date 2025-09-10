@@ -34,6 +34,10 @@ test-backend *ARGS:
 manage *ARGS:
     @uv run python manage.py {{ARGS}}
 
+# Collect static files
+collectstatic:
+    @uv run python manage.py collectstatic --noinput
+
 # Lint the frontend code
 
 # Lint the backend code
