@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from agora.apps.core.forms import WaitlistSignupForm
 from agora.apps.core.models import WaitingList
+from agora.apps.core.selectors import get_waiting_list_count
 from agora.apps.core.services import add_to_waiting_list
 
 
@@ -12,7 +13,9 @@ def home(request):
     Home page view with waitlist signup form.
     """
     form = WaitlistSignupForm()
-    return render(request, "index.html", {"form": form})
+    return render(
+        request, "index.html", {"form": form, "waiting_list_count": get_waiting_list_count()}
+    )
 
 
 def signup(request):

@@ -9,13 +9,10 @@
         <div class="hero-content max-w-5xl mx-auto flex-col lg:flex-row-reverse">
             <div class="text-center lg:text-left">
                 <h1 class="text-5xl font-bold">Join the Waitlist</h1>
-                <p class="py-6">
-                    Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem
-                    quasi. In deleniti eaque aut repudiandae et a id nisi.
-                </p>
+                <p class="py-6">If you're here you're probably interested in a voluntary</p>
             </div>
             <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-                <div class="card-body">
+                <div class="card-body flex flex-col gap-4">
                     <form method="post"
                           action="{% url 'signup' %}"
                           aria-label="Waitlist signup form">
@@ -37,6 +34,10 @@
                             <button class="btn btn-primary mt-4">Join Waitlist</button>
                         </fieldset>
                     </form>
+                    <p>There are currently {{ waiting_list_count }} people on the waitlist.</p>
+                    <p class="text-sm text-base-content/70">
+                        By joining the waitlist, you agree to our <a href="{% url 'home' %}" class="link link-primary">privacy policy</a>.
+                    </p>
                 </div>
             </div>
         </div>
