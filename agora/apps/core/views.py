@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import IntegrityError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -5,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from agora.apps.core.forms import WaitlistSignupForm
 from agora.apps.core.models import WaitingList
 from agora.apps.core.selectors import get_waiting_list_count
-from agora.apps.core.services import add_to_waiting_list
+from agora.apps.core.services import add_to_waiting_list, validate_cloudflare_turnstile
 
 
 def home(request):
@@ -30,6 +31,15 @@ def signup(request):
 
     if request.method == "POST":
         form = WaitlistSignupForm(request.POST)
+
+        # Validate with Cloudflare Turnstile
+        token = request.POST.get("cf-turnstile-response")
+        secret = settings.CLOUDFLARE_TURNSTILE_SECRET
+
+        remoteip = request.META.get("REMOTE_ADDR")
+        if not validate_cloudflare_turnstile(token=token, secret=secret, remoteip=remoteip):
+            return HttpResponse("Turnstile validation failed", status=400)
+
         if form.is_valid():
             email = form.cleaned_data["email"]
 

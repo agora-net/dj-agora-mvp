@@ -1,5 +1,6 @@
 import secrets
 
+import requests
 from django.core.cache import cache
 from django.db import IntegrityError
 
@@ -61,3 +62,33 @@ def _generate_invite_code() -> str:
         str: A unique invite code
     """
     return secrets.token_urlsafe(32)
+
+
+def validate_cloudflare_turnstile(
+    *,
+    token: str,
+    secret: str,
+    remoteip: str | None = None,
+) -> dict:
+    """
+    Validate a Cloudflare Turnstile token.
+
+    Args:
+        token: The token to validate
+        secret: The secret key
+        remoteip: The remote IP address
+    """
+    url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+
+    data = {"secret": secret, "response": token}
+
+    if remoteip:
+        data["remoteip"] = remoteip
+
+    try:
+        response = requests.post(url, data=data, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        print(f"Turnstile validation error: {e}")
+        return {"success": False, "error-codes": ["internal-error"]}
