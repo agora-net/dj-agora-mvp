@@ -10,7 +10,9 @@
         <div class="hero-content max-w-5xl mx-auto flex-col lg:flex-row-reverse">
             <div class="text-center lg:text-left">
                 <h1 class="text-5xl font-bold">Join the Waitlist</h1>
-                <p class="py-6">If you're here you're probably interested in a voluntary digital ID. We're inviting people</p>
+                <p class="py-6 text-balance">
+                    If you're here you're probably interested in a voluntary digital ID. We're inviting people in small batches as we build the product so enter your email and we'll notify you when it's your turn to join.
+                </p>
             </div>
             <div class="w-full max-w-sm shrink-0 flex flex-col gap-4">
                 <div class="card bg-base-100 w-fullß shadow-2xl">
@@ -41,7 +43,7 @@
                     <span class="text-sm text-base-content/70">
                         <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
                     </span>
-                    <p>Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
+                    <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
                 </div>
             </div>
         </div>
