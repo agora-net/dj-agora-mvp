@@ -234,7 +234,10 @@ USE_TZ = True
 STATIC_HOST = env.str("STATIC_HOST", "") if not DEBUG else ""
 STATIC_URL = STATIC_HOST + "/static/"
 
-STATICFILES_DIRS = [BASE_DIR / "frontend" / "@agora" / "agora" / "dist"]
+STATICFILES_DIRS = [
+    BASE_DIR / "frontend" / "@agora" / "agora" / "dist",
+    PROJECT_DIR / "static",
+]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
