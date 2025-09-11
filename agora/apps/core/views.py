@@ -1,3 +1,4 @@
+import structlog
 from django.conf import settings
 from django.db import IntegrityError
 from django.http import Http404, HttpResponse
@@ -7,6 +8,8 @@ from agora.apps.core.forms import WaitlistSignupForm
 from agora.apps.core.models import WaitingList
 from agora.apps.core.selectors import get_waiting_list_count
 from agora.apps.core.services import add_to_waiting_list, validate_cloudflare_turnstile
+
+logger = structlog.get_logger(__name__)
 
 
 def home(request):
