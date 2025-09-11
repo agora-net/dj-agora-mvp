@@ -83,7 +83,7 @@ if not TESTING:
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "formatters": {
         "json_formatter": {
             "()": structlog.stdlib.ProcessorFormatter,
@@ -105,6 +105,10 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "plain_console",
         },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
     "loggers": {
         "agora": {
