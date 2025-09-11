@@ -70,6 +70,18 @@ If you do start one, remember the PID and kill only that PID (otherwise you risk
 - Use asynchronous views and background tasks (via Celery) for I/O-bound or long-running operations.
 - Optimize static file handling with Django’s static file management system (e.g., WhiteNoise and CDN integration).
 
+## Logging
+
+We use `structlog` for logging. Use logging with appropriate levels where it makes sense.
+
+```python
+import structlog
+
+logger = structlog.get_logger(__name__)
+
+logger.debug("this happened", extra=context)
+```
+
 ## Key Conventions
 
 1. Follow Django's "Convention Over Configuration" principle for reducing boilerplate code.
