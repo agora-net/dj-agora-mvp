@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.contrib.flatpages import views
+from django.urls import path, re_path
 
 from agora.apps.core.views import custom_404, home, signup, signup_status
 
@@ -18,3 +19,8 @@ if not settings.TESTING:
     urlpatterns = [
         *urlpatterns,
     ] + debug_toolbar_urls()
+
+# Needs to be last to fall back to flatpages
+urlpatterns += [
+    re_path(r"^(?P<url>.*/)$", views.flatpage),
+]
