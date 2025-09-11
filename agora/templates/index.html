@@ -7,7 +7,7 @@
 
 {% block content %}
     <div class="hero bg-base-200 py-16 lg:py-32">
-        <div class="hero-content max-w-5xl mx-auto flex-col lg:flex-row-reverse">
+        <div class="hero-content max-w-5xl mx-auto flex-col lg:flex-row-reverse gap-8 lg:gap-16">
             <div class="text-center lg:text-left">
                 {% if not has_signed_up %}
                     <h1 class="text-5xl font-bold">Join the Waitlist</h1>
@@ -57,40 +57,23 @@
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 justify-center">
-                        <span class="text-sm text-base-content/70">
-                            <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
-                        </span>
-                        <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
-                    </div>
+                    {% if waiting_list_count > 10 %}
+                        <div class="flex items-center gap-2 justify-center">
+                            <span class="text-sm text-base-content/70">
+                                <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
+                            </span>
+                            <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
     </div>
     <div class="container max-w-5xl mx-auto py-8 px-4 lg:py-16 flex flex-col gap-8">
-        <h2 class="text-2xl font-bold">FAQ</h2>
-        <div class="join join-vertical bg-base-100">
-            <div class="collapse collapse-arrow join-item border-base-300 border">
-                <input type="radio" name="my-accordion-4" checked="checked" />
-                <div class="collapse-title font-semibold">How do I create an account?</div>
-                <div class="collapse-content text-sm">
-                    Click the "Sign Up" button in the top right corner and follow the registration process.
-                </div>
-            </div>
-            <div class="collapse collapse-arrow join-item border-base-300 border">
-                <input type="radio" name="my-accordion-4" />
-                <div class="collapse-title font-semibold">I forgot my password. What should I do?</div>
-                <div class="collapse-content text-sm">
-                    Click on "Forgot Password" on the login page and follow the instructions sent to your email.
-                </div>
-            </div>
-            <div class="collapse collapse-arrow join-item border-base-300 border">
-                <input type="radio" name="my-accordion-4" />
-                <div class="collapse-title font-semibold">How do I update my profile information?</div>
-                <div class="collapse-content text-sm">Go to "My Account" settings and select "Edit Profile" to make changes.</div>
-            </div>
-        </div>
+        <h2 class="text-2xl font-bold">What is Agora?</h2>
+        <p class="max-w-lg"></p>
     </div>
+    {% include "includes/faq.html" %}
 {% endblock content %}
 
 {% block bodyEndScripts %}
