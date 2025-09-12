@@ -39,7 +39,7 @@ TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
 
 SITE_ID = 1
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["agora.gdn", "www.agora.gdn"]
 
 INTERNAL_IPS = ["127.0.0.1"]
 
