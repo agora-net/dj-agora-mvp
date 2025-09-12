@@ -22,7 +22,7 @@ dependencies = [
 dev = [
     "djlint>=1.36.4",
     "lefthook>=1.12.3",
-    "pymarkdown>=0.1.4",
+    "pymarkdownlnt>=0.9.32",
     "ruff>=0.12.11",
 ]
 
