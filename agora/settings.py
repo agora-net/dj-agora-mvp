@@ -278,6 +278,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DJANGO_VITE = {
     "default": {
         "dev_mode": DEBUG,
+        "manifest_path": BASE_DIR / "frontend" / "@agora" / "agora" / "dist" / "manifest.json",
     }
 }
 # http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST
