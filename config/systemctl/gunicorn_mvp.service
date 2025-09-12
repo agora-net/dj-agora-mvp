@@ -11,7 +11,7 @@ NotifyAccess=main
 User=agora
 Group=caddy
 WorkingDirectory=/home/agora/projects/mvp
-ExecStart=/home/agora/.local/bin/uv run gunicorn --workers 3 --bind unix:/run/gunicorn_mvp.sock agora.wsgi:application
+ExecStart=/home/agora/projects/mvp/.venv/bin/gunicorn --config=./config/gunicorn/gunicorn.conf.py agora.wsgi:application
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
