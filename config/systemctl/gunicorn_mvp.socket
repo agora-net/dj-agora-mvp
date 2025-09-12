@@ -1,0 +1,11 @@
+[Unit]
+Description=gunicorn socket for mvp app
+
+[Socket]
+# Set the path to the socket file
+ListenStream=/run/gunicorn_mvp.sock
+SocketUser=agora
+SocketGroup=caddy
+
+[Install]
+WantedBy=sockets.target
