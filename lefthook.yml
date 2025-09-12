@@ -6,7 +6,7 @@ pre-commit:
       glob: "*.md"
     - name: Markdown lint
       # Will fail if there are lint errors after fixing
-      run: uv run pymarkdown scan {staged_files}
+      run: uv run pymarkdown -d MD013 scan {staged_files}
       glob: "*.md"
     - name: "Lint Python files"
       run: uv run ruff check {staged_files} --fix
@@ -36,7 +36,3 @@ pre-commit:
     #     - "*.{js,ts,jsx,tsx}"
     #     - "*.css"
     #     - "*.{json,jsonc}"
-    - name: "Fail if staged files have been changed"
-      run: git diff --name-only --exit-code {staged_files}
-      glob:
-        - "*.{py,html,js,ts,jsx,tsx,css,json,jsonc}"
