@@ -6,6 +6,7 @@ Description=gunicorn socket for mvp app
 ListenStream=/run/gunicorn_mvp.sock
 SocketUser=agora
 SocketGroup=caddy
+SocketMode=0660
 
 [Install]
 WantedBy=sockets.target
