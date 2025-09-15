@@ -1,0 +1,91 @@
+---
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    volumes:
+      # Mount source code for hot reloading
+      - .:/app
+      # Exclude git directory
+      - /app/.git
+    depends_on:
+      - postgres
+      - keycloak
+      - mailpit
+    networks:
+      - agora-network
+    restart: unless-stopped
+    command: ["just", "runserver"]
+
+  postgres:
+    # Using beta version to have UUID v7 extension available in 18 release
+    image: postgres:18beta3
+    restart: always
+    environment:
+      POSTGRES_USER: agora
+      POSTGRES_PASSWORD: agora
+      POSTGRES_DB: agora
+      POSTGRES_MULTIPLE_DATABASES: keycloak
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agora"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agora-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      DEBUG: "true"
+      DEBUG_PORT: "*:5005"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: agora
+      KC_DB_PASSWORD: agora
+      KC_HEALTH_ENABLED: "true"
+      TZ: Europe/Paris
+    networks:
+      - agora-network
+    command:
+      - start-dev
+      - --features=passkeys
+      - --hostname-strict=false
+      - --proxy-headers=xforwarded
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    restart: always
+    volumes:
+      - mailpit_data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - agora-network
+
+networks:
+  agora-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  mailpit_data:
+    driver: local
