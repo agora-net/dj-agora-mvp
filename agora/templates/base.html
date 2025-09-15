@@ -1,4 +1,4 @@
-{% load django_vite %}
+{% load django_vite static %}
 <!DOCTYPE html>
 <html lang="en" class="{% block htmlClass %}h-full{% endblock htmlClass %}">
     <head>
@@ -13,6 +13,7 @@
         </title>
         <link rel="stylesheet" href="{% vite_asset_url 'src/tailwind.css' %}">
         <script defer data-domain="agora.gdn" src="https://plausible.io/js/script.js"></script>
+        <link rel="icon" href="{% static 'favicon.svg' %}">
         {% vite_hmr_client %}
         {% vite_react_refresh %}
     </head>
