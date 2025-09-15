@@ -1,22 +1,22 @@
 ---
 services:
-  app:
-    build:
-      context: .
-      dockerfile: docker/app/Dockerfile
-    volumes:
-      # Mount source code for hot reloading
-      - .:/app
-      # Exclude git directory
-      - /app/.git
-    depends_on:
-      - postgres
-      - keycloak
-      - mailpit
-    networks:
-      - agora-network
-    restart: unless-stopped
-    command: ["just", "runserver"]
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/app/Dockerfile
+  #   volumes:
+  #     # Mount source code for hot reloading
+  #     - .:/app
+  #     # Exclude git directory
+  #     - /app/.git
+  #   depends_on:
+  #     - postgres
+  #     - keycloak
+  #     - mailpit
+  #   networks:
+  #     - agora-network
+  #   restart: unless-stopped
+  #   command: ["just", "runserver"]
 
   postgres:
     # Using beta version to have UUID v7 extension available in 18 release
