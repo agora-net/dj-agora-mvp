@@ -1,0 +1,12 @@
+---
+# Ansible Inventory for Agora MVP Deployment
+# This inventory defines the production environment
+
+production:
+  hosts:
+    africa.agora.gdn:
+      ansible_user: root
+      # Optional: Set connection timeout
+      ansible_ssh_timeout: 30
+      # Optional: Set connection retries
+      ansible_ssh_retries: 3

@@ -1,0 +1,127 @@
+---
+- name: Deploy Django Agora MVP Application
+  hosts: production
+  become: yes
+  become_user: root
+  gather_facts: yes
+
+  vars:
+    # User configuration
+    deploy_user: agora
+
+    # Deployment configuration
+    project_path: /home/{{ deploy_user }}/projects/mvp
+    frontend_path: "{{ project_path }}/frontend/@agora/agora"
+    git_repo_url: "git@github.com:agora-net/dj-agora-mvp.git"
+    
+    # Service configuration
+    gunicorn_service_name: gunicorn_mvp
+
+    # geerlingguy.nodejs role variables
+    nodejs_version: "24.x"
+    nodejs_install_npm_user: "{{ ansible_user }}"
+    npm_config_unsafe_perm: true
+    nodejs_generate_etc_profile: true
+    nodejs_package_json_path: null
+    nodejs_npm_global_packages:
+      - name: pnpm
+        version: "10.16.1"
+
+  roles:
+    - name: geerlingguy.nodejs
+
+  tasks:
+    - name: Check if project directory exists
+      become_user: "{{ deploy_user }}"
+      stat:
+        path: "{{ project_path }}"
+      register: project_dir_stat
+
+    - name: Display project directory status
+      debug:
+        msg: "Project directory exists: {{ project_dir_stat.stat.exists }}"
+
+    - name: Test git connectivity
+      become_user: "{{ deploy_user }}"
+      shell: |
+        ssh -T git@github.com -o StrictHostKeyChecking=no -o ConnectTimeout=10
+      register: git_ssh_test
+      ignore_errors: yes
+
+    - name: Display git SSH test result
+      debug:
+        msg: "Git SSH test result: {{ git_ssh_test.stdout_lines | default('Connection failed') }}"
+
+    - name: Switch to agora user and pull latest code
+      become_user: "{{ deploy_user }}"
+      git:
+        repo: "{{ git_repo_url | default('git@github.com:agora-net/dj-agora-mvp.git') }}"
+        dest: "{{ project_path }}"
+        update: yes
+        force: yes
+      register: git_pull_result
+      async: 60
+      poll: 10
+
+    - name: Display git pull result
+      debug:
+        msg: "Git pull completed: {{ git_pull_result.changed }}"
+
+    - name: Install frontend dependencies and build
+      become_user: "{{ deploy_user }}"
+      shell: |
+        /home/{{ deploy_user }}/.local/share/pnpm/pnpm install
+        /home/{{ deploy_user }}/.local/share/pnpm/pnpm build
+      args:
+        chdir: "{{ frontend_path }}"
+      register: frontend_build_result
+
+    - name: Display frontend build result
+      debug:
+        msg: "Frontend build completed"
+
+    - name: Collect static files
+      become_user: "{{ deploy_user }}"
+      shell: |
+        /home/{{ deploy_user }}/.local/bin/uv run manage.py collectstatic --noinput
+      args:
+        chdir: "{{ project_path }}"
+      register: collectstatic_result
+
+    - name: Display collectstatic result
+      debug:
+        msg: "Static files collected"
+
+    - name: Run database migrations
+      become_user: "{{ deploy_user }}"
+      shell: |
+        /home/{{ deploy_user }}/.local/bin/uv run manage.py migrate
+      args:
+        chdir: "{{ project_path }}"
+      register: migrate_result
+
+    - name: Display migration result
+      debug:
+        msg: "Database migrations completed"
+
+    - name: Reload gunicorn service
+      become_user: root
+      systemd:
+        name: "{{ gunicorn_service_name }}"
+        state: reloaded
+      register: gunicorn_reload_result
+
+    - name: Display gunicorn reload result
+      debug:
+        msg: "Gunicorn service reloaded successfully"
+
+    - name: Verify gunicorn service status
+      become_user: root
+      systemd:
+        name: "{{ gunicorn_service_name }}"
+        state: started
+      register: gunicorn_status
+
+    - name: Display final service status
+      debug:
+        msg: "Gunicorn service is running: {{ gunicorn_status.status.ActiveState }}"
