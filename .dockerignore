@@ -1,0 +1,15 @@
+node_modules
+frontend/@agora/agora/node_modules
+.git
+.gitignore
+dist
+frontend/@agora/agora/dist
+.venv
+.ruff_cache
+__pycache__
+staticfiles
+.env
+*.sqlite3
+*.db
+cache
+cookies.txt
