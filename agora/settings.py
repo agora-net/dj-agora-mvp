@@ -268,7 +268,7 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-CLOUDFLARE_TURNSTILE_SECRET = env.str("CLOUDFLARE_TURNSTILE_SECRET")
+CLOUDFLARE_TURNSTILE_SECRET = env.str("CLOUDFLARE_TURNSTILE_SECRET", "")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
