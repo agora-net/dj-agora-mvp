@@ -1,7 +1,14 @@
+from typing import ClassVar
+
 import uuid6
+from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
 from django.db import models
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from typeid import TypeID
+
+from .managers import UserManager
 
 
 class BaseModel(models.Model):
@@ -10,6 +17,37 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class AgoraUser(AbstractUser):
+    """
+    User information is actually stored in Keycloak. This model is used to
+    store a copy of the basic user information for relationships with other models.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
+    email = models.EmailField(_("email address"), unique=True)
+    # First and last name do not cover name patterns around the globe
+    name = models.CharField(_("Name of User"), blank=True, max_length=512)
+    first_name = None  # type: ignore[assignment]
+    last_name = None  # type: ignore[assignment]
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    username = None  # type: ignore[assignment]
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects: ClassVar[UserManager] = UserManager()
+
+    def get_absolute_url(self) -> str:
+        """Get URL for user's detail view.
+
+        Returns:
+            str: URL for user detail.
+
+        """
+        return reverse("users:detail", kwargs={"pk": self.id})
 
 
 class WaitingList(BaseModel):
