@@ -49,6 +49,7 @@ INTERNAL_IPS = ["127.0.0.1"]
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
+    "mozilla_django_oidc",  # For Keycloak
     "django.contrib.contenttypes",
     "django.contrib.humanize",
     "django.contrib.sessions",
@@ -69,12 +70,14 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "agora.middleware.KeycloakRemoteUserMiddleware",
+    "mozilla_django_oidc.middleware.SessionRefresh",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
 ]
+
+AUTH_USER_MODEL = "agora.apps.core.AgoraUser"
 
 if not TESTING:
     INSTALLED_APPS = [
@@ -226,7 +229,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.RemoteUserBackend",
+    "agora.auth.AgoraOIDCAuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
