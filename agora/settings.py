@@ -77,7 +77,7 @@ MIDDLEWARE = [
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
 ]
 
-AUTH_USER_MODEL = "agora.apps.core.AgoraUser"
+AUTH_USER_MODEL = "core.AgoraUser"
 
 if not TESTING:
     INSTALLED_APPS = [
@@ -124,6 +124,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        "mozilla_django_oidc": {"handlers": ["console"], "level": "DEBUG"},
     },
 }
 
@@ -293,3 +294,18 @@ def immutable_file_test(path, url):
 
 
 WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
+
+# Mozilla Django OIDC settings
+# https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html
+LOGIN_REDIRECT_URL = "/logged-in/"
+LOGOUT_REDIRECT_URL = "/logged-out/"
+
+OIDC_RP_CLIENT_ID = env.str("OIDC_RP_CLIENT_ID")
+OIDC_RP_CLIENT_SECRET = env.str("OIDC_RP_CLIENT_SECRET")
+OIDC_OP_AUTHORIZATION_ENDPOINT = env.str("OIDC_OP_AUTHORIZATION_ENDPOINT")
+OIDC_OP_TOKEN_ENDPOINT = env.str("OIDC_OP_TOKEN_ENDPOINT")
+OIDC_OP_USER_ENDPOINT = env.str("OIDC_OP_USER_ENDPOINT")
+OIDC_OP_JWKS_ENDPOINT = env.str("OIDC_OP_JWKS_ENDPOINT")
+OIDC_RP_SIGN_ALGO = "HS256"
+OIDC_USE_PKCE = True
+OIDC_PKCE_CODE_CHALLENGE_METHOD = "S256"
