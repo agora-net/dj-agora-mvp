@@ -1,22 +1,17 @@
 ---
 services:
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: docker/app/Dockerfile
-  #   volumes:
-  #     # Mount source code for hot reloading
-  #     - .:/app
-  #     # Exclude git directory
-  #     - /app/.git
-  #   depends_on:
-  #     - postgres
-  #     - keycloak
-  #     - mailpit
-  #   networks:
-  #     - agora-network
-  #   restart: unless-stopped
-  #   command: ["just", "runserver"]
+  caddy:
+    image: caddy:2
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./config/caddy:/etc/caddy
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - agora-network
 
   postgres:
     # Using beta version to have UUID v7 extension available in 18 release
@@ -88,4 +83,8 @@ volumes:
   postgres_data:
     driver: local
   mailpit_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local
