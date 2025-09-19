@@ -1,5 +1,1 @@
-agora.gdn {
-	# Reverse proxy all requests to the Gunicorn socket
-	# Socket is managed by systemd `gunicorn_mvp.socket`
-	reverse_proxy unix//run/gunicorn_mvp.sock
-}
+import *.Caddyfile
