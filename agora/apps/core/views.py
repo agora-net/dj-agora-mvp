@@ -1,5 +1,6 @@
 import structlog
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -124,3 +125,15 @@ def signup_status(request, signup_id):
 def custom_404(request):
     """Custom 404 page view."""
     return render(request, "404.html", status=404)
+
+
+@login_required
+def dashboard(request):
+    """
+    Dashboard view that requires authentication.
+    Shows a placeholder dashboard for authenticated users.
+    """
+    context = {
+        "user": request.user,
+    }
+    return render(request, "dashboard.html", context)
