@@ -43,6 +43,7 @@ ALLOWED_HOSTS = ["agora.gdn", "www.agora.gdn", "localhost", "127.0.0.1", "app.lo
 
 INTERNAL_IPS = ["127.0.0.1"]
 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # for 30 days
 
 # Application definition
 
@@ -295,6 +296,8 @@ def immutable_file_test(path, url):
 
 WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
+LOGIN_URL = "/auth/login/"
+
 # Mozilla Django OIDC settings
 # https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html
 LOGIN_REDIRECT_URL = "/logged-in/"
@@ -306,6 +309,10 @@ OIDC_OP_AUTHORIZATION_ENDPOINT = env.str("OIDC_OP_AUTHORIZATION_ENDPOINT")
 OIDC_OP_TOKEN_ENDPOINT = env.str("OIDC_OP_TOKEN_ENDPOINT")
 OIDC_OP_USER_ENDPOINT = env.str("OIDC_OP_USER_ENDPOINT")
 OIDC_OP_JWKS_ENDPOINT = env.str("OIDC_OP_JWKS_ENDPOINT")
-OIDC_RP_SIGN_ALGO = "HS256"
+OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_USE_PKCE = True
 OIDC_PKCE_CODE_CHALLENGE_METHOD = "S256"
+# TEMPORARY FOR DEVELOPMENT
+OIDC_VERIFY_SSL = False
+OIDC_VERIFY_JWT = False
+OIDC_USE_NONCE = False
