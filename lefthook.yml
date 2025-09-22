@@ -13,6 +13,8 @@ pre-commit:
       stage_fixed: true
       glob:
         - "*.py"
+      exclude:
+        - "**/migrations/*.py"
     - name: "Format Python files"
       run: uv run ruff format {staged_files}
       stage_fixed: true
