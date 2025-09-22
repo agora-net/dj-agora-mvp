@@ -3,10 +3,11 @@ from django.contrib import admin
 from django.contrib.flatpages import views
 from django.urls import include, path, re_path
 
-from agora.apps.core.views import custom_404, dashboard, home, signup, signup_status
+from agora.apps.core.views import custom_404, dashboard, home, login, signup, signup_status
 
 urlpatterns = [
     path("", home, name="home"),
+    path("auth/login/", login, name="login"),
     path("signup/", signup, name="signup"),
     path("signup/<uuid:signup_id>/", signup_status, name="signup_status"),
     path("dashboard/", dashboard, name="dashboard"),
