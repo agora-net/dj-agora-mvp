@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from agora.apps.core.forms import WaitlistSignupForm
 from agora.apps.core.models import WaitingList
@@ -125,6 +126,19 @@ def signup_status(request, signup_id):
 def custom_404(request):
     """Custom 404 page view."""
     return render(request, "404.html", status=404)
+
+
+def login(request):
+    """
+    Login view that redirects to the OIDC provider.
+    Constructs the OIDC authorization URL and redirects the user.
+    """
+    # Extract the url from next or default to dashboard
+    next_url = request.GET.get("next", "dashboard")
+    if request.user.is_authenticated:
+        return redirect(next_url)
+    # If the user is not authenticated, redirect to the OIDC provider with the next url
+    return redirect(reverse("oidc_authentication_init") + "?next=" + next_url)
 
 
 @login_required
