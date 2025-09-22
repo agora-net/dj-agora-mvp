@@ -11,17 +11,17 @@ class AgoraOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     """
 
     def create_user(self, claims):
-        user = super(OIDCAuthenticationBackend, self).create_user(claims)
+        email = claims.get("email")
+        name = claims.get("name")
 
-        user.name = f"{claims.get('given_name', '')} {claims.get('family_name', '')}"
-        user.save()
+        user = self.UserModel.objects.create_user(email=email, name=name)
 
         self.update_groups(user, claims)
 
         return user
 
     def update_user(self, user, claims):
-        user.name = f"{claims.get('given_name', '')} {claims.get('family_name', '')}"
+        user.name = claims.get("name")
         user.save()
         self.update_groups(user, claims)
 
