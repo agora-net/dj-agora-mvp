@@ -1,8 +1,9 @@
 import math
 
 from django.core.cache import cache
+from django.utils import timezone
 
-from agora.apps.core.models import WaitingList
+from .models import AgoraUser, IdentityVerification, WaitingList
 
 
 def round_to_nearest(n, m):
@@ -42,3 +43,13 @@ def get_waiting_list_count(*, cache_timeout: int = 300) -> int:
         cache.set(cache_key, count, cache_timeout)
 
     return count
+
+
+def is_user_identity_recently_verified(user: AgoraUser) -> bool:
+    """
+    Check if the user has a verified identity within the last year.
+    """
+    return user.identity_verification.filter(
+        identity_verification_status=IdentityVerification.IdentityVerificationStatus.VERIFIED,
+        created_at__gte=timezone.now() - timezone.timedelta(days=365),
+    ).exists()
