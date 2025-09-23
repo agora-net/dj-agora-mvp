@@ -5,6 +5,8 @@ from django.urls import reverse
 
 from agora.apps.core.selectors import is_user_identity_recently_verified
 
+from .selectors import is_named_url
+
 logger = structlog.get_logger(__name__)
 
 
@@ -33,6 +35,14 @@ class VerificationRequiredMiddleware:
         if is_user_identity_recently_verified(request.user):
             return response
 
+        verify_identity_url_name_path = getattr(settings, "VERIFY_IDENTITY_URL", "verify-identity")
+        if is_named_url(verify_identity_url_name_path):
+            verify_identity_url_name_path = reverse(verify_identity_url_name_path)
+
+        # If the user is on the verify identity page or a sub-page, the middleware does nothing.
+        if request.path.startswith(verify_identity_url_name_path):
+            return response
+
         # Whitelist route name
         allowed_route_names = []
 
@@ -40,9 +50,6 @@ class VerificationRequiredMiddleware:
         allowed_paths = [reverse(name) for name in allowed_route_names] + []
 
         if request.path not in allowed_paths:
-            verify_identity_url_name_path = getattr(
-                settings, "VERIFY_IDENTITY_URL", "verify-identity"
-            )
             logger.info(
                 "User is not verified, redirecting to verification page",
                 user_id=request.user.id,
