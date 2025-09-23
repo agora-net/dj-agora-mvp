@@ -92,3 +92,16 @@ def validate_cloudflare_turnstile(
     except requests.RequestException as e:
         print(f"Turnstile validation error: {e}")
         return {"success": False, "error-codes": ["internal-error"]}
+
+
+def create_user_in_keycloak(
+    *,
+    sanitized_email: str,
+    sanitized_name: str,
+    sanitized_handle: str,
+    sanitized_password: str,
+) -> None:
+    """
+    Create a user in Keycloak.
+    """
+    pass
