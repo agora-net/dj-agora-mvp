@@ -51,6 +51,26 @@ class AgoraUser(AbstractUser):
         return reverse("users:detail", kwargs={"pk": self.id})
 
 
+class IdentityVerification(BaseModel):
+    class IdentityVerificationService(models.TextChoices):
+        STRIPE = "stripe"
+        ONDATO = "ondato"
+
+    class IdentityVerificationStatus(models.TextChoices):
+        PENDING = "pending"
+        VERIFIED = "verified"
+        FAILED = "failed"
+
+    user = models.ForeignKey(AgoraUser, on_delete=models.CASCADE)
+    identity_verification_external_id = models.CharField(max_length=255)
+    identity_verification_service = models.CharField(
+        max_length=10, choices=IdentityVerificationService.choices
+    )
+    identity_verification_status = models.CharField(
+        max_length=10, choices=IdentityVerificationStatus.choices
+    )
+
+
 class WaitingList(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
     email = models.EmailField(unique=True)
