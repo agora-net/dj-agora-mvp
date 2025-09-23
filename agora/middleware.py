@@ -1,7 +1,11 @@
+import structlog
+from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 
 from agora.apps.core.selectors import is_user_identity_recently_verified
+
+logger = structlog.get_logger(__name__)
 
 
 class VerificationRequiredMiddleware:
@@ -36,6 +40,15 @@ class VerificationRequiredMiddleware:
         allowed_paths = [reverse(name) for name in allowed_route_names] + []
 
         if request.path not in allowed_paths:
-            return redirect("verification_required")
+            verify_identity_url_name_path = getattr(
+                settings, "VERIFY_IDENTITY_URL", "verify-identity"
+            )
+            logger.info(
+                "User is not verified, redirecting to verification page",
+                user_id=request.user.id,
+                verify_identity_url_name_path=verify_identity_url_name_path,
+            )
+
+            return redirect(verify_identity_url_name_path)
 
         return response

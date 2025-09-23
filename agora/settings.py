@@ -299,6 +299,7 @@ def immutable_file_test(path, url):
 WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 LOGIN_URL = "/auth/login/"
+VERIFY_IDENTITY_URL = "/verify-identity/"
 
 # Mozilla Django OIDC settings
 # https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html
