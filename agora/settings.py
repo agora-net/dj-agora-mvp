@@ -76,6 +76,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
+    # Ensures that the user has a verified identity
+    "agora.middleware.VerificationRequiredMiddleware",
 ]
 
 AUTH_USER_MODEL = "core.AgoraUser"
