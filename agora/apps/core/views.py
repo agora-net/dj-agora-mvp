@@ -1,15 +1,21 @@
+import nh3
 import structlog
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
-from agora.apps.core.forms import WaitlistSignupForm
-from agora.apps.core.models import WaitingList
-from agora.apps.core.selectors import get_waiting_list_count
-from agora.apps.core.services import add_to_waiting_list, validate_cloudflare_turnstile
+from .forms import AcceptInviteForm, WaitlistSignupForm
+from .models import WaitingList
+from .selectors import get_waiting_list_count
+from .services import (
+    add_to_waiting_list,
+    create_user_in_keycloak,
+    validate_cloudflare_turnstile,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -151,3 +157,90 @@ def dashboard(request):
         "user": request.user,
     }
     return render(request, "dashboard.html", context)
+
+
+def invite(request: HttpRequest):
+    """
+    View to handle invite lookups by invite code.
+
+    Returns:
+        When a GET request: Template to gather missing information.
+        When a POST request: Handle the invite request.
+    """
+
+    if request.method == "GET":
+        unsanitized_email = request.GET.get("email", "").strip()
+        if not unsanitized_email:
+            return HttpResponse("Email is required", status=400)
+
+        unsanitized_invite_code = request.GET.get("invite_code", "").strip()
+        if not unsanitized_invite_code:
+            return HttpResponse("Invite code is required", status=400)
+
+        sanitized_email = nh3.clean(unsanitized_email)
+        sanitized_invite_code = nh3.clean(unsanitized_invite_code)
+
+        waiting_list_entry = get_object_or_404(
+            WaitingList.objects.filter(
+                invite_sent_at__isnull=False,
+                invite_accepted_at__isnull=True,
+            ),
+            invite_code=sanitized_invite_code,
+            email=sanitized_email,
+        )
+
+        form = AcceptInviteForm()
+        return render(
+            request,
+            "invite.html",
+            {
+                "form": form,
+                "waiting_list_entry": waiting_list_entry,
+            },
+        )
+
+    elif request.method == "POST":
+        form = AcceptInviteForm(request.POST)
+
+        # Sanitize the form data
+        cleaned_email = form.cleaned_data["email"]
+        cleaned_invite_code = form.cleaned_data["invite_code"]
+        cleaned_name = form.cleaned_data["name"]
+        cleaned_handle = form.cleaned_data["handle"]
+        cleaned_password = form.cleaned_data["password"]
+
+        if form.is_valid():
+            waiting_list_entry = get_object_or_404(
+                WaitingList.objects.filter(
+                    invite_sent_at__isnull=False,
+                    invite_accepted_at__isnull=True,
+                ),
+                invite_code=cleaned_invite_code,
+                email=cleaned_email,
+            )
+
+            # Create the user in keycloak manually.
+            # Not ideal as the password policies may be different but for now
+            # it allows us to keep registration closed to invite only.
+            create_user_in_keycloak(
+                sanitized_email=cleaned_email,
+                sanitized_name=cleaned_name,
+                sanitized_handle=cleaned_handle,
+                sanitized_password=cleaned_password,
+            )
+
+            # Expire the waiting list entry
+            waiting_list_entry.invite_accepted_at = timezone.now()
+            waiting_list_entry.save()
+
+            # User will need to log in to be able to access the dashboard.
+            return redirect(settings.VERIFY_IDENTITY_URL)
+
+        return render(
+            request,
+            "invite.html",
+            {
+                "form": form,
+                "waiting_list_entry": waiting_list_entry,
+            },
+        )
