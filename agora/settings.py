@@ -301,6 +301,16 @@ WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 LOGIN_URL = "/auth/login/"
 VERIFY_IDENTITY_URL = "/verify-identity/"
 
+# Keycloak settings
+KEYCLOAK_SERVER_URL = env.str("KEYCLOAK_SERVER_URL")
+KEYCLOAK_USERNAME = env.str("KEYCLOAK_USERNAME")
+KEYCLOAK_PASSWORD = env.str("KEYCLOAK_PASSWORD")
+KEYCLOAK_REALM = env.str("KEYCLOAK_REALM")
+KEYCLOAK_USER_REALM = env.str("KEYCLOAK_USER_REALM")
+KEYCLOAK_CLIENT_ID = env.str("KEYCLOAK_CLIENT_ID")
+KEYCLOAK_CLIENT_SECRET = env.str("KEYCLOAK_CLIENT_SECRET")
+KEYCLOAK_VERIFY_CERT = env.bool("KEYCLOAK_VERIFY_CERT", default=True)
+
 # Mozilla Django OIDC settings
 # https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html
 LOGIN_REDIRECT_URL = "/logged-in/"
