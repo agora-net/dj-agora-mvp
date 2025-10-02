@@ -24,6 +24,7 @@ dependencies = [
 dev = [
     "ansible>=12.0.0",
     "djlint>=1.36.4",
+    "ipython>=9.6.0",
     "lefthook>=1.12.3",
     "pymarkdownlnt>=0.9.32",
     "ruff>=0.12.11",
