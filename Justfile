@@ -1,6 +1,10 @@
 _default:
     @just --list
 
+# Shortcut for manage.py commands
+manage *ARGS:
+    @uv run python manage.py {{ARGS}}
+
 # Install lefthook
 install-lefthook:
     @uv run lefthook install
@@ -11,11 +15,11 @@ install-dev:
 
 # Create new database migrations
 makemigrations:
-    @uv run python manage.py makemigrations
+    @just manage makemigrations
 
 # Apply database migrations
 migrate:
-    @uv run python manage.py migrate
+    @just manage migrate
 
 # Run the development server
 runserver:
@@ -28,15 +32,11 @@ dev-frontend:
 
 # Test the backend code
 test-backend *ARGS:
-    @uv run python manage.py test {{ARGS}}
-
-# Shortcut for manage.py commands
-manage *ARGS:
-    @uv run python manage.py {{ARGS}}
+    @just manage test {{ARGS}}
 
 # Collect static files
 collectstatic:
-    @uv run python manage.py collectstatic --noinput
+    @just manage collectstatic --noinput
 
 # Lint the frontend code
 
