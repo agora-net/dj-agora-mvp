@@ -7,8 +7,6 @@ keycloak_connection = KeycloakOpenIDConnection(
     password=settings.KEYCLOAK_PASSWORD,
     realm_name=settings.KEYCLOAK_REALM,
     user_realm_name=settings.KEYCLOAK_USER_REALM,
-    client_id=settings.KEYCLOAK_CLIENT_ID,
-    client_secret_key=settings.KEYCLOAK_CLIENT_SECRET,
     verify=settings.KEYCLOAK_VERIFY_CERT,
 )
 
