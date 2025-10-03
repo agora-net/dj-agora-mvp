@@ -80,7 +80,7 @@ target/
 .ipynb_checkpoints
 
 # IPython
-profile_default/
+# profile_default/ # Disabling as want to have startup scripts for django shell
 ipython_config.py
 
 # pyenv
