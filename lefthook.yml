@@ -8,6 +8,8 @@ pre-commit:
       # Will fail if there are lint errors after fixing
       run: uv run pymarkdown -d MD013 scan {staged_files}
       glob: "*.md"
+      exclude:
+        - AGENTS.md
     - name: "Lint Python files"
       run: uv run ruff check {staged_files} --fix
       stage_fixed: true
