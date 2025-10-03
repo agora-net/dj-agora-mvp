@@ -5,6 +5,10 @@ _default:
 manage *ARGS:
     @uv run python manage.py {{ARGS}}
 
+# Run the Django shell with IPython
+shell $IPYTHONDIR="./.ipython":
+    @just manage shell
+    
 # Install lefthook
 install-lefthook:
     @uv run lefthook install
