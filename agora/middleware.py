@@ -35,21 +35,32 @@ class VerificationRequiredMiddleware:
         if is_user_identity_recently_verified(request.user):
             return response
 
-        verify_identity_url_name_path = getattr(settings, "VERIFY_IDENTITY_URL", "verify-identity")
+        verify_identity_url_name_path = getattr(settings, "VERIFY_IDENTITY_URL", "verify_identity")
         if is_named_url(verify_identity_url_name_path):
             verify_identity_url_name_path = reverse(verify_identity_url_name_path)
 
-        # If the user is on the verify identity page or a sub-page, the middleware does nothing.
-        if request.path.startswith(verify_identity_url_name_path):
-            return response
-
         # Whitelist route name
-        allowed_route_names = []
+        allowed_route_names = ["invite", "home"]
 
         # Whitelist paths
-        allowed_paths = [reverse(name) for name in allowed_route_names] + []
+        allowed_paths = [reverse(name) for name in allowed_route_names] + [
+            verify_identity_url_name_path
+        ]
 
-        if request.path not in allowed_paths:
+        allowed_paths_startswith = [
+            "/static/",
+            "/media/",
+            "/admin/",
+            "/oidc/",
+            "/__debug__/",
+            "/onboarding/",
+        ]
+
+        starts_with_allowed_path = any(
+            request.path.startswith(path) for path in allowed_paths_startswith
+        )
+
+        if request.path not in allowed_paths and not starts_with_allowed_path:
             logger.info(
                 "User is not verified, redirecting to verification page",
                 user_id=request.user.id,
