@@ -264,6 +264,9 @@ EMAIL_TIMEOUT = 5
 DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", "")  # pyright: ignore[reportArgumentType]
 SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", DEFAULT_FROM_EMAIL)  # pyright: ignore[reportArgumentType]
 
+# Debug Toolbar settings
+RESULTS_CACHE_SIZE = 1000
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
