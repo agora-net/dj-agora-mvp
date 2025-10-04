@@ -1,8 +1,15 @@
+import structlog
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.urls import path, reverse
+from django.urls.resolvers import URLPattern
 from django.utils.translation import gettext_lazy as _
 
 from .models import AgoraUser, WaitingList
+from .services import send_waiting_list_invite_email
+
+logger = structlog.get_logger(__name__)
 
 
 @admin.register(WaitingList)
@@ -72,6 +79,43 @@ class WaitingListAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def get_urls(self) -> list[URLPattern]:
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<str:object_id>/send_invite/",
+                self.admin_site.admin_view(self.send_invite_view),
+                name="waitinglist_send_invite",
+            ),
+        ]
+        return custom_urls + urls
+
+    def send_invite_view(self, request: HttpRequest, object_id: str) -> HttpResponse:
+        logger.info("sending invite", object_id=object_id)
+
+        waiting_list_entry = self.model.objects.get(pk=object_id)
+
+        send_waiting_list_invite_email(
+            email=waiting_list_entry.email,
+            waiting_list_entry=waiting_list_entry,
+            invite_url=request.build_absolute_uri(
+                reverse("invite")
+                + f"?email={waiting_list_entry.email}&invite_code={waiting_list_entry.invite_code}"
+            ),
+        )
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", ".."))
+
+    def change_view(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+        request: HttpRequest,
+        object_id: str,
+        form_url: str = "",
+        extra_context: dict[str, str] | None = None,
+    ) -> HttpResponse:
+        extra_context = extra_context or {}
+        extra_context["send_invite_url"] = f"{object_id}/send_invite/"
+        return super().change_view(request, object_id, form_url, extra_context)  # pyright: ignore[reportArgumentType]
 
 
 @admin.register(AgoraUser)
