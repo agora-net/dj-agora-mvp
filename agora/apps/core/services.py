@@ -1,10 +1,19 @@
 import secrets
 
 import requests
+import structlog
+from django.conf import settings
 from django.core.cache import cache
+from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
+from django.template.loader import render_to_string
+from django.utils import timezone
+from keycloak import KeycloakGetError
 
 from agora.apps.core.models import WaitingList
+from agora.keycloak_admin import keycloak_admin
+
+logger = structlog.get_logger(__name__)
 
 
 def add_to_waiting_list(sanitized_email_address: str) -> WaitingList:
@@ -98,10 +107,164 @@ def create_user_in_keycloak(
     *,
     sanitized_email: str,
     sanitized_name: str,
-    sanitized_handle: str,
-    sanitized_password: str,
-) -> None:
+) -> str:
     """
     Create a user in Keycloak.
     """
-    pass
+    try:
+        new_user = keycloak_admin.create_user(
+            payload={
+                "email": sanitized_email,
+                "emailVerified": False,  # The user will be verified in the next step
+                "username": sanitized_email,
+                "name": sanitized_name,
+                "enabled": True,
+            },
+            exist_ok=False,
+        )
+
+        logger.info("new user created in Keycloak", user_id=new_user)
+
+        return new_user
+    except KeycloakGetError as e:
+        raise ValueError("User already exists in Keycloak") from e
+
+
+def add_invite_code_to_waiting_list_entry(
+    *,
+    waiting_list_entry: WaitingList,
+) -> str:
+    """
+    Add an invite code to a waiting list entry if it doesn't already have one.
+    """
+    if not waiting_list_entry.invite_code:
+        waiting_list_entry.invite_code = _generate_invite_code()
+        waiting_list_entry.save()
+
+    return waiting_list_entry.invite_code
+
+
+def send_waiting_list_invite_email(
+    *,
+    email: str,
+    waiting_list_entry: WaitingList,
+    invite_url: str,
+) -> None:
+    """
+    Send a waiting list invite email to the user.
+    """
+    logger.info(
+        "sending waiting list invite email",
+        entry=waiting_list_entry.type_id,
+    )
+
+    invite_code = add_invite_code_to_waiting_list_entry(
+        waiting_list_entry=waiting_list_entry,
+    )
+
+    text_content = render_to_string(
+        template_name="emails/waiting_list/invite_to_register.txt",
+        context={
+            "invite_url": invite_url,
+            "invite_code": invite_code,
+            "email": email,
+            "support_email": settings.SUPPORT_EMAIL,
+        },
+    )
+
+    try:
+        msg = EmailMultiAlternatives(
+            subject="Your invite to join Agora",
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email],
+            alternatives=[],
+        )
+        msg.send()
+
+        logger.info(
+            "waiting list invite email sent",
+            entry=waiting_list_entry.type_id,
+        )
+
+        waiting_list_entry.invite_sent_at = timezone.now()
+        waiting_list_entry.save()
+
+    except Exception as e:
+        raise ValueError("Failed to send waiting list invite email") from e
+
+
+def send_user_registration_actions(
+    *,
+    user_id: str,
+    redirect_uri: str,
+) -> None:
+    """
+    Send registration actions to the user in Keycloak.
+    """
+    logger.info("sending registration actions to user", user_id=user_id)
+
+    required_actions = [
+        "VERIFY_EMAIL",
+        "UPDATE_PASSWORD",
+        "TERMS_AND_CONDITIONS",
+    ]
+
+    try:
+        keycloak_admin.send_update_account(
+            user_id=user_id,
+            # Despite saying this should be a dict, it should actually be a list of actions
+            # https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/models/UserModel.RequiredAction.html
+            payload=required_actions,  # type: ignore
+            lifespan=60 * 60 * 24 * 7,  # Link valid for 7 days
+            client_id=settings.KEYCLOAK_CLIENT_ID,
+            redirect_uri=redirect_uri,
+        )
+    except KeycloakGetError as e:
+        raise ValueError("Failed to send registration actions email") from e
+
+
+def register_user(
+    *,
+    sanitized_email: str,
+    sanitized_name: str,
+    sanitized_handle: str,
+    redirect_uri: str,
+) -> str:
+    """
+    Register a new user in Keycloak and send them registration actions.
+
+    Args:
+        sanitized_email: The user's email address
+        sanitized_name: The user's full name
+        sanitized_handle: The user's handle
+        redirect_uri: The URI to redirect to after registration actions.
+            As must be whitelisted in Keycloak, recommend using similar to:
+            `request.build_absolute_uri(reverse("home"))`
+    Returns:
+        str: The Keycloak user ID of the newly created user
+    """
+    user_id = create_user_in_keycloak(
+        sanitized_email=sanitized_email,
+        sanitized_name=sanitized_name,
+    )
+
+    send_user_registration_actions(user_id=user_id, redirect_uri=redirect_uri)
+
+    return user_id
+
+
+def expire_waiting_list_entry(
+    *,
+    waiting_list_entry: WaitingList,
+) -> None:
+    """
+    Expire a waiting list entry by setting the invite_accepted_at timestamp.
+
+    Args:
+        waiting_list_entry: The WaitingList entry to expire
+    """
+    waiting_list_entry.invite_accepted_at = timezone.now()
+    waiting_list_entry.save()
+    # Clear the waiting_list_count cache
+    cache.delete("waiting_list_count")

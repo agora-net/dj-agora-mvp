@@ -13,8 +13,12 @@ class AgoraOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     def create_user(self, claims):
         email = claims.get("email")
         name = claims.get("name")
+        id = claims.get("sub")
 
         user = self.UserModel.objects.create_user(email=email, name=name)
+
+        user.keycloak_id = id
+        user.save()
 
         self.update_groups(user, claims)
 

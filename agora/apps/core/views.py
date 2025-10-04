@@ -6,14 +6,14 @@ from django.db import IntegrityError
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 
 from .forms import AcceptInviteForm, WaitlistSignupForm
 from .models import WaitingList
-from .selectors import get_waiting_list_count
+from .selectors import get_waiting_list_count, get_waiting_list_entry
 from .services import (
     add_to_waiting_list,
-    create_user_in_keycloak,
+    expire_waiting_list_entry,
+    register_user,
     validate_cloudflare_turnstile,
 )
 
@@ -180,14 +180,12 @@ def invite(request: HttpRequest):
         sanitized_email = nh3.clean(unsanitized_email)
         sanitized_invite_code = nh3.clean(unsanitized_invite_code)
 
-        waiting_list_entry = get_object_or_404(
-            WaitingList.objects.filter(
-                invite_sent_at__isnull=False,
-                invite_accepted_at__isnull=True,
-            ),
-            invite_code=sanitized_invite_code,
+        waiting_list_entry = get_waiting_list_entry(
             email=sanitized_email,
+            invite_code=sanitized_invite_code,
         )
+        if not waiting_list_entry:
+            raise Http404("Waiting list entry not found")
 
         form = AcceptInviteForm()
         return render(
@@ -207,40 +205,42 @@ def invite(request: HttpRequest):
         cleaned_invite_code = form.cleaned_data["invite_code"]
         cleaned_name = form.cleaned_data["name"]
         cleaned_handle = form.cleaned_data["handle"]
-        cleaned_password = form.cleaned_data["password"]
 
         if form.is_valid():
-            waiting_list_entry = get_object_or_404(
-                WaitingList.objects.filter(
-                    invite_sent_at__isnull=False,
-                    invite_accepted_at__isnull=True,
-                ),
-                invite_code=cleaned_invite_code,
+            waiting_list_entry = get_waiting_list_entry(
                 email=cleaned_email,
+                invite_code=cleaned_invite_code,
             )
+            if not waiting_list_entry:
+                raise Http404("Waiting list entry not found")
 
-            # Create the user in keycloak manually.
-            # Not ideal as the password policies may be different but for now
-            # it allows us to keep registration closed to invite only.
-            create_user_in_keycloak(
+            register_user(
                 sanitized_email=cleaned_email,
                 sanitized_name=cleaned_name,
                 sanitized_handle=cleaned_handle,
-                sanitized_password=cleaned_password,
+                redirect_uri=request.build_absolute_uri(reverse("verify_identity")),
             )
 
-            # Expire the waiting list entry
-            waiting_list_entry.invite_accepted_at = timezone.now()
-            waiting_list_entry.save()
+            expire_waiting_list_entry(waiting_list_entry=waiting_list_entry)
 
-            # User will need to log in to be able to access the dashboard.
-            return redirect(settings.VERIFY_IDENTITY_URL)
+            # Show the user that they need to verify their email and set a password.
+            # They will be redirected to verify identity page after.
+
+            return render(
+                request,
+                "core/invite_success.html",
+                {
+                    "handle": cleaned_handle,
+                },
+            )
 
         return render(
             request,
             "invite.html",
             {
                 "form": form,
-                "waiting_list_entry": waiting_list_entry,
             },
         )
+
+    else:
+        return HttpResponse("Method not allowed", status=405)
