@@ -49,7 +49,29 @@ def is_user_identity_recently_verified(user: AgoraUser) -> bool:
     """
     Check if the user has a verified identity within the last year.
     """
-    return user.identity_verification.filter(
+    return user.identity_verifications.filter(
         identity_verification_status=IdentityVerification.IdentityVerificationStatus.VERIFIED,
         created_at__gte=timezone.now() - timezone.timedelta(days=365),
     ).exists()
+
+
+def get_waiting_list_entry(*, email: str, invite_code: str) -> WaitingList | None:
+    """
+    Retrieve a waiting list entry by email and invite code.
+
+    Args:
+        email: The email address associated with the waiting list entry.
+        invite_code: The unique invite code for the waiting list entry.
+    Returns:
+        The WaitingList entry if found, otherwise None.
+    """
+
+    try:
+        return WaitingList.objects.get(
+            invite_sent_at__isnull=False,
+            invite_accepted_at__isnull=True,
+            email=email,
+            invite_code=invite_code,
+        )
+    except WaitingList.DoesNotExist:
+        return None
