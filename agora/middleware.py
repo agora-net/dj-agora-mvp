@@ -44,7 +44,8 @@ class VerificationRequiredMiddleware:
 
         # Whitelist paths
         allowed_paths = [reverse(name) for name in allowed_route_names] + [
-            verify_identity_url_name_path
+            verify_identity_url_name_path,
+            "/favicon.ico",
         ]
 
         allowed_paths_startswith = [
@@ -54,6 +55,7 @@ class VerificationRequiredMiddleware:
             "/oidc/",
             "/__debug__/",
             "/onboarding/",
+            "/signup/",
         ]
 
         starts_with_allowed_path = any(
