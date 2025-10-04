@@ -26,6 +26,7 @@ class AgoraUser(AbstractUser):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
+    keycloak_id = models.CharField(max_length=255, unique=True)
     email = models.EmailField(_("email address"), unique=True)
     # First and last name do not cover name patterns around the globe
     name = models.CharField(_("Name of User"), blank=True, max_length=512)
@@ -39,7 +40,7 @@ class AgoraUser(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    objects: ClassVar[UserManager] = UserManager()
+    objects: ClassVar[UserManager] = UserManager()  # pyright: ignore[reportIncompatibleVariableOverride]
 
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.
@@ -61,7 +62,11 @@ class IdentityVerification(BaseModel):
         VERIFIED = "verified"
         FAILED = "failed"
 
-    user = models.ForeignKey(AgoraUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        AgoraUser,
+        on_delete=models.CASCADE,
+        related_name="identity_verifications",
+    )
     identity_verification_external_id = models.CharField(max_length=255)
     identity_verification_service = models.CharField(
         max_length=10, choices=IdentityVerificationService.choices
@@ -74,7 +79,7 @@ class IdentityVerification(BaseModel):
 class WaitingList(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
     email = models.EmailField(unique=True)
-    invite_code = models.CharField(max_length=255, unique=True)
+    invite_code = models.CharField(max_length=255, unique=True, editable=False)
     invite_sent_at = models.DateTimeField(null=True, blank=True)
     invite_accepted_at = models.DateTimeField(null=True, blank=True)
 
@@ -84,7 +89,7 @@ class WaitingList(BaseModel):
 
     @property
     def type_id(self):
-        return TypeID.from_uuid(prefix=self._type, suffix=self.id)
+        return TypeID.from_uuid(prefix=self._type, suffix=self.id)  # type: ignore
 
     @property
     def waiting_list_position(self):
