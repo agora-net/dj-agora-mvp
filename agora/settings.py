@@ -33,7 +33,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = env.bool("DEBUG", default=False)  # type: ignore
 
 TESTING = "test" in sys.argv or "PYTEST_VERSION" in os.environ
 
@@ -257,7 +257,12 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Email configuration
+
 EMAIL_TIMEOUT = 5
+
+DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", "")  # pyright: ignore[reportArgumentType]
+SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", DEFAULT_FROM_EMAIL)  # pyright: ignore[reportArgumentType]
 
 
 # Static files (CSS, JavaScript, Images)
@@ -265,8 +270,8 @@ EMAIL_TIMEOUT = 5
 
 
 # todo: set this from env
-STATIC_HOST = env.str("STATIC_HOST", "") if not DEBUG else ""
-STATIC_URL = STATIC_HOST + "/static/"
+STATIC_HOST = env.str("STATIC_HOST", "") if not DEBUG else ""  # type: ignore
+STATIC_URL = STATIC_HOST + "/static/"  # type: ignore
 
 STATICFILES_DIRS = [
     BASE_DIR / "frontend" / "@agora" / "agora" / "dist",
@@ -275,7 +280,7 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-CLOUDFLARE_TURNSTILE_SECRET = env.str("CLOUDFLARE_TURNSTILE_SECRET", "")
+CLOUDFLARE_TURNSTILE_SECRET = env.str("CLOUDFLARE_TURNSTILE_SECRET", "")  # type: ignore
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -309,7 +314,7 @@ KEYCLOAK_REALM = env.str("KEYCLOAK_REALM")  # Realm to connect to
 KEYCLOAK_USER_REALM = env.str("KEYCLOAK_USER_REALM")  # Realm to use for user authentication
 KEYCLOAK_CLIENT_ID = env.str("KEYCLOAK_CLIENT_ID")
 KEYCLOAK_CLIENT_SECRET = env.str("KEYCLOAK_CLIENT_SECRET")
-KEYCLOAK_VERIFY_CERT = env.bool("KEYCLOAK_VERIFY_CERT", default=True)
+KEYCLOAK_VERIFY_CERT = env.bool("KEYCLOAK_VERIFY_CERT", default=True)  # type: ignore
 
 # Mozilla Django OIDC settings
 # https://mozilla-django-oidc.readthedocs.io/en/stable/settings.html
