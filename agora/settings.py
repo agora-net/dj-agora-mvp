@@ -258,11 +258,14 @@ USE_I18N = True
 USE_TZ = True
 
 # Email configuration
-
-EMAIL_TIMEOUT = 5
-
 DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", "")  # pyright: ignore[reportArgumentType]
 SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", DEFAULT_FROM_EMAIL)  # pyright: ignore[reportArgumentType]
+
+EMAIL_TIMEOUT = 5
+EMAIL_BACKEND = env.str("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")  # type: ignore
+EMAIL_HOST = env.str("EMAIL_HOST", "localhost")  # type: ignore
+EMAIL_PORT = env.int("EMAIL_PORT", 25)  # type: ignore
+EMAIL_SUBJECT_PREFIX = "[Agora Django] "
 
 # Debug Toolbar settings
 RESULTS_CACHE_SIZE = 1000
