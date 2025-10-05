@@ -168,6 +168,8 @@ def invite(request: HttpRequest):
         When a POST request: Handle the invite request.
     """
 
+    template_name = "core/invite.html"
+
     if request.method == "GET":
         unsanitized_email = request.GET.get("email", "").strip()
         if not unsanitized_email:
@@ -189,9 +191,9 @@ def invite(request: HttpRequest):
 
         form = AcceptInviteForm()
         return render(
-            request,
-            "invite.html",
-            {
+            request=request,
+            template_name=template_name,
+            context={
                 "form": form,
                 "waiting_list_entry": waiting_list_entry,
             },
@@ -235,9 +237,9 @@ def invite(request: HttpRequest):
             )
 
         return render(
-            request,
-            "invite.html",
-            {
+            request=request,
+            template_name=template_name,
+            context={
                 "form": form,
             },
         )

@@ -63,18 +63,6 @@ class AcceptInviteForm(forms.Form):
         max_length=32,
         widget=forms.TextInput(attrs={"class": "input input-bordered w-full", "required": False}),
     )
-    password = forms.CharField(
-        label="Password",
-        max_length=255,
-        widget=forms.PasswordInput(
-            attrs={
-                "class": "input input-bordered w-full",
-                "required": True,
-                "minlength": 12,
-                "autocomplete": "new-password",
-            }
-        ),
-    )
 
     def clean(self):
         """Clean the form data by sanitizing the string values using nh3."""
