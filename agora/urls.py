@@ -11,6 +11,7 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("signup/<uuid:signup_id>/", signup_status, name="signup_status"),
     path("invite/", invite, name="invite"),
+    path("onboarding/", custom_404, name="onboarding"),  # Auto redirects to next onboarding step
     path(
         "onboarding/verify/identity", custom_404, name="verify_identity"
     ),  # Placeholder for future identity verification route
