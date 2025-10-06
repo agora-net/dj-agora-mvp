@@ -16,17 +16,17 @@ class AgoraOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     def create_user(self, claims):
         logger.info("Creating new user from OIDC claims", claims=claims)
         email = claims.get("email")
-        name = claims.get("name", "")
+        name = claims.get("name", "")  # Name is optional so default to empty string
         keycloak_id = claims.get("sub")
 
-        user = self.UserModel.objects.create_user(email=email, name=name, keycloak_id=keycloak_id)
+        user = self.UserModel.objects.create_user(email=email, name=name, keycloak_id=keycloak_id)  # pyright: ignore[reportCallIssue]
 
         self.update_groups(user, claims)
 
         return user
 
     def update_user(self, user, claims):
-        user.name = claims.get("name")
+        user.name = claims.get("name", "")
         user.save()
         self.update_groups(user, claims)
 
