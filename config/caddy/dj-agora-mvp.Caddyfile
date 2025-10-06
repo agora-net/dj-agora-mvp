@@ -1,3 +1,9 @@
+static.local.agora.gdn {
+	# Reverse proxy all requests to the static files server
+	reverse_proxy host.containers.internal:5173
+	tls internal
+}
+
 app.local.agora.gdn {
 	# Reverse proxy all requests to the Gunicorn socket
 	# Socket is managed by systemd `gunicorn_mvp.socket`
