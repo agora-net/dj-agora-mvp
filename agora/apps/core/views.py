@@ -12,6 +12,8 @@ from .models import WaitingList
 from .selectors import get_waiting_list_count, get_waiting_list_entry
 from .services import (
     add_to_waiting_list,
+    expire_waiting_list_entry,
+    register_user_in_keycloak,
     validate_cloudflare_turnstile,
 )
 
@@ -151,10 +153,15 @@ def dashboard(request):
     Dashboard view that requires authentication.
     Shows a placeholder dashboard for authenticated users.
     """
-    context = {
-        "user": request.user,
-    }
-    return render(request, "dashboard.html", context)
+    raise NotImplementedError("Dashboard not yet implemented")
+
+
+@login_required
+def onboarding(request):
+    """
+    Entry point for onboarding that will select the next step based on user profile state.
+    """
+    raise NotImplementedError("Onboarding flow not yet implemented")
 
 
 def invite(request: HttpRequest):
@@ -172,6 +179,8 @@ def invite(request: HttpRequest):
     template_name = "core/invite.html"
 
     if request.method == "GET":
+        logger.info("invite lookup")
+
         unsanitized_email = request.GET.get("email", "").strip()
         if not unsanitized_email:
             return HttpResponse("Email is required", status=400)
@@ -190,12 +199,22 @@ def invite(request: HttpRequest):
         if not waiting_list_entry:
             raise Http404("Waiting list entry not found")
 
+        keycloak_user_id = register_user_in_keycloak(
+            sanitized_email=sanitized_email,
+            redirect_uri=request.build_absolute_uri(reverse("onboarding")),
+        )
+
+        expire_waiting_list_entry(waiting_list_entry=waiting_list_entry)
+
+        logger.info(
+            "registered user in keycloak",
+            user_id=keycloak_user_id,
+        )
+
         return render(
             request=request,
             template_name=template_name,
-            context={
-                "waiting_list_entry": waiting_list_entry,
-            },
+            context={},
         )
     else:
         return HttpResponse("Method not allowed", status=405)
