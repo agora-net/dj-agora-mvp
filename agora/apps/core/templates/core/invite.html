@@ -1,1 +1,18 @@
-{{ form }}
+{% extends "base.html" %}
+{% load django_vite %}
+
+{% block title %}
+    Welcome to Agora
+{% endblock title %}
+
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center bg-base-100">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold mb-4">Welcome to Agora</h1>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block bodyEndScripts %}
+    {% vite_asset 'src/confetti.ts' %}
+{% endblock bodyEndScripts %}

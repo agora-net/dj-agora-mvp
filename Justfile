@@ -31,8 +31,8 @@ runserver:
 
 # Run the frontend hot reload
 [working-directory: "frontend/@agora/agora"]
-dev-frontend:
-    @pnpm dev
+dev-frontend *ARGS:
+    @pnpm dev {{ARGS}}
 
 # Test the backend code
 test-backend *ARGS:

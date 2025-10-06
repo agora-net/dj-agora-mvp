@@ -7,13 +7,11 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from .forms import AcceptInviteForm, WaitlistSignupForm
+from .forms import WaitlistSignupForm
 from .models import WaitingList
 from .selectors import get_waiting_list_count, get_waiting_list_entry
 from .services import (
     add_to_waiting_list,
-    expire_waiting_list_entry,
-    register_user,
     validate_cloudflare_turnstile,
 )
 
@@ -163,9 +161,12 @@ def invite(request: HttpRequest):
     """
     View to handle invite lookups by invite code.
 
-    Returns:
-        When a GET request: Template to gather missing information.
-        When a POST request: Handle the invite request.
+    When someone on the waiting list accepts an invite, they end up here.
+    It's a bit clunky for now, but what we do next is to create a user account
+    in Keycloak and tell them they have to check their email to continue.
+
+    Once they set their password and log in, they will be redirected back to the
+    onboarding flow to verify their identity and complete their profile.
     """
 
     template_name = "core/invite.html"
@@ -189,60 +190,12 @@ def invite(request: HttpRequest):
         if not waiting_list_entry:
             raise Http404("Waiting list entry not found")
 
-        form = AcceptInviteForm()
         return render(
             request=request,
             template_name=template_name,
             context={
-                "form": form,
                 "waiting_list_entry": waiting_list_entry,
             },
         )
-
-    elif request.method == "POST":
-        form = AcceptInviteForm(request.POST)
-
-        # Sanitize the form data
-        cleaned_email = form.cleaned_data["email"]
-        cleaned_invite_code = form.cleaned_data["invite_code"]
-        cleaned_name = form.cleaned_data["name"]
-        cleaned_handle = form.cleaned_data["handle"]
-
-        if form.is_valid():
-            waiting_list_entry = get_waiting_list_entry(
-                email=cleaned_email,
-                invite_code=cleaned_invite_code,
-            )
-            if not waiting_list_entry:
-                raise Http404("Waiting list entry not found")
-
-            register_user(
-                sanitized_email=cleaned_email,
-                sanitized_name=cleaned_name,
-                sanitized_handle=cleaned_handle,
-                redirect_uri=request.build_absolute_uri(reverse("verify_identity")),
-            )
-
-            expire_waiting_list_entry(waiting_list_entry=waiting_list_entry)
-
-            # Show the user that they need to verify their email and set a password.
-            # They will be redirected to verify identity page after.
-
-            return render(
-                request,
-                "core/invite_success.html",
-                {
-                    "handle": cleaned_handle,
-                },
-            )
-
-        return render(
-            request=request,
-            template_name=template_name,
-            context={
-                "form": form,
-            },
-        )
-
     else:
         return HttpResponse("Method not allowed", status=405)
