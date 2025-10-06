@@ -106,7 +106,6 @@ def validate_cloudflare_turnstile(
 def create_user_in_keycloak(
     *,
     sanitized_email: str,
-    sanitized_name: str,
 ) -> str:
     """
     Create a user in Keycloak.
@@ -117,7 +116,6 @@ def create_user_in_keycloak(
                 "email": sanitized_email,
                 "emailVerified": False,  # The user will be verified in the next step
                 "username": sanitized_email,
-                "name": sanitized_name,
                 "enabled": True,
             },
             exist_ok=False,
@@ -224,11 +222,9 @@ def send_user_registration_actions(
         raise ValueError("Failed to send registration actions email") from e
 
 
-def register_user(
+def register_user_in_keycloak(
     *,
     sanitized_email: str,
-    sanitized_name: str,
-    sanitized_handle: str,
     redirect_uri: str,
 ) -> str:
     """
@@ -236,8 +232,6 @@ def register_user(
 
     Args:
         sanitized_email: The user's email address
-        sanitized_name: The user's full name
-        sanitized_handle: The user's handle
         redirect_uri: The URI to redirect to after registration actions.
             As must be whitelisted in Keycloak, recommend using similar to:
             `request.build_absolute_uri(reverse("home"))`
@@ -246,7 +240,6 @@ def register_user(
     """
     user_id = create_user_in_keycloak(
         sanitized_email=sanitized_email,
-        sanitized_name=sanitized_name,
     )
 
     send_user_registration_actions(user_id=user_id, redirect_uri=redirect_uri)
