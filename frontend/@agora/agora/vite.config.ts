@@ -6,6 +6,10 @@ import react from '@vitejs/plugin-react-swc'
 export default defineConfig({
   base: "/static/",
   plugins: [react(), tailwindcss()],
+  server: {
+    allowedHosts: [".local.agora.gdn"],
+    host: true,
+  },
   build: {
     outDir: "dist",
     manifest: "manifest.json",
