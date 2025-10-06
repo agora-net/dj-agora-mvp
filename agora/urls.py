@@ -3,7 +3,16 @@ from django.contrib import admin
 from django.contrib.flatpages import views
 from django.urls import include, path, re_path
 
-from agora.apps.core.views import custom_404, dashboard, home, invite, login, signup, signup_status
+from agora.apps.core.views import (
+    custom_404,
+    dashboard,
+    home,
+    invite,
+    login,
+    onboarding,
+    signup,
+    signup_status,
+)
 
 urlpatterns = [
     path("", home, name="home"),
@@ -11,7 +20,7 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("signup/<uuid:signup_id>/", signup_status, name="signup_status"),
     path("invite/", invite, name="invite"),
-    path("onboarding/", custom_404, name="onboarding"),  # Auto redirects to next onboarding step
+    path("onboarding/", onboarding, name="onboarding"),  # Auto redirects to next onboarding step
     path(
         "onboarding/verify/identity", custom_404, name="verify_identity"
     ),  # Placeholder for future identity verification route
