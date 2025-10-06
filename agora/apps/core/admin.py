@@ -120,8 +120,10 @@ class WaitingListAdmin(admin.ModelAdmin):
 
 @admin.register(AgoraUser)
 class AgoraUserAdmin(auth_admin.UserAdmin):
+    readonly_fields = ["id", "last_login", "date_joined", "keycloak_id", "email"]
+
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
+        (None, {"fields": ("email", "password", "keycloak_id")}),
         (_("Personal info"), {"fields": ("name",)}),
         (
             _("Permissions"),
@@ -137,8 +139,8 @@ class AgoraUserAdmin(auth_admin.UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
-    list_display = ["email", "name", "is_superuser"]
-    search_fields = ["name"]
+    list_display = ["email", "name", "keycloak_id", "is_superuser"]
+    search_fields = ["name", "keycloak_id"]
     ordering = ["id"]
     add_fieldsets = (
         (

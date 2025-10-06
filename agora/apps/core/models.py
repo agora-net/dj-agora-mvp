@@ -26,7 +26,7 @@ class AgoraUser(AbstractUser):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False)
-    keycloak_id = models.CharField(max_length=255, unique=True)
+    keycloak_id = models.CharField(max_length=255, unique=True, blank=False, null=False)
     email = models.EmailField(_("email address"), unique=True)
     # First and last name do not cover name patterns around the globe
     name = models.CharField(_("Name of User"), blank=True, max_length=512)

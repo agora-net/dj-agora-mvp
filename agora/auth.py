@@ -1,6 +1,9 @@
+import structlog
 from django.contrib.auth.models import Group
 from django.db import transaction
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
+
+logger = structlog.get_logger(__name__)
 
 
 class AgoraOIDCAuthenticationBackend(OIDCAuthenticationBackend):
@@ -11,14 +14,12 @@ class AgoraOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     """
 
     def create_user(self, claims):
+        logger.info("Creating new user from OIDC claims", claims=claims)
         email = claims.get("email")
-        name = claims.get("name")
-        id = claims.get("sub")
+        name = claims.get("name", "")
+        keycloak_id = claims.get("sub")
 
-        user = self.UserModel.objects.create_user(email=email, name=name)
-
-        user.keycloak_id = id
-        user.save()
+        user = self.UserModel.objects.create_user(email=email, name=name, keycloak_id=keycloak_id)
 
         self.update_groups(user, claims)
 
