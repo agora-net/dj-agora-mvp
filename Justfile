@@ -13,6 +13,10 @@ shell $IPYTHONDIR="./.ipython":
 install-lefthook:
     @uv run lefthook install
 
+# Run the stripe CLI to listen for webhook events and forward them to the local server
+stripe-webhook:
+    @stripe listen --forward-to https://app.local.agora.gdn/webhooks/v1/stripe/ --skip-verify
+
 # Install the development dependencies
 install-dev:
     @uv sync
