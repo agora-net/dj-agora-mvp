@@ -1,11 +1,13 @@
 import secrets
 
 import requests
+import stripe
 import structlog
 from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
+from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils import timezone
 from keycloak import KeycloakGetError
@@ -261,3 +263,82 @@ def expire_waiting_list_entry(
     waiting_list_entry.save()
     # Clear the waiting_list_count cache
     cache.delete("waiting_list_count")
+
+
+def stripe_id_verification_canceled(*, request: HttpRequest, event: stripe.Event) -> None:
+    """
+    Handle a Stripe identity verification canceled event.
+
+    Args:
+        request: The Django HTTP request object
+        event: The Stripe event payload
+    """
+    raise NotImplementedError("handle identity.verification_session.canceled")
+
+
+def stripe_id_verification_verified(*, request: HttpRequest, event: stripe.Event) -> None:
+    """
+    Handle a Stripe identity verification verified event.
+
+    Args:
+        request: The Django HTTP request object
+        event: The Stripe event payload
+    """
+    raise NotImplementedError("handle identity.verification_session.verified")
+
+
+def stripe_id_verification_created(*, request: HttpRequest, event: stripe.Event) -> None:
+    """
+    Handle a Stripe identity verification created event.
+
+    Args:
+        request: The Django HTTP request object
+        event: The Stripe event payload
+    """
+    raise NotImplementedError("handle identity.verification_session.created")
+
+
+def stripe_id_verification_processing(*, request: HttpRequest, event: stripe.Event) -> None:
+    """
+    Handle a Stripe identity verification processing event.
+
+    Args:
+        request: The Django HTTP request object
+        event: The Stripe event payload
+    """
+    raise NotImplementedError("handle identity.verification_session.processing")
+
+
+def stripe_id_verification_requires_input(*, request: HttpRequest, event: stripe.Event) -> None:
+    """
+    Handle a Stripe identity verification requires input event.
+
+    Args:
+        request: The Django HTTP request object
+        event: The Stripe event payload
+    """
+    raise NotImplementedError("handle identity.verification_session.requires_input")
+
+
+def handle_stripe_identity_verification_event(*, request: HttpRequest, event: stripe.Event) -> None:
+    """
+    Handle a Stripe identity verification event.
+
+    Args:
+        request: The Django HTTP request object
+        event: The Stripe event payload
+    """
+
+    if not event.type.startswith("identity.verification_session."):
+        raise ValueError("Event type is not an identity verification event")
+
+    if event.type == "identity.verification_session.canceled":
+        stripe_id_verification_canceled(request=request, event=event)
+    elif event.type == "identity.verification_session.created":
+        stripe_id_verification_created(request=request, event=event)
+    elif event.type == "identity.verification_session.processing":
+        stripe_id_verification_processing(request=request, event=event)
+    elif event.type == "identity.verification_session.requires_input":
+        stripe_id_verification_requires_input(request=request, event=event)
+    elif event.type == "identity.verification_session.verified":
+        stripe_id_verification_verified(request=request, event=event)

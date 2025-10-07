@@ -7,6 +7,8 @@ from django.http import HttpRequest
 from ninja import NinjaAPI, Schema
 from ninja.responses import codes_4xx
 
+from .services import handle_stripe_identity_verification_event
+
 webhooks = NinjaAPI(
     version="1.0.0-webhooks",
     title="Agora Webhooks",
@@ -49,16 +51,8 @@ def stripe_webhook(request: HttpRequest):
     logger.info("received Stripe webhook event", event_type=event.type, event_id=event.id)
 
     # https://docs.stripe.com/api/events/types#event_types-identity.verification_session.canceled
-    if event.type == "identity.verification_session.canceled":
-        raise NotImplementedError("handle identity.verification_session.canceled")
-    elif event.type == "identity.verification_session.created":
-        raise NotImplementedError("handle identity.verification_session.created")
-    elif event.type == "identity.verification_session.processing":
-        raise NotImplementedError("handle identity.verification_session.processing")
-    elif event.type == "identity.verification_session.requires_input":
-        raise NotImplementedError("handle identity.verification_session.requires_input")
-    elif event.type == "identity.verification_session.verified":
-        raise NotImplementedError("handle identity.verification_session.verified")
+    if event.type.startswith("identity.verification_session."):
+        handle_stripe_identity_verification_event(request=request, event=event)
     else:
         logger.warning(
             "unhandled Stripe webhook event type",
