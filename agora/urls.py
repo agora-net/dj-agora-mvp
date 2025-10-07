@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.flatpages import views
 from django.urls import include, path, re_path
 
+from agora.apps.core import api_v1
 from agora.apps.core.views import (
     custom_404,
     dashboard,
@@ -33,6 +34,7 @@ urlpatterns = [
     path("404/", custom_404, name="404"),
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("admin/", admin.site.urls),
+    path("api/v1/", api_v1.api.urls),
 ]
 
 if not settings.TESTING:
