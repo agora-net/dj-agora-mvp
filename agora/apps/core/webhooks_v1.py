@@ -48,10 +48,17 @@ def stripe_webhook(request: HttpRequest):
     # Handle the event
     logger.info("received Stripe webhook event", event_type=event.type, event_id=event.id)
 
-    raise NotImplementedError("Stripe webhook handling not implemented yet")
-
-    if event.type == "test":
-        pass
+    # https://docs.stripe.com/api/events/types#event_types-identity.verification_session.canceled
+    if event.type == "identity.verification_session.canceled":
+        raise NotImplementedError("handle identity.verification_session.canceled")
+    elif event.type == "identity.verification_session.created":
+        raise NotImplementedError("handle identity.verification_session.created")
+    elif event.type == "identity.verification_session.processing":
+        raise NotImplementedError("handle identity.verification_session.processing")
+    elif event.type == "identity.verification_session.requires_input":
+        raise NotImplementedError("handle identity.verification_session.requires_input")
+    elif event.type == "identity.verification_session.verified":
+        raise NotImplementedError("handle identity.verification_session.verified")
     else:
         logger.warning(
             "unhandled Stripe webhook event type",
