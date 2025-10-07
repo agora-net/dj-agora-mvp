@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 import environ
+import stripe
 import structlog
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -345,3 +346,15 @@ OIDC_PKCE_CODE_CHALLENGE_METHOD = "S256"
 OIDC_VERIFY_SSL = False
 OIDC_VERIFY_JWT = False
 OIDC_USE_NONCE = False
+
+# Stripe settings
+STRIPE_LIVE_SECRET_KEY = env.str("STRIPE_LIVE_SECRET_KEY", "")  # type: ignore
+STRIPE_LIVE_PUBLISHABLE_KEY = env.str("STRIPE_LIVE_PUBLISHABLE_KEY", "")  # type: ignore
+STRIPE_TEST_SECRET_KEY = env.str("STRIPE_TEST_SECRET_KEY", "")  # type: ignore
+STRIPE_TEST_PUBLISHABLE_KEY = env.str("STRIPE_TEST_PUBLISHABLE_KEY", "")  # type: ignore
+STRIPE_LIVE_MODE = env.bool("STRIPE_LIVE_MODE", default=True)  # type: ignore
+
+if STRIPE_LIVE_MODE:
+    stripe.api_key = STRIPE_LIVE_SECRET_KEY
+else:
+    stripe.api_key = STRIPE_TEST_SECRET_KEY
