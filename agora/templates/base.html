@@ -43,7 +43,21 @@
         {% endblock bodyEnd %}
         {% block bodyEndScripts %}
         {% endblock bodyEndScripts %}
-        {% vite_asset 'src/theme-change.ts' %}
-        {% vite_asset 'src/icons.ts' %}
+
+        {% if messages %}
+            {% vite_asset 'src/notifications.ts' %}
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                if (!showNotification) {
+                    console.error("showNotification function is not defined.");
+                    return;
+                }
+                {% for message in messages %}
+                    showNotification("{{ message }}");
+                {% endfor %}
+                })
+            </script>
+        {% endif %}
+        {% vite_asset 'src/theme-change.ts' %} {% vite_asset 'src/icons.ts' %}
     </body>
 </html>
