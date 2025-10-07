@@ -26,38 +26,9 @@ class WaitlistSignupForm(forms.Form):
         return email
 
 
-class AcceptInviteForm(forms.Form):
-    """Form for accepting an invite."""
+class EditProfileForm(forms.Form):
+    """Form for a user to manage their profile attributes."""
 
-    email = forms.EmailField(
-        label="Email address",
-        max_length=254,
-        widget=forms.EmailInput(
-            attrs={
-                "class": "input input-bordered w-full",
-                "required": True,
-                "disabled": True,
-                "readonly": True,
-            }
-        ),
-    )
-    invite_code = forms.CharField(
-        label="Invite code",
-        max_length=255,
-        widget=forms.TextInput(
-            attrs={
-                "class": "input input-bordered w-full",
-                "required": True,
-                "disabled": True,
-                "hidden": True,
-            }
-        ),
-    )
-    name = forms.CharField(
-        label="Name",
-        max_length=512,
-        widget=forms.TextInput(attrs={"class": "input input-bordered w-full", "required": True}),
-    )
     handle = forms.CharField(
         label="Handle",
         max_length=32,

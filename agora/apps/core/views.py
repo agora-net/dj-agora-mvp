@@ -7,9 +7,14 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from .forms import WaitlistSignupForm
+from .forms import EditProfileForm, WaitlistSignupForm
 from .models import WaitingList
-from .selectors import get_waiting_list_count, get_waiting_list_entry
+from .selectors import (
+    get_waiting_list_count,
+    get_waiting_list_entry,
+    is_user_identity_recently_verified,
+    is_user_profile_complete,
+)
 from .services import (
     add_to_waiting_list,
     expire_waiting_list_entry,
@@ -161,7 +166,53 @@ def onboarding(request):
     """
     Entry point for onboarding that will select the next step based on user profile state.
     """
-    raise NotImplementedError("Onboarding flow not yet implemented")
+    user = request.user
+
+    # Check if user has verified identity
+    if not is_user_identity_recently_verified(user):
+        return redirect("verify_identity")
+
+    # Check if user has completed their profile
+    if not is_user_profile_complete(user):
+        return redirect("onboarding_profile")
+
+    # User has completed onboarding, redirect to dashboard
+    return redirect("dashboard")
+
+
+@login_required
+def verify_identity(request):
+    """
+    View for identity verification step in onboarding.
+    """
+    # For now, this is a placeholder that shows the identity verification page
+    # In the future, this would integrate with Ondato or Stripe for identity verification
+    return render(request, "core/verify_identity.html")
+
+
+@login_required
+def onboarding_edit_profile(request):
+    """
+    View for editing user profile during onboarding.
+    """
+    if request.method == "POST":
+        form = EditProfileForm(request.POST)
+        if form.is_valid():
+            # Update user profile
+            request.user.handle = form.cleaned_data.get("handle")
+            request.user.save()
+
+            # Redirect back to onboarding to check next step
+            return redirect("onboarding")
+    else:
+        # Pre-populate form with existing data
+        form = EditProfileForm(
+            initial={
+                "handle": request.user.handle,
+            }
+        )
+
+    return render(request, "core/edit_profile.html", {"form": form})
 
 
 def invite(request: HttpRequest):

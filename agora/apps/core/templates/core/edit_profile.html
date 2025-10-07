@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load django_vite %}
+{% block title %}
+    Complete Your Profile - Agora
+{% endblock title %}
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center bg-base-100">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title justify-center text-2xl mb-4">Complete Your Profile</h2>
+
+                <div class="alert alert-info mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         class="stroke-current shrink-0 w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    <div>
+                        <h3 class="font-bold">Almost There!</h3>
+                        <div class="text-xs">Please complete your profile to finish setting up your Agora account.</div>
+                    </div>
+                </div>
+
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Handle (Optional)</span>
+                            <span class="label-text-alt">Your unique username on Agora</span>
+                        </label>
+                        {{ form.handle }}
+                        {% if form.handle.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.handle.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control mt-6">
+                        <button type="submit" class="btn btn-primary w-full">Complete Profile</button>
+                    </div>
+                </form>
+
+                <div class="divider">Need Help?</div>
+
+                <p class="text-sm text-base-content/60 text-center">Having trouble? Contact our support team for assistance.</p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

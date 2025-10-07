@@ -75,3 +75,19 @@ def get_waiting_list_entry(*, email: str, invite_code: str) -> WaitingList | Non
         )
     except WaitingList.DoesNotExist:
         return None
+
+
+def is_user_profile_complete(user: AgoraUser) -> bool:
+    """
+    Check if the user has completed their profile (handle is set).
+
+    The user's name will be set from Keycloak which receives it from the
+    identity verification service (read from the ID).
+
+    Args:
+        user: The user to check
+
+    Returns:
+        True if profile is complete, False otherwise
+    """
+    return bool(user.handle)

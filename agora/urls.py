@@ -10,8 +10,10 @@ from agora.apps.core.views import (
     invite,
     login,
     onboarding,
+    onboarding_edit_profile,
     signup,
     signup_status,
+    verify_identity,
 )
 
 urlpatterns = [
@@ -22,8 +24,11 @@ urlpatterns = [
     path("invite/", invite, name="invite"),
     path("onboarding/", onboarding, name="onboarding"),  # Auto redirects to next onboarding step
     path(
-        "onboarding/verify/identity", custom_404, name="verify_identity"
-    ),  # Placeholder for future identity verification route
+        "onboarding/verify/identity", verify_identity, name="verify_identity"
+    ),  # Identity verification step
+    path(
+        "onboarding/profile", onboarding_edit_profile, name="onboarding_profile"
+    ),  # Profile completion step
     path("dashboard/", dashboard, name="dashboard"),
     path("404/", custom_404, name="404"),
     path("oidc/", include("mozilla_django_oidc.urls")),
