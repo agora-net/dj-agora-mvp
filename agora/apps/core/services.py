@@ -292,115 +292,6 @@ def update_identity_verification_status(
     )
 
 
-def stripe_id_verification_canceled(
-    *,
-    user: AgoraUser,
-    request: HttpRequest,
-    event: stripe.identity.VerificationSession,
-) -> None:
-    """
-    Handle a Stripe identity verification canceled event.
-
-    Args:
-        request: The Django HTTP request object
-        event: The Stripe event payload
-    """
-    status = IdentityVerification.IdentityVerificationStatus.FAILED
-
-    update_identity_verification_status(
-        user=user,
-        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
-        verification_external_id=event.id,
-        status=status,
-    )
-
-
-def stripe_id_verification_verified(
-    *,
-    user: AgoraUser,
-    request: HttpRequest,
-    event: stripe.identity.VerificationSession,
-) -> None:
-    """
-    Handle a Stripe identity verification verified event.
-
-    Args:
-        request: The Django HTTP request object
-        event: The Stripe event payload
-    """
-
-    status = IdentityVerification.IdentityVerificationStatus.VERIFIED
-
-    update_identity_verification_status(
-        user=user,
-        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
-        verification_external_id=event.id,
-        status=status,
-    )
-
-
-def stripe_id_verification_created(
-    *,
-    user: AgoraUser,
-    request: HttpRequest,
-    event: stripe.identity.VerificationSession,
-) -> None:
-    """
-    Handle a Stripe identity verification created event.
-
-    Args:
-        request: The Django HTTP request object
-        event: The Stripe event payload
-    """
-    raise NotImplementedError("handle identity.verification_session.created")
-
-
-def stripe_id_verification_processing(
-    *,
-    user: AgoraUser,
-    request: HttpRequest,
-    event: stripe.identity.VerificationSession,
-) -> None:
-    """
-    Handle a Stripe identity verification processing event.
-
-    Args:
-        request: The Django HTTP request object
-        event: The Stripe event payload
-    """
-    status = IdentityVerification.IdentityVerificationStatus.PROCESSING
-
-    update_identity_verification_status(
-        user=user,
-        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
-        verification_external_id=event.id,
-        status=status,
-    )
-
-
-def stripe_id_verification_requires_input(
-    *,
-    user: AgoraUser,
-    request: HttpRequest,
-    event: stripe.identity.VerificationSession,
-) -> None:
-    """
-    Handle a Stripe identity verification requires input event.
-
-    Args:
-        request: The Django HTTP request object
-        event: The Stripe event payload
-    """
-    status = IdentityVerification.IdentityVerificationStatus.REQUIRES_ACTION
-
-    update_identity_verification_status(
-        user=user,
-        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
-        verification_external_id=event.id,
-        status=status,
-    )
-
-
 def handle_stripe_identity_verification_event(
     *,
     request: HttpRequest,
@@ -421,13 +312,23 @@ def handle_stripe_identity_verification_event(
     if not user:
         raise Http404("User not found for identity verification")
 
+    status = None
+
     if event.type == "identity.verification_session.canceled":
-        stripe_id_verification_canceled(user=user, request=request, event=event)
+        status = IdentityVerification.IdentityVerificationStatus.FAILED
     # elif event.type == "identity.verification_session.created":
     #     stripe_id_verification_created(user=user, request=request, event=event)
     elif event.type == "identity.verification_session.processing":
-        stripe_id_verification_processing(user=user, request=request, event=event)
+        status = IdentityVerification.IdentityVerificationStatus.PROCESSING
     elif event.type == "identity.verification_session.requires_input":
-        stripe_id_verification_requires_input(user=user, request=request, event=event)
+        status = IdentityVerification.IdentityVerificationStatus.REQUIRES_ACTION
     elif event.type == "identity.verification_session.verified":
-        stripe_id_verification_verified(user=user, request=request, event=event)
+        status = IdentityVerification.IdentityVerificationStatus.VERIFIED
+
+    if status:
+        update_identity_verification_status(
+            user=user,
+            verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
+            verification_external_id=event.id,
+            status=status,
+        )
