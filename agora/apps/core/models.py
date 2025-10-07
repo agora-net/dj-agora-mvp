@@ -65,8 +65,9 @@ class IdentityVerification(BaseModel):
         ONDATO = "ondato"
 
     class IdentityVerificationStatus(models.TextChoices):
-        PENDING = "pending"
+        PROCESSING = "processing"
         VERIFIED = "verified"
+        REQUIRES_ACTION = "requires_action"
         FAILED = "failed"
 
     user = models.ForeignKey(
@@ -79,7 +80,7 @@ class IdentityVerification(BaseModel):
         max_length=10, choices=IdentityVerificationService.choices
     )
     identity_verification_status = models.CharField(
-        max_length=10, choices=IdentityVerificationStatus.choices
+        max_length=15, choices=IdentityVerificationStatus.choices
     )
 
 
