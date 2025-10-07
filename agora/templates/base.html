@@ -15,6 +15,7 @@
         <script defer data-domain="agora.gdn" src="https://plausible.io/js/script.js"></script>
         <script src="https://js.stripe.com/clover/stripe.js"></script>
         <link rel="icon" href="{% static 'favicon.svg' %}">
+        <script>const STRIPE_PUBLISHABLE_KEY = "{{ STRIPE_PUBLISHABLE_KEY }}";</script>
         {% vite_hmr_client %}
         {% vite_react_refresh %}
     </head>
