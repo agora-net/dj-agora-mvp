@@ -23,7 +23,12 @@ class StripeIdentityResponse(Schema):
     client_secret: str
 
 
-@api.post("/identity/stripe/", auth=django_auth, response={201: StripeIdentityResponse})
+@api.post(
+    "/identity/stripe/",
+    auth=django_auth,
+    response={201: StripeIdentityResponse},
+    url_name="create_stripe_identity_verification_session",
+)
 def create_stripe_identity_verification_session(request):
     # we know the user is authenticated because of the auth decorator on the API
     user: AgoraUser = request.user  # type: ignore
