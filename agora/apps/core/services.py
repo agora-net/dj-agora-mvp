@@ -316,8 +316,12 @@ def handle_stripe_identity_verification_event(
 
     if event.type == "identity.verification_session.canceled":
         status = IdentityVerification.IdentityVerificationStatus.FAILED
-    # elif event.type == "identity.verification_session.created":
-    #     stripe_id_verification_created(user=user, request=request, event=event)
+    elif event.type == "identity.verification_session.created":
+        logger.info(
+            "received unhandled Stripe identity verification event type",
+            event_type=event.type,
+            event_id=event.id,
+        )
     elif event.type == "identity.verification_session.processing":
         status = IdentityVerification.IdentityVerificationStatus.PROCESSING
     elif event.type == "identity.verification_session.requires_input":
