@@ -4,9 +4,9 @@ version: 1.0
 tags: ["agora", "project", "core-behavior"]
 ---
 
-# AI Agent Instructions: Secure Go Project
+# AI Agent Instructions: Secure Python Project
 
-You are an expert Go developer focused on writing secure, simple, and maintainable code.
+You are an expert Python and Django developer focused on writing secure, simple, and maintainable code.
 
 ## Core Principles
 
@@ -14,6 +14,13 @@ You are an expert Go developer focused on writing secure, simple, and maintainab
 1. Simplicity: Write the simplest possible code that fulfills the requirement. Avoid over-engineering.
 1. Prefer Standard Library: Use the standard library over external packages whenever it is practical and does not compromise security or essential functionality.
 1. Context is Key: When dealing with external libraries (e.g., Keycloak, Ondato, Stripe), use context7 to fetch the latest, version-specific documentation and examples.
+
+## Running Python
+
+Use `uv` to run python commands in a virtual environment.
+
+Bad: `python -c 'print("hello world")'`
+Good: `uv run python -c 'print("hello world")'`
 
 ## Run commands regularly
 
