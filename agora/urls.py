@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.flatpages import views
 from django.urls import include, path, re_path
 
-from agora.apps.core import api_v1
+from agora.apps.core import api_v1, webhooks_v1
 from agora.apps.core.views import (
     custom_404,
     dashboard,
@@ -35,6 +35,7 @@ urlpatterns = [
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("admin/", admin.site.urls),
     path("api/v1/", api_v1.api.urls),
+    path("webhooks/v1/", webhooks_v1.webhooks.urls),
 ]
 
 if not settings.TESTING:
