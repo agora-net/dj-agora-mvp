@@ -354,6 +354,8 @@ STRIPE_TEST_SECRET_KEY = env.str("STRIPE_TEST_SECRET_KEY", "")  # type: ignore
 STRIPE_TEST_PUBLISHABLE_KEY = env.str("STRIPE_TEST_PUBLISHABLE_KEY", "")  # type: ignore
 STRIPE_LIVE_MODE = env.bool("STRIPE_LIVE_MODE", default=True)  # type: ignore
 
+STRIPE_IDENTITY_VERIFICATION_FLOW = env.str("STRIPE_IDENTITY_VERIFICATION_FLOW", "")  # type: ignore
+
 if STRIPE_LIVE_MODE:
     stripe.api_key = STRIPE_LIVE_SECRET_KEY
 else:
