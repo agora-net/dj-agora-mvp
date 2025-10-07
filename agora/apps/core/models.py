@@ -30,7 +30,14 @@ class AgoraUser(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     # First and last name do not cover name patterns around the globe
     name = models.CharField(_("Name of User"), blank=True, max_length=512)
-    handle = models.CharField(_("Handle of User"), blank=True, max_length=32)
+    handle = models.CharField(
+        _("Handle of User"),
+        unique=True,
+        blank=True,
+        null=True,
+        max_length=32,
+        default=None,
+    )
     first_name = None  # type: ignore[assignment]
     last_name = None  # type: ignore[assignment]
     is_active = models.BooleanField(default=True)

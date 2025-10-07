@@ -123,7 +123,7 @@ class AgoraUserAdmin(auth_admin.UserAdmin):
     readonly_fields = ["id", "last_login", "date_joined", "keycloak_id", "email"]
 
     fieldsets = (
-        (None, {"fields": ("email", "password", "keycloak_id")}),
+        (None, {"fields": ("email", "password", "handle", "keycloak_id")}),
         (_("Personal info"), {"fields": ("name",)}),
         (
             _("Permissions"),
@@ -139,8 +139,8 @@ class AgoraUserAdmin(auth_admin.UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
-    list_display = ["email", "name", "keycloak_id", "is_superuser"]
-    search_fields = ["name", "keycloak_id"]
+    list_display = ["email", "name", "handle", "keycloak_id", "is_superuser"]
+    search_fields = ["name", "keycloak_id", "handle", "email"]
     ordering = ["id"]
     add_fieldsets = (
         (
