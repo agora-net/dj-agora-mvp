@@ -174,6 +174,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "agora.context_processors.stripe_publishable_key",
             ],
         },
     },
@@ -358,5 +359,9 @@ STRIPE_IDENTITY_VERIFICATION_FLOW = env.str("STRIPE_IDENTITY_VERIFICATION_FLOW",
 
 if STRIPE_LIVE_MODE:
     stripe.api_key = STRIPE_LIVE_SECRET_KEY
+    STRIPE_PUBLISHABLE_KEY = STRIPE_LIVE_PUBLISHABLE_KEY
+    STRIPE_SECRET_KEY = STRIPE_LIVE_SECRET_KEY
 else:
     stripe.api_key = STRIPE_TEST_SECRET_KEY
+    STRIPE_PUBLISHABLE_KEY = STRIPE_TEST_PUBLISHABLE_KEY
+    STRIPE_SECRET_KEY = STRIPE_TEST_SECRET_KEY
