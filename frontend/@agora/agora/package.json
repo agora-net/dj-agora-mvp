@@ -20,6 +20,7 @@
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.13",
     "theme-change": "^2.5.0",
+    "toastify-js": "^1.12.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
