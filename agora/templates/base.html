@@ -53,7 +53,7 @@
                     return;
                 }
                 {% for message in messages %}
-                    showNotification("{{ message }}");
+                    showNotification("{{ message }}" {% if message.tags %}, "{{ message.tags }}"{% endif %});
                 {% endfor %}
                 })
             </script>
