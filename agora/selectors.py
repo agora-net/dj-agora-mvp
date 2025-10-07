@@ -24,8 +24,7 @@ def stripe_idempotency_key_time_based(*, prefix: str, unique_key: str) -> str:
     now = datetime.now(UTC)
 
     today_str = now.strftime("%Y%m%d")
-    # select a 6 hour period so idempotency key changes 4 times a day
-    hour_block = now.hour // 6
+    hour_block = now.hour
 
     unique_key = f"{prefix}_{unique_key}_{today_str}_{hour_block}"
 
