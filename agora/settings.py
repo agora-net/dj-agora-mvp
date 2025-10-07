@@ -293,12 +293,15 @@ CLOUDFLARE_TURNSTILE_SECRET = env.str("CLOUDFLARE_TURNSTILE_SECRET", "")  # type
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Django vite settings
+# https://github.com/MrBin99/django-vite?tab=readme-ov-file#configuration-variables
 DJANGO_VITE = {
     "default": {
         "dev_mode": DEBUG,
+        "dev_server_protocol": "https",
         "manifest_path": BASE_DIR / "frontend" / "@agora" / "agora" / "dist" / "manifest.json",
         "dev_server_host": "static.local.agora.gdn",
-        "dev_server_port": 80,
+        "dev_server_port": 443,
     }
 }
 # http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST
