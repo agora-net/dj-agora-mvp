@@ -265,7 +265,11 @@ def expire_waiting_list_entry(
     cache.delete("waiting_list_count")
 
 
-def stripe_id_verification_canceled(*, request: HttpRequest, event: stripe.Event) -> None:
+def stripe_id_verification_canceled(
+    *,
+    request: HttpRequest,
+    event: stripe.identity.VerificationSession,
+) -> None:
     """
     Handle a Stripe identity verification canceled event.
 
@@ -276,7 +280,11 @@ def stripe_id_verification_canceled(*, request: HttpRequest, event: stripe.Event
     raise NotImplementedError("handle identity.verification_session.canceled")
 
 
-def stripe_id_verification_verified(*, request: HttpRequest, event: stripe.Event) -> None:
+def stripe_id_verification_verified(
+    *,
+    request: HttpRequest,
+    event: stripe.identity.VerificationSession,
+) -> None:
     """
     Handle a Stripe identity verification verified event.
 
@@ -287,7 +295,11 @@ def stripe_id_verification_verified(*, request: HttpRequest, event: stripe.Event
     raise NotImplementedError("handle identity.verification_session.verified")
 
 
-def stripe_id_verification_created(*, request: HttpRequest, event: stripe.Event) -> None:
+def stripe_id_verification_created(
+    *,
+    request: HttpRequest,
+    event: stripe.identity.VerificationSession,
+) -> None:
     """
     Handle a Stripe identity verification created event.
 
@@ -298,7 +310,11 @@ def stripe_id_verification_created(*, request: HttpRequest, event: stripe.Event)
     raise NotImplementedError("handle identity.verification_session.created")
 
 
-def stripe_id_verification_processing(*, request: HttpRequest, event: stripe.Event) -> None:
+def stripe_id_verification_processing(
+    *,
+    request: HttpRequest,
+    event: stripe.identity.VerificationSession,
+) -> None:
     """
     Handle a Stripe identity verification processing event.
 
@@ -309,7 +325,11 @@ def stripe_id_verification_processing(*, request: HttpRequest, event: stripe.Eve
     raise NotImplementedError("handle identity.verification_session.processing")
 
 
-def stripe_id_verification_requires_input(*, request: HttpRequest, event: stripe.Event) -> None:
+def stripe_id_verification_requires_input(
+    *,
+    request: HttpRequest,
+    event: stripe.identity.VerificationSession,
+) -> None:
     """
     Handle a Stripe identity verification requires input event.
 
@@ -320,7 +340,11 @@ def stripe_id_verification_requires_input(*, request: HttpRequest, event: stripe
     raise NotImplementedError("handle identity.verification_session.requires_input")
 
 
-def handle_stripe_identity_verification_event(*, request: HttpRequest, event: stripe.Event) -> None:
+def handle_stripe_identity_verification_event(
+    *,
+    request: HttpRequest,
+    event: stripe.identity.VerificationSession,
+) -> None:
     """
     Handle a Stripe identity verification event.
 
