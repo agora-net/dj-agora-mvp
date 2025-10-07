@@ -18,8 +18,12 @@
 },
 "cSpell.words": [
     "csrftoken",
+    "endcomment",
+    "endfor",
     "linecap",
     "linejoin",
+    "stylesheet",
+    "toastify",
     "vite"
 ]
 }
