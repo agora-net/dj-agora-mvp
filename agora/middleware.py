@@ -56,6 +56,7 @@ class VerificationRequiredMiddleware:
             "/__debug__/",
             "/onboarding/",
             "/signup/",
+            "/api/",
         ]
 
         starts_with_allowed_path = any(
