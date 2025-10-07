@@ -15,5 +15,11 @@
   },
   "emmet.includeLanguages": {
     "django-html": "html"
-  }
+},
+"cSpell.words": [
+    "csrftoken",
+    "linecap",
+    "linejoin",
+    "vite"
+]
 }
