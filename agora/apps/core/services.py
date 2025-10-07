@@ -7,13 +7,14 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
-from django.http import HttpRequest
+from django.http import Http404, HttpRequest
 from django.template.loader import render_to_string
 from django.utils import timezone
 from keycloak import KeycloakGetError
 
-from agora.apps.core.models import WaitingList
 from agora.keycloak_admin import keycloak_admin
+
+from .models import AgoraUser, IdentityVerification, WaitingList
 
 logger = structlog.get_logger(__name__)
 
@@ -265,8 +266,35 @@ def expire_waiting_list_entry(
     cache.delete("waiting_list_count")
 
 
+def update_identity_verification_status(
+    *,
+    user: AgoraUser,
+    verification_service: IdentityVerification.IdentityVerificationService,
+    verification_external_id: str,
+    status: IdentityVerification.IdentityVerificationStatus,
+) -> None:
+    """
+    Update the identity verification status for a user.
+
+    Args:
+        user: The AgoraUser to update
+        verification_service: The service used for verification
+        verification_external_id: The external ID from the verification service
+        status: The new status to set
+    """
+    IdentityVerification.objects.update_or_create(
+        user=user,
+        identity_verification_service=verification_service,
+        identity_verification_external_id=verification_external_id,
+        defaults={
+            "identity_verification_status": status,
+        },
+    )
+
+
 def stripe_id_verification_canceled(
     *,
+    user: AgoraUser,
     request: HttpRequest,
     event: stripe.identity.VerificationSession,
 ) -> None:
@@ -277,11 +305,19 @@ def stripe_id_verification_canceled(
         request: The Django HTTP request object
         event: The Stripe event payload
     """
-    raise NotImplementedError("handle identity.verification_session.canceled")
+    status = IdentityVerification.IdentityVerificationStatus.FAILED
+
+    update_identity_verification_status(
+        user=user,
+        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
+        verification_external_id=event.id,
+        status=status,
+    )
 
 
 def stripe_id_verification_verified(
     *,
+    user: AgoraUser,
     request: HttpRequest,
     event: stripe.identity.VerificationSession,
 ) -> None:
@@ -292,11 +328,20 @@ def stripe_id_verification_verified(
         request: The Django HTTP request object
         event: The Stripe event payload
     """
-    raise NotImplementedError("handle identity.verification_session.verified")
+
+    status = IdentityVerification.IdentityVerificationStatus.VERIFIED
+
+    update_identity_verification_status(
+        user=user,
+        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
+        verification_external_id=event.id,
+        status=status,
+    )
 
 
 def stripe_id_verification_created(
     *,
+    user: AgoraUser,
     request: HttpRequest,
     event: stripe.identity.VerificationSession,
 ) -> None:
@@ -312,6 +357,7 @@ def stripe_id_verification_created(
 
 def stripe_id_verification_processing(
     *,
+    user: AgoraUser,
     request: HttpRequest,
     event: stripe.identity.VerificationSession,
 ) -> None:
@@ -322,11 +368,19 @@ def stripe_id_verification_processing(
         request: The Django HTTP request object
         event: The Stripe event payload
     """
-    raise NotImplementedError("handle identity.verification_session.processing")
+    status = IdentityVerification.IdentityVerificationStatus.PROCESSING
+
+    update_identity_verification_status(
+        user=user,
+        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
+        verification_external_id=event.id,
+        status=status,
+    )
 
 
 def stripe_id_verification_requires_input(
     *,
+    user: AgoraUser,
     request: HttpRequest,
     event: stripe.identity.VerificationSession,
 ) -> None:
@@ -337,7 +391,14 @@ def stripe_id_verification_requires_input(
         request: The Django HTTP request object
         event: The Stripe event payload
     """
-    raise NotImplementedError("handle identity.verification_session.requires_input")
+    status = IdentityVerification.IdentityVerificationStatus.REQUIRES_ACTION
+
+    update_identity_verification_status(
+        user=user,
+        verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
+        verification_external_id=event.id,
+        status=status,
+    )
 
 
 def handle_stripe_identity_verification_event(
@@ -356,13 +417,17 @@ def handle_stripe_identity_verification_event(
     if not event.type.startswith("identity.verification_session."):
         raise ValueError("Event type is not an identity verification event")
 
+    user = AgoraUser.objects.get(id=event.metadata.get("user_id"))
+    if not user:
+        raise Http404("User not found for identity verification")
+
     if event.type == "identity.verification_session.canceled":
-        stripe_id_verification_canceled(request=request, event=event)
-    elif event.type == "identity.verification_session.created":
-        stripe_id_verification_created(request=request, event=event)
+        stripe_id_verification_canceled(user=user, request=request, event=event)
+    # elif event.type == "identity.verification_session.created":
+    #     stripe_id_verification_created(user=user, request=request, event=event)
     elif event.type == "identity.verification_session.processing":
-        stripe_id_verification_processing(request=request, event=event)
+        stripe_id_verification_processing(user=user, request=request, event=event)
     elif event.type == "identity.verification_session.requires_input":
-        stripe_id_verification_requires_input(request=request, event=event)
+        stripe_id_verification_requires_input(user=user, request=request, event=event)
     elif event.type == "identity.verification_session.verified":
-        stripe_id_verification_verified(request=request, event=event)
+        stripe_id_verification_verified(user=user, request=request, event=event)
