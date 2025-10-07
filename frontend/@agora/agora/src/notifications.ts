@@ -8,7 +8,7 @@ declare global {
     }
 }
 
-export const showNotification = (message: string, tags: string = "", duration = 3000) => {
+export const showNotification = (message: string, tags: string = "", duration = 5000) => {
 
     const tagToTailwindClassMap: { [key: string]: string } = {
         // Map Django message tags to Tailwind CSS classes

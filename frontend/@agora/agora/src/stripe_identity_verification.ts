@@ -8,6 +8,8 @@ import {z} from 'zod';
 
 import Cookies from 'js-cookie'
 
+import { showNotification } from './notifications';
+
 // Defined in base.html template so we can vary it using the same .env settings
 declare const STRIPE_PUBLISHABLE_KEY: string;
 declare const AGORA_GET_STRIPE_SESSION_URL: string;
@@ -18,10 +20,24 @@ const StripeVerificationResponse = z.object({
     client_secret: z.string().min(1),
 });
 
+const disableButton = (button: HTMLButtonElement) => {
+    button.disabled = true;
+    button.classList.add('btn-disabled', 'cursor-not-allowed', 'opacity-50');
+}
 
-const startVerificationFlow = async () => {
+const enableButton = (button: HTMLButtonElement) => {
+    button.disabled = false;
+    button.classList.remove('btn-disabled', 'cursor-not-allowed', 'opacity-50');
+}
+
+
+const startVerificationFlow = async (button: HTMLButtonElement) => {
+
+    disableButton(button);
+
     if (!stripe) {
         console.error('Stripe.js has not loaded');
+        enableButton(button);
         return;
     }
 
@@ -39,6 +55,8 @@ const startVerificationFlow = async () => {
 
     if (!response.ok) {
         console.error('Failed to create verification session');
+        showNotification("Failed to start verification", "error");
+        enableButton(button);
         return;
     }
 
@@ -47,6 +65,8 @@ const startVerificationFlow = async () => {
 
     if (!parsed.success) {
         console.error('Invalid response from server', parsed.error);
+        showNotification("Invalid data received", "error");
+        enableButton(button);
         return;
     }
 
@@ -56,16 +76,20 @@ const startVerificationFlow = async () => {
 
     if (error) {
         console.error('Error starting verification flow:', error);
-        alert(error.message)
+        showNotification(error.message ?? 'Something went wrong', "error");
+        enableButton(button);
     } else {
-        console.log('Verification flow started successfully');
+        showNotification("Your identity is being processed", "info");
     }
 }
 
 window.addEventListener('load', () => {
     const startButton = document.getElementById('start-verification-button');
     if (startButton) {
-        startButton.addEventListener('click', startVerificationFlow);
+        startButton.addEventListener('click', (event) => {
+            const target = event.target as HTMLButtonElement;
+            startVerificationFlow(target);
+        });
     } else {
         console.warn('Start Verification button not found');
     }
