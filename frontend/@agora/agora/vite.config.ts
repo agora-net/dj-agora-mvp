@@ -20,6 +20,7 @@ export default defineConfig({
         themeChange: "src/theme-change.ts",
         icons: "src/icons.ts",
         stripeIdentityVerification: "src/stripe_identity_verification.ts",
+        notifications: "src/notifications.ts",
       },
     },
   },
