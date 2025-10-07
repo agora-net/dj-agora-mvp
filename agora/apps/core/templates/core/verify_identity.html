@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% load django_vite %}
+
 {% block title %}
     Verify Your Identity - Agora
 {% endblock title %}
+
 {% block content %}
     <div class="min-h-screen flex items-center justify-center bg-base-100">
         <div class="card w-full max-w-md bg-base-100 shadow-xl">
@@ -29,18 +31,15 @@
                         We'll use a trusted third-party service to verify your identity.
                     </p>
 
-                    <div class="divider">Coming Soon</div>
+                    <button id="start-verification-button" class="btn btn-primary btn-sm w-full">Start Verification</button>
 
-                    <p class="text-sm text-base-content/60 text-center">
-                        Identity verification integration is currently under development.
-                        Please check back later or contact support if you need assistance.
-                    </p>
-
-                    <div class="card-actions justify-center">
-                        <a href="{% url 'dashboard' %}" class="btn btn-outline btn-sm">Skip for Now</a>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 {% endblock content %}
+
+{% block bodyEndScripts %}
+    <script>const AGORA_GET_STRIPE_SESSION_URL = "{% url 'api-1.0.0:create_stripe_identity_verification_session' %}";</script>
+    {% vite_asset 'src/stripe_identity_verification.ts' %}
+{% endblock bodyEndScripts %}
