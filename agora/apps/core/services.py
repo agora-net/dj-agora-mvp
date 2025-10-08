@@ -338,7 +338,7 @@ def update_identity_verification_status(
 def handle_stripe_identity_verification_event(
     *,
     request: HttpRequest,
-    event: stripe.identity.VerificationSession,
+    event: stripe.Event,
 ) -> None:
     """
     Handle a Stripe identity verification event.
@@ -351,7 +351,9 @@ def handle_stripe_identity_verification_event(
     if not event.type.startswith("identity.verification_session."):
         raise ValueError("Event type is not an identity verification event")
 
-    user = AgoraUser.objects.get(id=event.metadata.get("user_id"))
+    session: stripe.identity.VerificationSession = event.data.object  # type: ignore
+
+    user = AgoraUser.objects.get(id=session.metadata.get("user_id"))
     if not user:
         raise Http404("User not found for identity verification")
 
@@ -376,6 +378,6 @@ def handle_stripe_identity_verification_event(
         update_identity_verification_status(
             user=user,
             verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
-            verification_external_id=event.id,
+            verification_external_id=session.id,
             status=status,
         )

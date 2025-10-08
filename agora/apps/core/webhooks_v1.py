@@ -52,8 +52,7 @@ def stripe_webhook(request: HttpRequest):
 
     # https://docs.stripe.com/api/events/types#event_types-identity.verification_session.canceled
     if event.type.startswith("identity.verification_session."):
-        session: stripe.identity.VerificationSession = event.data.object  # type: ignore
-        handle_stripe_identity_verification_event(request=request, event=session)
+        handle_stripe_identity_verification_event(request=request, event=event)
     else:
         logger.warning(
             "unhandled Stripe webhook event type",
