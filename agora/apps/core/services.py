@@ -266,6 +266,47 @@ def expire_waiting_list_entry(
     cache.delete("waiting_list_count")
 
 
+def fetch_identity_verification_details(
+    *,
+    verification_service: IdentityVerification.IdentityVerificationService,
+    verification_external_id: str,
+) -> dict | None:
+    """
+    Fetch identity verification details from the external service.
+
+    Args:
+        verification_service: The service used for verification
+        verification_external_id: The external ID from the verification service
+    Returns:
+        dict | None: The verification details, or None if not found or error
+    """
+    if verification_service == IdentityVerification.IdentityVerificationService.STRIPE:
+        try:
+            session = stripe.identity.VerificationSession.retrieve(
+                verification_external_id,
+                expand=[
+                    "last_verification_report",
+                    "verified_outputs",
+                    "verified_outputs.dob",
+                    "verified_outputs.sex",
+                ],
+            )
+            return session
+        except stripe.StripeError as e:
+            logger.error(
+                "failed to fetch Stripe identity verification details",
+                error=str(e),
+                verification_external_id=verification_external_id,
+            )
+            return None
+    else:
+        logger.warning(
+            "unsupported identity verification service for fetching details",
+            verification_service=verification_service,
+        )
+        raise NotImplementedError(f"Fetching details for {verification_service} is not implemented")
+
+
 def update_identity_verification_status(
     *,
     user: AgoraUser,
@@ -284,12 +325,14 @@ def update_identity_verification_status(
     """
     IdentityVerification.objects.update_or_create(
         user=user,
-        identity_verification_service=verification_service,
-        identity_verification_external_id=verification_external_id,
+        service=verification_service,
+        external_id=verification_external_id,
         defaults={
-            "identity_verification_status": status,
+            "status": status,
         },
     )
+
+    # Also update in Keycloak metadata for OIDC sign-ins
 
 
 def handle_stripe_identity_verification_event(
