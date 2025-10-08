@@ -75,13 +75,9 @@ class IdentityVerification(BaseModel):
         on_delete=models.CASCADE,
         related_name="identity_verifications",
     )
-    identity_verification_external_id = models.CharField(max_length=255)
-    identity_verification_service = models.CharField(
-        max_length=10, choices=IdentityVerificationService.choices
-    )
-    identity_verification_status = models.CharField(
-        max_length=15, choices=IdentityVerificationStatus.choices
-    )
+    external_id = models.CharField(max_length=255)
+    service = models.CharField(max_length=10, choices=IdentityVerificationService.choices)
+    status = models.CharField(max_length=15, choices=IdentityVerificationStatus.choices)
 
 
 class WaitingList(BaseModel):
