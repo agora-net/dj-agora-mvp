@@ -91,3 +91,15 @@ def is_user_profile_complete(user: AgoraUser) -> bool:
         True if profile is complete, False otherwise
     """
     return bool(user.handle)
+
+
+def get_identity_verification_for_user(user: AgoraUser) -> IdentityVerification | None:
+    """
+    Get the latest identity verification record for the user.
+
+    Args:
+        user: The user to get the identity verification for
+    Returns:
+        The latest IdentityVerification record or None if not found
+    """
+    return IdentityVerification.objects.filter(user=user).order_by("-updated_at").first()
