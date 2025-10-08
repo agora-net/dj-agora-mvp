@@ -6,7 +6,7 @@ from django.urls import path, reverse
 from django.urls.resolvers import URLPattern
 from django.utils.translation import gettext_lazy as _
 
-from .models import AgoraUser, WaitingList
+from .models import AgoraUser, IdentityVerification, WaitingList
 from .services import send_waiting_list_invite_email
 
 logger = structlog.get_logger(__name__)
@@ -151,3 +151,33 @@ class AgoraUserAdmin(auth_admin.UserAdmin):
             },
         ),
     )
+
+
+@admin.register(IdentityVerification)  # Added registration for IdentityVerification
+class IdentityVerificationAdmin(admin.ModelAdmin):
+    """
+    Admin interface for IdentityVerification model.
+    """
+
+    list_display = [
+        "user",
+        "service",
+        "status",
+        "external_id",
+        "created_at",
+    ]
+    list_filter = [
+        "service",
+        "status",
+        "created_at",
+    ]
+    search_fields = [
+        "user__email",
+        "external_id",
+    ]
+    readonly_fields = [
+        "id",
+        "created_at",
+        "updated_at",
+    ]
+    ordering = ["-created_at"]
