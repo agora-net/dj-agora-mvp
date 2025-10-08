@@ -50,7 +50,7 @@ def is_user_identity_recently_verified(user: AgoraUser) -> bool:
     Check if the user has a verified identity within the last year.
     """
     return user.identity_verifications.filter(  # pyright: ignore[reportAttributeAccessIssue]
-        identity_verification_status=IdentityVerification.IdentityVerificationStatus.VERIFIED,
+        status=IdentityVerification.IdentityVerificationStatus.VERIFIED,
         created_at__gte=timezone.now() - timezone.timedelta(days=365),
     ).exists()
 
