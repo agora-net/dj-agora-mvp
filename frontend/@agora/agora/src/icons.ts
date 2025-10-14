@@ -1,4 +1,4 @@
-import { createIcons, Palette, Sun, Moon, SunMoon, CircleUser, Fingerprint, IdCard, HatGlasses } from 'lucide';
+import { createIcons, Palette, Sun, Moon, SunMoon, CircleUser, Fingerprint, IdCard, HatGlasses, UserRoundCheck, RefreshCw, CircleAlert, Ban, } from 'lucide';
 
 createIcons({
   icons: {
@@ -8,6 +8,10 @@ createIcons({
     SunMoon,
     CircleUser,
     Fingerprint,
+    UserRoundCheck,
+    RefreshCw,
+    CircleAlert,
+    Ban,
     IdCard,
     HatGlasses
   }
