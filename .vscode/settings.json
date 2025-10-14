@@ -18,10 +18,13 @@
 },
 "cSpell.words": [
     "csrftoken",
+    "elif",
     "endcomment",
     "endfor",
+    "endwith",
     "linecap",
     "linejoin",
+    "lucide",
     "stylesheet",
     "toastify",
     "vite"
