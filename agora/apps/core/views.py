@@ -10,6 +10,7 @@ from django.urls import reverse
 from .forms import EditProfileForm, WaitlistSignupForm
 from .models import WaitingList
 from .selectors import (
+    get_identity_verification_for_user,
     get_waiting_list_count,
     get_waiting_list_entry,
     is_user_identity_recently_verified,
@@ -185,9 +186,12 @@ def verify_identity(request):
     """
     View for identity verification step in onboarding.
     """
-    # For now, this is a placeholder that shows the identity verification page
-    # In the future, this would integrate with Ondato or Stripe for identity verification
-    return render(request, "core/verify_identity.html")
+    context = {}
+
+    current_verification = get_identity_verification_for_user(request.user)
+    context["current_verification"] = current_verification
+
+    return render(request, "core/verify_identity.html", context=context)
 
 
 @login_required
