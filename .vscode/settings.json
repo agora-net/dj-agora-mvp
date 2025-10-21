@@ -22,11 +22,14 @@
     "endcomment",
     "endfor",
     "endwith",
+    "fieldset",
     "linecap",
     "linejoin",
     "lucide",
+    "signup",
     "stylesheet",
     "toastify",
-    "vite"
+    "vite",
+    "waitlist"
 ]
 }
