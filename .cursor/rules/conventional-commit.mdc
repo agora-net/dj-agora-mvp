@@ -28,19 +28,15 @@ chore: init
 
 ### Merge Commit
 
-<pre>
-Merge branch '<b>&lt;branch name&gt;</b>'
-</pre>
-
-<sup>Follows default git merge message</sup>
+```plaintext
+Merge branch '<branch name>'
+```
 
 ### Revert Commit
 
-<pre>
-Revert "<b>&lt;reverted commit subject line&gt;</b>"
-</pre>
-
-<sup>Follows default git revert message</sup>
+```plaintext
+Revert "<reverted commit subject line>"
+```
 
 ### Types
 
@@ -140,7 +136,7 @@ The `footer` should contain issue references and informations about **Breaking C
   perf: decrease memory footprint for determine unique visitors by using HyperLogLog
   ```
 
-- ```
+- ```plaintext
   build: update dependencies
   ```
 
