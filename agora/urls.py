@@ -7,6 +7,7 @@ from agora.apps.core import api_v1, webhooks_v1
 from agora.apps.core.views import (
     custom_404,
     dashboard,
+    donate,
     home,
     invite,
     login,
@@ -23,6 +24,7 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("signup/<uuid:signup_id>/", signup_status, name="signup_status"),
     path("invite/", invite, name="invite"),
+    path("donate/", donate, name="donate"),
     path("onboarding/", onboarding, name="onboarding"),  # Auto redirects to next onboarding step
     path(
         "onboarding/verify/identity", verify_identity, name="verify_identity"

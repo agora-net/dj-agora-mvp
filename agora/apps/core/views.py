@@ -273,3 +273,10 @@ def invite(request: HttpRequest):
         )
     else:
         return HttpResponse("Method not allowed", status=405)
+
+
+def donate(request: HttpRequest):
+    """
+    View to handle donate requests.
+    """
+    return render(request, "core/donate.html")
