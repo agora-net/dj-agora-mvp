@@ -23,6 +23,7 @@
     "endfor",
     "endwith",
     "fieldset",
+    "Justfile",
     "linecap",
     "linejoin",
     "lucide",
