@@ -9,4 +9,5 @@ alwaysApply: false
 - We use Keycloak as our external IDP
 - Requests are validated before hitting the application with an OAuth proxy
 - We interact with the Keycloak admin API securely
-- Our authentication routes are defined in @internal/routes.go
+- Authentication is handled through Django's REMOTE_USER middleware
+- All authentication logic is in agora/auth.py and agora/keycloak_admin.py

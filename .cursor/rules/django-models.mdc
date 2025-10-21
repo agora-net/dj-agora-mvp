@@ -1,6 +1,6 @@
 ---
 description: 
-globs: *models.py
+globs: **/models.py
 alwaysApply: false
 ---
 
