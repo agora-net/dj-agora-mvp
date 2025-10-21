@@ -22,4 +22,4 @@ accesslog = "-"  # Log access requests to stdout, also captured by journalctl.
 
 # Reload on static file changes
 # https://stackoverflow.com/a/78227489/1401034
-reload_extra_file = ["static/css/*.css", "static/js/*.js", "templates/*.html"]
+reload_extra_file = ["agora/templates/*.html"]
