@@ -7,19 +7,22 @@
 
 {% block content %}
     <div class="hero bg-base-200 py-16 lg:py-32">
-        <div class="hero-content max-w-5xl mx-auto flex-col lg:flex-row-reverse gap-8 lg:gap-16">
-            <div class="text-center lg:text-left">
+        <div class="hero-content max-w-6xl mx-auto flex-col gap-8">
+            <!-- Hero Title Section -->
+            <div class="text-center">
                 {% if not has_signed_up %}
-                    <h1 class="text-5xl font-bold">Join the Waitlist</h1>
-                    <p class="py-6 text-balance">
-                        If you're here you're probably interested in a voluntary digital ID. We're inviting people in small batches as we build the product so enter your email and we'll notify you when it's your turn to join.
+                    <h1 class="text-5xl font-bold">Get Started with Agora</h1>
+                    <p class="py-6 text-balance max-w-3xl mx-auto">
+                        Choose how you'd like to join Agora. Join our free waitlist or get instant access with a donation to support our mission.
                     </p>
                 {% else %}
                     <h1 class="text-5xl font-bold">Thank you</h1>
                     <p class="py-6 text-balance">You're on the waitlist! We'll notify you when it's your turn to join.</p>
                 {% endif %}
             </div>
-            <div class="w-full max-w-sm shrink-0 flex flex-col gap-4">
+
+            <!-- Options Cards Section -->
+            <div class="w-full flex flex-col lg:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto">
                 {% if has_signed_up %}
                     <div class="card bg-base-100 w-full shadow-2xl">
                         <div class="card-body flex flex-col gap-4">
@@ -32,13 +35,19 @@
                         </div>
                     </div>
                 {% else %}
-                    <div class="card bg-base-100 w-full shadow-2xl">
-                        <div class="card-body flex flex-col gap-4">
+                    <!-- Free Waitlist Option -->
+                    <div class="card bg-base-100 w-full lg:w-1/2 shadow-xl border-2 border-base-300">
+                        <div class="card-body flex flex-col justify-between gap-4">
+                            <div class="text-center">
+                                <div class="text-4xl mb-2">📧</div>
+                                <h3 class="text-xl font-bold mb-2">Join Free Waitlist</h3>
+                                <p class="text-sm text-base-content/70 mb-4">Get notified when it's your turn to join</p>
+                            </div>
                             <form method="post"
                                   action="{% url 'signup' %}"
                                   aria-label="Waitlist signup form">
                                 {% csrf_token %}
-                                <fieldset class="fieldset">
+                                <fieldset class="fieldset p-0">
                                     <legend class="sr-only">Waitlist signup form</legend>
                                     <label class="label">{{ form.email.label_tag }}</label>
                                     {{ form.email }}
@@ -47,26 +56,45 @@
                                             <span class="label-text-alt text-error">{{ form.email.errors.0 }}</span>
                                         </div>
                                     {% endif %}
-                                    <div class="cf-turnstile w-full" data-sitekey="0x4AAAAAAB0bBgh__cs3wnca"></div>
-                                    <button class="btn btn-primary mt-4">Join Waitlist</button>
+                                    <button class="btn btn-primary mt-4 w-full">Join Waitlist</button>
                                 </fieldset>
                             </form>
-
-                            <p class="text-sm text-base-content/70">
-                                By joining the waitlist, you agree to our <a href="{% url 'home' %}" class="link link-primary">privacy policy</a>.
-                            </p>
                         </div>
                     </div>
-                    {% if waiting_list_count > 10 %}
-                        <div class="flex items-center gap-2 justify-center">
-                            <span class="text-sm text-base-content/70">
-                                <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
-                            </span>
-                            <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
+
+                    <!-- Donation Option -->
+                    <div class="card bg-base-100 w-full lg:w-1/2 shadow-xl border-2 border-base-300">
+                        <div class="card-body flex flex-col justify-between gap-4">
+                            <div class="text-center">
+                                <div class="text-4xl mb-2">⚡</div>
+                                <h3 class="text-xl font-bold mb-2">Get Instant Access</h3>
+                                <p class="text-sm text-base-content/70 mb-4">Donate $10+ to support our mission</p>
+                            </div>
+                            <button class="btn btn-primary w-full">
+                                <i data-lucide="heart" aria-hidden="true" class="w-5 h-5"></i>
+                                Donate $10+ for Instant Access
+                            </button>
                         </div>
-                    {% endif %}
+                    </div>
                 {% endif %}
             </div>
+
+            <!-- Privacy Policy -->
+            {% if not has_signed_up %}
+                <p class="text-xs text-base-content/70 text-center">
+                    By signing up or joining the waitlist, you agree to our <a href="{% url 'home' %}" class="link link-primary">privacy policy</a>.
+                </p>
+            {% endif %}
+
+            <!-- Waitlist Count -->
+            {% if not has_signed_up and waiting_list_count > 10 %}
+                <div class="flex items-center gap-2 justify-center">
+                    <span class="text-sm text-base-content/70">
+                        <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
+                    </span>
+                    <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
+                </div>
+            {% endif %}
         </div>
     </div>
     <div class="container max-w-2xl mx-auto py-8 px-4 lg:py-16 flex flex-col gap-8">
@@ -113,7 +141,4 @@
 {% endblock content %}
 
 {% block bodyEndScripts %}
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-            async
-            defer></script>
 {% endblock bodyEndScripts %}
