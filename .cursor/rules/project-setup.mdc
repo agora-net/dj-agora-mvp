@@ -10,3 +10,4 @@ alwaysApply: true
 - HTTP: Use `http`, not `curl`
 - Repeatable commands: Use `just` and @/Justfile
 - Base information is in @/AGENT.md
+- Use `uv` for python management. Example: `uv run ./manage.py` or `uv run another_script`
