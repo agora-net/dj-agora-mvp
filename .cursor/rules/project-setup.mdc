@@ -11,3 +11,4 @@ alwaysApply: true
 - Repeatable commands: Use `just` and @/Justfile
 - Base information is in @/AGENT.md
 - Use `uv` for python management. Example: `uv run ./manage.py` or `uv run another_script`
+- Run the development server on port 23312 with `uv run ./manage.py 23312`
