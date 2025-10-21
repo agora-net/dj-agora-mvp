@@ -1,7 +1,7 @@
 ---
 description: Python best practices and patterns for modern software development with Django and SQLite
-globs: **/*.py
-alwaysApply: true
+globs: **/*.py, src/**/*.py, tests/**/*.py
+alwaysApply: false
 ---
 
 # Python Best Practices
