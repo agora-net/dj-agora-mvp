@@ -17,6 +17,7 @@
     "django-html": "html"
 },
 "cSpell.words": [
+    "Caddyfile",
     "csrftoken",
     "elif",
     "endcomment",
