@@ -1,7 +1,9 @@
 ---
 services:
   caddy:
-    image: caddy:2
+    build:
+      context: ./docker/caddy
+      dockerfile: Dockerfile
     restart: always
     ports:
       - 80:80
@@ -10,6 +12,8 @@ services:
       - ./config/caddy:/etc/caddy
       - caddy_data:/data
       - caddy_config:/config
+    secrets:
+      - cf_api_token
     networks:
       - agora-network
 
@@ -88,3 +92,7 @@ volumes:
     driver: local
   caddy_config:
     driver: local
+
+secrets:
+  cf_api_token:
+    file: ./secrets/cf_api_token
