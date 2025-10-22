@@ -7,8 +7,14 @@
 (cloudflare_tls) {
 	tls {
 		dns cloudflare {file./run/secrets/cf_api_token}
+		propagation_delay 10s
 		resolvers 1.1.1.1
 	}
+}
+
+{
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+	email ewan@agora.gdn
 }
 
 import *.Caddyfile

@@ -1,4 +1,0 @@
-idp.local.agora.gdn {
-	reverse_proxy keycloak:8080
-	tls internal
-}

@@ -1,17 +1,16 @@
+idp.local.agora.gdn {
+	reverse_proxy keycloak:8080
+	import cloudflare_tls
+}
+
 static.local.agora.gdn {
 	import cors https://app.local.agora.gdn
-
-	# Reverse proxy all requests to the static files server
 	reverse_proxy host.containers.internal:5173
 	import cloudflare_tls
 }
 
 app.local.agora.gdn {
-	# Reverse proxy all requests to the Gunicorn socket
-	# Socket is managed by systemd `gunicorn_mvp.socket`
-	# reverse_proxy unix//run/gunicorn_mvp.sock
-
-	# Temporary reverseproxy to dev server
+	import cors https://app.local.agora.gdn
 	reverse_proxy host.containers.internal:8000
 	import cloudflare_tls
 }
