@@ -6,7 +6,7 @@
 
 (cloudflare_tls) {
 	tls {
-		dns cloudflare {env.CF_API_TOKEN}
+		dns cloudflare {file./run/secrets/cf_api_token}
 		resolvers 1.1.1.1 1.0.0.1
 	}
 }

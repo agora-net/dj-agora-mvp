@@ -3,7 +3,7 @@ static.local.agora.gdn {
 
 	# Reverse proxy all requests to the static files server
 	reverse_proxy host.containers.internal:5173
-	tls internal
+	import cloudflare_tls
 }
 
 app.local.agora.gdn {
@@ -13,5 +13,5 @@ app.local.agora.gdn {
 
 	# Temporary reverseproxy to dev server
 	reverse_proxy host.containers.internal:8000
-	tls internal
+	import cloudflare_tls
 }
