@@ -7,7 +7,10 @@ from django.http import HttpRequest
 from ninja import NinjaAPI, Schema
 from ninja.responses import codes_4xx
 
-from .services import handle_stripe_identity_verification_event
+from .services import (
+    handle_stripe_checkout_session_completed,
+    handle_stripe_identity_verification_event,
+)
 
 webhooks = NinjaAPI(
     version="1.0.0-webhooks",
@@ -53,6 +56,11 @@ def stripe_webhook(request: HttpRequest):
     # https://docs.stripe.com/api/events/types#event_types-identity.verification_session.canceled
     if event.type.startswith("identity.verification_session."):
         handle_stripe_identity_verification_event(request=request, event=event)
+    elif (
+        event.type == "checkout.session.completed"
+        or event.type == "checkout.session.async_payment_succeeded"
+    ):
+        handle_stripe_checkout_session_completed(request=request, event=event)
     else:
         logger.warning(
             "unhandled Stripe webhook event type",
