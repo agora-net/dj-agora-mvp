@@ -70,14 +70,14 @@ def add_to_waiting_list(sanitized_email_address: str) -> WaitingList:
             raise
 
 
-def _generate_invite_code() -> str:
+def _generate_invite_code(*, nbytes: int = 32) -> str:
     """
     Generate a unique invite code.
 
     Returns:
         str: A unique invite code
     """
-    return secrets.token_urlsafe(32)
+    return secrets.token_urlsafe(nbytes)
 
 
 def validate_cloudflare_turnstile(
@@ -380,6 +380,7 @@ def handle_stripe_checkout_session_completed(
         email=sanitized_email,
         amount_cents=amount_cents,
         currency=session.currency,
+        invite_code=_generate_invite_code(nbytes=9),
     )
 
     # Create the user in keycloak
