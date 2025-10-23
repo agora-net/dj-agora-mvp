@@ -191,6 +191,7 @@ class Donation(BaseModel):
     email = models.EmailField()
     amount_cents = models.IntegerField()
     currency = models.CharField(max_length=10, choices=Currency.choices, default=Currency.CHF)
+    invite_code = models.CharField(max_length=12, null=True, blank=True)
 
     def __str__(self):
         return f"{self.email} - {self.currency.upper()} {self.amount_cents / 100:.2f}"
