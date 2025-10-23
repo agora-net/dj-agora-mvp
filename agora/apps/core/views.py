@@ -9,8 +9,9 @@ from django.urls import reverse
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 from .forms import DonationForm, EditProfileForm, WaitlistSignupForm
-from .models import WaitingList
+from .models import IdentityVerification, WaitingList
 from .selectors import (
+    get_external_verification_details,
     get_identity_verification_for_user,
     get_waiting_list_count,
     get_waiting_list_entry,
@@ -161,7 +162,25 @@ def dashboard(request):
     Dashboard view that requires authentication.
     Shows a placeholder dashboard for authenticated users.
     """
-    raise NotImplementedError("Dashboard not yet implemented")
+
+    identity_verification = get_identity_verification_for_user(user=request.user)
+    if (
+        not identity_verification
+        or identity_verification.status != IdentityVerification.IdentityVerificationStatus.VERIFIED
+    ):
+        raise Http404("No verified identity found")
+
+    external_verification_details = get_external_verification_details(
+        identity_verification=identity_verification
+    )
+
+    if not external_verification_details:
+        raise Http404("No external verification details found")
+
+    context = {
+        "verified_details": external_verification_details,  # first_name, last_name, date_of_birth
+    }
+    return render(request, "dashboard.html", context=context)
 
 
 @login_required
@@ -190,7 +209,7 @@ def verify_identity(request):
     """
     context = {}
 
-    current_verification = get_identity_verification_for_user(request.user)
+    current_verification = get_identity_verification_for_user(user=request.user)
     context["current_verification"] = current_verification
 
     return render(request, "core/verify_identity.html", context=context)

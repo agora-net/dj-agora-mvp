@@ -101,7 +101,7 @@ def is_user_profile_complete(user: AgoraUser) -> bool:
     return bool(user.handle)
 
 
-def get_identity_verification_for_user(user: AgoraUser) -> IdentityVerification | None:
+def get_identity_verification_for_user(*, user: AgoraUser) -> IdentityVerification | None:
     """
     Get the latest identity verification record for the user.
 
@@ -121,3 +121,22 @@ def get_stripe_customer(*, email: str) -> stripe.Customer | None:
     if customers.data and len(customers.data) > 0:
         return customers.data[0]
     return None
+
+
+def get_external_verification_details(
+    *, identity_verification: IdentityVerification
+) -> dict | None:
+    """
+    Get the external verification details for the identity verification.
+    """
+    if identity_verification.service == IdentityVerification.IdentityVerificationService.STRIPE:
+        session = stripe.identity.VerificationSession.retrieve(
+            identity_verification.external_id, expand=["verified_outputs"]
+        )
+        return {
+            "first_name": session.verified_outputs.first_name,
+            "last_name": session.verified_outputs.last_name,
+            "date_of_birth": session.verified_outputs.dob,
+        }
+    else:
+        return None
