@@ -182,10 +182,15 @@ class Donation(BaseModel):
     class PaymentService(models.TextChoices):
         STRIPE = "stripe"
 
+    class Currency(models.TextChoices):
+        CHF = "chf"
+        USD = "usd"
+
     payment_service = models.CharField(max_length=10, choices=PaymentService.choices)
     payment_session_id = models.CharField(max_length=255, unique=True)
     email = models.EmailField()
     amount_cents = models.IntegerField()
+    currency = models.CharField(max_length=10, choices=Currency.choices, default=Currency.CHF)
 
     def __str__(self):
-        return f"{self.email} - ${self.amount_cents / 100:.2f}"
+        return f"{self.email} - {self.currency.upper()} {self.amount_cents / 100:.2f}"
