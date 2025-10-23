@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 from .forms import DonationForm, EditProfileForm, WaitlistSignupForm
 from .models import WaitingList
@@ -18,6 +19,7 @@ from .selectors import (
 )
 from .services import (
     add_to_waiting_list,
+    collect_donation,
     expire_waiting_list_entry,
     register_user_in_keycloak,
     validate_cloudflare_turnstile,
@@ -275,12 +277,16 @@ def invite(request: HttpRequest):
         return HttpResponse("Method not allowed", status=405)
 
 
+@sensitive_variables("cleaned_email")
+@sensitive_post_parameters("email")
 def donate(request: HttpRequest):
     """
     View to handle donate requests with form for collecting email and donation amount.
     """
+    form = DonationForm()
     if request.method == "POST":
         form = DonationForm(request.POST)
+
         if form.is_valid():
             cleaned_email = form.cleaned_data["email"]
             cleaned_amount_cents = form.cleaned_data["amount_cents"]
@@ -291,20 +297,15 @@ def donate(request: HttpRequest):
                 amount_cents=cleaned_amount_cents,
             )
 
-            # TODO: Process payment with Stripe or other payment processor
-            # For now, just show a success message
-            context = {
-                "form": DonationForm(),
-                "success": True,
-                "donation_amount": cleaned_amount_cents
-                / 100,  # Convert cents to dollars for display
-            }
-            return render(request, "core/donate.html", context)
-    else:
-        form = DonationForm()
+            stripe_checkout_session = collect_donation(
+                request=request,
+                cleaned_email=cleaned_email,
+                cleaned_amount_cents=cleaned_amount_cents,
+            )
+
+            return redirect(stripe_checkout_session.url)
 
     context = {
         "form": form,
-        "success": False,
     }
     return render(request, "core/donate.html", context)
