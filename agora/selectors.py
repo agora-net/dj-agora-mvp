@@ -1,7 +1,9 @@
 import hashlib
 from datetime import UTC, datetime
 
+import stripe
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 from django.urls import NoReverseMatch, reverse
@@ -42,6 +44,26 @@ def stripe_identity_verification_flow(*, request: HttpRequest) -> str:
     """
 
     return settings.STRIPE_IDENTITY_VERIFICATION_FLOW
+
+
+def stripe_donation_product_id() -> str:
+    """
+    Finds the Stripe product ID for the donation product.
+    """
+    cache_key = "stripe_donation_product_id"
+    cached_product_id = cache.get(cache_key)
+    if cached_product_id:
+        return cached_product_id
+
+    products = stripe.Product.search(query="active:'true' AND metadata['type']:'donation'")
+    if not products.data or len(products.data) == 0:
+        raise ValueError("No donation product found")
+
+    # Find the latest updated product
+    latest_product = max(products.data, key=lambda x: x.updated)
+
+    cache.set(cache_key, latest_product.id, timeout=60 * 5)  # 5 minutes
+    return latest_product.id
 
 
 def is_named_url(url_string):
