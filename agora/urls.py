@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.flatpages import views
 from django.urls import include, path, re_path
+from django.views.generic import TemplateView
 
 from agora.apps.core import api_v1, webhooks_v1
 from agora.apps.core.views import (
@@ -25,6 +26,11 @@ urlpatterns = [
     path("signup/<uuid:signup_id>/", signup_status, name="signup_status"),
     path("invite/", invite, name="invite"),
     path("donate/", donate, name="donate"),
+    path(
+        "donate/success/",
+        TemplateView.as_view(template_name="core/donate_success.html"),
+        name="donate_success",
+    ),
     path("onboarding/", onboarding, name="onboarding"),  # Auto redirects to next onboarding step
     path(
         "onboarding/verify/identity", verify_identity, name="verify_identity"
