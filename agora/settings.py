@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_structlog",
     "django_vite",
+    "mathfilters",
     "agora.apps.core",
 ]
 
