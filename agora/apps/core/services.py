@@ -1,5 +1,6 @@
 import secrets
 
+import nh3
 import requests
 import stripe
 import structlog
@@ -16,7 +17,7 @@ from keycloak import KeycloakGetError
 from agora.keycloak_admin import keycloak_admin
 from agora.selectors import stripe_donation_product_id, stripe_idempotency_key_time_based
 
-from .models import AgoraUser, IdentityVerification, WaitingList
+from .models import AgoraUser, Donation, IdentityVerification, WaitingList
 from .selectors import get_stripe_customer
 
 logger = structlog.get_logger(__name__)
@@ -248,6 +249,11 @@ def register_user_in_keycloak(
         sanitized_email=sanitized_email,
     )
 
+    logger.info(
+        "user created in keycloak",
+        user_id=user_id,
+    )
+
     send_user_registration_actions(user_id=user_id, redirect_uri=redirect_uri)
 
     return user_id
@@ -336,6 +342,50 @@ def update_identity_verification_status(
     )
 
     # Also update in Keycloak metadata for OIDC sign-ins
+
+
+def handle_stripe_checkout_session_completed(
+    *,
+    request: HttpRequest,
+    event: stripe.Event,
+) -> None:
+    """
+    Handle a Stripe checkout session completed event.
+    """
+    session: stripe.checkout.Session = event.data.object  # type: ignore
+    if not session.metadata.get("purpose") == "donation":
+        raise ValueError("Checkout session is not a donation")
+
+    # Extract the email address from the places it might be
+    email_address = session.customer_email
+    if not email_address:
+        email_address = session.customer_details.email
+    if not email_address and session.customer:
+        customer = stripe.Customer.retrieve(session.customer)
+        email_address = customer.email
+    if not email_address:
+        logger.error("no email address found for checkout session", session=session)
+        raise ValueError("No email address found for checkout session")
+
+    sanitized_email = nh3.clean(email_address.lower().strip())
+    amount_cents = session.amount_total
+    if not amount_cents:
+        logger.error("no amount found for checkout session", session=session)
+        raise ValueError("No amount found for checkout session")
+
+    # Store for stats
+    Donation.objects.create(
+        payment_service=Donation.PaymentService.STRIPE,
+        payment_session_id=session.id,
+        email=sanitized_email,
+        amount_cents=amount_cents,
+    )
+
+    # Create the user in keycloak
+    register_user_in_keycloak(
+        sanitized_email=sanitized_email,
+        redirect_uri=request.build_absolute_uri(reverse("onboarding")),
+    )
 
 
 def handle_stripe_identity_verification_event(
