@@ -2,10 +2,11 @@ import unicodedata
 
 import nh3
 from django import forms
+from django.core import validators
 from django.utils.translation import gettext_lazy as _
 
-from agora.apps.core.models import AgoraUser
-from agora.selectors import contains_whitespace, generate_unique_handle
+from agora.selectors import generate_unique_handle
+from agora.validators import validate_handle_available, validate_no_whitespace
 
 
 class WaitlistSignupForm(forms.Form):
@@ -37,8 +38,14 @@ class EditProfileForm(forms.Form):
 
     handle = forms.CharField(
         label="Handle",
+        min_length=1,
         max_length=32,
         widget=forms.TextInput(attrs={"class": "input input-bordered w-full", "required": False}),
+        validators=[
+            validators.ProhibitNullCharactersValidator,
+            validate_no_whitespace,
+            validate_handle_available,
+        ],
     )
 
     def __init__(self, *args, **kwargs):
@@ -49,22 +56,15 @@ class EditProfileForm(forms.Form):
 
     def clean_handle(self):
         """Validate the handle."""
-        raw_handle = self.cleaned_data.get("handle")
+        raw_handle = self.cleaned_data.get("handle", "")
         handle = unicodedata.normalize("NFKC", raw_handle).strip()
 
-        # Require ASCII-only
         try:
             handle.encode("ascii")
         except UnicodeEncodeError:
             raise forms.ValidationError(_("Use only ASCII characters.")) from None
 
-        if handle:
-            handle = nh3.clean(handle.strip())
-            if contains_whitespace(handle):
-                raise forms.ValidationError("Handle cannot contain whitespace characters.")
-            if AgoraUser.objects.filter(handle=handle).exists():
-                raise forms.ValidationError("Handle is already taken.")
-
+        handle = nh3.clean(handle)
         return handle
 
     def clean(self):
