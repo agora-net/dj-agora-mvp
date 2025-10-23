@@ -1,1 +1,44 @@
+{% extends "base.html" %}
 
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-base-100 to-base-200 px-4">
+        <div class="card bg-base-100 shadow-2xl max-w-md w-full">
+            <div class="card-body text-center">
+                <div class="mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/20">
+                        <svg class="w-8 h-8 text-success"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <h1 class="card-title text-2xl justify-center mb-2">Thank You!</h1>
+
+                <p class="text-base-content/70 mb-6">Your donation has been received. We're grateful for your support.</p>
+
+                <div class="bg-info/10 border border-info/30 rounded-lg p-4 text-left mb-6">
+                    <h2 class="font-semibold text-info mb-3">What happens next:</h2>
+                    <ol class="space-y-3 text-sm">
+                        <li class="flex gap-3">
+                            <span class="badge badge-sm badge-info">1</span>
+                            <span>You'll receive an email with instructions to register</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="badge badge-sm badge-info">2</span>
+                            <span>Create your account with a secure password</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="badge badge-sm badge-info">3</span>
+                            <span>Verify your identity to complete setup</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <p class="text-xs text-base-content/50">Check your inbox (and spam folder) for the registration email</p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
