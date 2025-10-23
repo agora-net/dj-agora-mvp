@@ -73,6 +73,10 @@ class DonationForm(forms.Form):
             }
         ),
         help_text="Minimum donation is $10.00.",
+        error_messages={
+            "invalid": "Enter a valid number.",
+            "min_value": "Minimum donation amount is $10.00.",
+        },
     )
 
     def clean_email(self):
