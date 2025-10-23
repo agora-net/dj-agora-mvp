@@ -1,4 +1,6 @@
 import hashlib
+import random
+import string
 from datetime import UTC, datetime
 
 import stripe
@@ -7,6 +9,8 @@ from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 from django.urls import NoReverseMatch, reverse
+
+from agora.constants import ADJECTIVES, NOUNS
 
 
 def stripe_idempotency_key_time_based(*, prefix: str, unique_key: str) -> str:
@@ -33,6 +37,27 @@ def stripe_idempotency_key_time_based(*, prefix: str, unique_key: str) -> str:
     # MD5 hash the resulting string to shorten and obfuscate it
     hashed_key = hashlib.md5(unique_key.encode()).hexdigest()
     return hashed_key
+
+
+def contains_whitespace(s: str) -> bool:
+    """
+    Check if a string contains any whitespace characters.
+    """
+    return True in [c in s for c in string.whitespace]
+
+
+def generate_unique_handle() -> str:
+    """
+    Generate a unique handle for a user.
+
+    Will output something like "powerful-sphinx#1234"
+    """
+
+    adjective = random.choice(ADJECTIVES).lower()
+    noun = random.choice(NOUNS).lower()
+    numeric_hash = random.randint(1000, 9999)
+
+    return f"{adjective}-{noun}#{numeric_hash}"
 
 
 def stripe_identity_verification_flow(*, request: HttpRequest) -> str:
