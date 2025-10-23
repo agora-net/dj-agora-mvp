@@ -18,7 +18,7 @@ from agora.keycloak_admin import keycloak_admin
 from agora.selectors import stripe_donation_product_id, stripe_idempotency_key_time_based
 
 from .models import AgoraUser, Donation, IdentityVerification, WaitingList
-from .selectors import get_stripe_customer
+from .selectors import get_stripe_customer, get_waiting_list_entry
 
 logger = structlog.get_logger(__name__)
 
@@ -388,6 +388,11 @@ def handle_stripe_checkout_session_completed(
         sanitized_email=sanitized_email,
         redirect_uri=request.build_absolute_uri(reverse("onboarding")),
     )
+
+    # If the user is on the free waitlist as well, remove them
+    waiting_list_entry = get_waiting_list_entry(email=sanitized_email, invite_code=None)
+    if waiting_list_entry:
+        expire_waiting_list_entry(waiting_list_entry=waiting_list_entry)
 
 
 def handle_stripe_identity_verification_event(
