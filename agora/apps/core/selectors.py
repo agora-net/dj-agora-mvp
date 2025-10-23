@@ -56,7 +56,7 @@ def is_user_identity_recently_verified(user: AgoraUser) -> bool:
     ).exists()
 
 
-def get_waiting_list_entry(*, email: str, invite_code: str) -> WaitingList | None:
+def get_waiting_list_entry(*, email: str, invite_code: str | None) -> WaitingList | None:
     """
     Retrieve a waiting list entry by email and invite code.
 
@@ -68,12 +68,19 @@ def get_waiting_list_entry(*, email: str, invite_code: str) -> WaitingList | Non
     """
 
     try:
-        return WaitingList.objects.get(
-            invite_sent_at__isnull=False,
-            invite_accepted_at__isnull=True,
-            email=email,
-            invite_code=invite_code,
-        )
+        if invite_code:
+            return WaitingList.objects.get(
+                invite_sent_at__isnull=False,
+                invite_accepted_at__isnull=True,
+                email=email,
+                invite_code=invite_code,
+            )
+        else:
+            return WaitingList.objects.get(
+                invite_sent_at__isnull=False,
+                invite_accepted_at__isnull=True,
+                email=email,
+            )
     except WaitingList.DoesNotExist:
         return None
 
