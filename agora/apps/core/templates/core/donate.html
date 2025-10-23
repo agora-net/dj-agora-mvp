@@ -51,15 +51,15 @@
                             <label class="label" for="{{ form.amount_cents.id_for_label }}">
                                 <span class="label-text">Donation Amount (USD)</span>
                             </label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                            <div class="input input-bordered w-full">
+                                <i data-lucide="dollar-sign" class="h-4 w-4"></i>
                                 <input type="number"
                                        step="0.01"
                                        min="10.00"
                                        max="9999.99"
                                        name="amount_dollars"
                                        id="amount_dollars"
-                                       class="input input-bordered w-full pl-8"
+                                       class="grow"
                                        placeholder="10.00"
                                        required>
                                 <!-- Hidden field to store the amount in cents -->
