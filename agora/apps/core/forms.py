@@ -32,6 +32,7 @@ class EditProfileForm(forms.Form):
     handle = forms.CharField(
         label="Handle",
         max_length=32,
+        required=False,
         widget=forms.TextInput(attrs={"class": "input input-bordered w-full", "required": False}),
     )
 
