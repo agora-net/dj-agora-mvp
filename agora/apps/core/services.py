@@ -379,6 +379,7 @@ def handle_stripe_checkout_session_completed(
         payment_session_id=session.id,
         email=sanitized_email,
         amount_cents=amount_cents,
+        currency=session.currency,
     )
 
     # Create the user in keycloak
@@ -474,7 +475,7 @@ def collect_donation(
             {
                 "quantity": 1,
                 "price_data": {
-                    "currency": "chf",
+                    "currency": Donation.Currency.CHF,
                     "unit_amount": cleaned_amount_cents,
                     "product": stripe_product_id,
                 },
