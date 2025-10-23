@@ -43,3 +43,48 @@ class EditProfileForm(forms.Form):
             if isinstance(value, str):
                 cleaned_data[field] = nh3.clean(value)
         return cleaned_data
+
+
+class DonationForm(forms.Form):
+    """Form for collecting donation information."""
+
+    email = forms.EmailField(
+        label="Email address",
+        max_length=254,
+        widget=forms.EmailInput(
+            attrs={
+                "class": "input input-bordered w-full",
+                "placeholder": "Enter your email address",
+                "required": True,
+            }
+        ),
+        help_text="We'll send you your signup link and a receipt for your donation.",
+    )
+
+    amount_cents = forms.IntegerField(
+        label="Donation amount (USD)",
+        min_value=1000,
+        widget=forms.NumberInput(
+            attrs={
+                "class": "input input-bordered w-full",
+                "placeholder": "Enter donation amount (minimum $10.00)",
+                "required": True,
+                "min": "1000",
+            }
+        ),
+        help_text="Minimum donation is $10.00.",
+    )
+
+    def clean_email(self):
+        """Validate and normalize the email address."""
+        email = self.cleaned_data.get("email")
+        if email:
+            email = nh3.clean(email.lower().strip())
+        return email
+
+    def clean_amount_cents(self):
+        """Validate the donation amount."""
+        amount_cents = self.cleaned_data.get("amount_cents")
+        if amount_cents and amount_cents < 1000:
+            raise forms.ValidationError("Minimum donation amount is $10.00.")
+        return amount_cents

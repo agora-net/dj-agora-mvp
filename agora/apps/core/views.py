@@ -7,7 +7,7 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from .forms import EditProfileForm, WaitlistSignupForm
+from .forms import DonationForm, EditProfileForm, WaitlistSignupForm
 from .models import WaitingList
 from .selectors import (
     get_identity_verification_for_user,
@@ -277,6 +277,34 @@ def invite(request: HttpRequest):
 
 def donate(request: HttpRequest):
     """
-    View to handle donate requests.
+    View to handle donate requests with form for collecting email and donation amount.
     """
-    return render(request, "core/donate.html")
+    if request.method == "POST":
+        form = DonationForm(request.POST)
+        if form.is_valid():
+            cleaned_email = form.cleaned_data["email"]
+            cleaned_amount_cents = form.cleaned_data["amount_cents"]
+
+            logger.info(
+                "donation form submitted",
+                email=cleaned_email,
+                amount_cents=cleaned_amount_cents,
+            )
+
+            # TODO: Process payment with Stripe or other payment processor
+            # For now, just show a success message
+            context = {
+                "form": DonationForm(),
+                "success": True,
+                "donation_amount": cleaned_amount_cents
+                / 100,  # Convert cents to dollars for display
+            }
+            return render(request, "core/donate.html", context)
+    else:
+        form = DonationForm()
+
+    context = {
+        "form": form,
+        "success": False,
+    }
+    return render(request, "core/donate.html", context)
