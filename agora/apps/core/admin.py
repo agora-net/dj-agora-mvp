@@ -215,6 +215,7 @@ class DonationAdmin(admin.ModelAdmin):
 
     search_fields = [
         "email",
+        "invite_code",
         "payment_session_id",
     ]
 
@@ -225,6 +226,7 @@ class DonationAdmin(admin.ModelAdmin):
         "updated_at",
         "amount_cents",
         "email",
+        "invite_code",
         "payment_service",
         "payment_session_id",
     ]
@@ -240,6 +242,7 @@ class DonationAdmin(admin.ModelAdmin):
                     "email",
                     "get_currency_uppercase",
                     "amount_cents",
+                    "invite_code",
                 )
             },
         ),
