@@ -6,7 +6,7 @@ from django.urls import path, reverse
 from django.urls.resolvers import URLPattern
 from django.utils.translation import gettext_lazy as _
 
-from .models import AgoraUser, IdentityVerification, WaitingList
+from .models import AgoraUser, Donation, IdentityVerification, WaitingList
 from .services import send_waiting_list_invite_email
 
 logger = structlog.get_logger(__name__)
@@ -181,3 +181,71 @@ class IdentityVerificationAdmin(admin.ModelAdmin):
         "updated_at",
     ]
     ordering = ["-created_at"]
+
+
+@admin.register(Donation)
+class DonationAdmin(admin.ModelAdmin):
+    """
+    Admin interface for Donation model.
+    """
+
+    list_display = [
+        "email",
+        "amount_cents",
+        "payment_service",
+        "created_at",
+    ]
+
+    list_filter = [
+        "payment_service",
+        "created_at",
+    ]
+
+    search_fields = [
+        "email",
+        "payment_session_id",
+    ]
+
+    readonly_fields = [
+        "id",
+        "created_at",
+        "updated_at",
+        "amount_cents",
+        "email",
+        "payment_service",
+        "payment_session_id",
+    ]
+
+    ordering = ["-created_at"]
+
+    fieldsets = (
+        (
+            "Donation Information",
+            {
+                "fields": (
+                    "id",
+                    "email",
+                    "amount_cents",
+                )
+            },
+        ),
+        (
+            "Payment Details",
+            {
+                "fields": (
+                    "payment_service",
+                    "payment_session_id",
+                )
+            },
+        ),
+        (
+            "Timestamps",
+            {
+                "fields": (
+                    "created_at",
+                    "updated_at",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+    )
