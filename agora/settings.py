@@ -18,6 +18,7 @@ from pathlib import Path
 import environ
 import stripe
 import structlog
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -318,7 +319,7 @@ def immutable_file_test(path, url):
 WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 LOGIN_URL = "/auth/login/"
-VERIFY_IDENTITY_URL = "/verify-identity/"
+VERIFY_IDENTITY_URL = reverse_lazy("verify_identity")
 
 # Keycloak settings
 KEYCLOAK_SERVER_URL = env.str("KEYCLOAK_SERVER_URL")
