@@ -9,12 +9,15 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
 from django.http import Http404, HttpRequest
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from keycloak import KeycloakGetError
 
 from agora.keycloak_admin import keycloak_admin
+from agora.selectors import stripe_donation_product_id, stripe_idempotency_key_time_based
 
 from .models import AgoraUser, IdentityVerification, WaitingList
+from .selectors import get_stripe_customer
 
 logger = structlog.get_logger(__name__)
 
@@ -381,3 +384,55 @@ def handle_stripe_identity_verification_event(
             verification_external_id=session.id,
             status=status,
         )
+
+
+def collect_donation(
+    *,
+    request: HttpRequest,
+    cleaned_email: str,
+    cleaned_amount_cents: int,
+) -> stripe.checkout.Session:
+    """
+    Collect a donation from a user. We don't store anything in the database for this
+    as we'll extract the email address and amount from the completed checkout session
+    in the webhook handler.
+    """
+
+    stripe_idempotency_key = stripe_idempotency_key_time_based(
+        prefix="donate",
+        # If the user changes their email or amount we shouldn't treat that as idempotent
+        unique_key=f"{cleaned_email}_{cleaned_amount_cents}",
+    )
+
+    stripe_customer = get_stripe_customer(email=cleaned_email)
+
+    stripe_product_id = stripe_donation_product_id()
+
+    cancel_url = request.build_absolute_uri(reverse("donate"))
+    success_url = request.build_absolute_uri(reverse("donate_success"))
+
+    checkout_session = stripe.checkout.Session.create(
+        idempotency_key=stripe_idempotency_key,
+        # Use an existing customer if we have it otherwise one will be created using the email
+        customer=stripe_customer.id if stripe_customer else None,
+        customer_email=cleaned_email if not stripe_customer else None,
+        mode="payment",
+        ui_mode="hosted",
+        cancel_url=cancel_url,
+        success_url=success_url,
+        line_items=[
+            {
+                "quantity": 1,
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": cleaned_amount_cents,
+                    "product": stripe_product_id,
+                },
+            }
+        ],
+        metadata={
+            "purpose": "donation",
+        },
+    )
+
+    return checkout_session
