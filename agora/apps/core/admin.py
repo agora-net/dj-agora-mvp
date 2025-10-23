@@ -189,8 +189,20 @@ class DonationAdmin(admin.ModelAdmin):
     Admin interface for Donation model.
     """
 
+    def get_currency_uppercase(self, obj):
+        """
+        Returns the currency in uppercase for display purposes.
+        """
+        # Defensive code: obj.currency should always be present and valid (as per model)
+        # In case it is somehow None or blank, return empty string
+        return (obj.currency or "").upper()
+
+    get_currency_uppercase.short_description = "Currency"
+    get_currency_uppercase.admin_order_field = "currency"
+
     list_display = [
         "email",
+        "get_currency_uppercase",
         "amount_cents",
         "payment_service",
         "created_at",
@@ -209,6 +221,7 @@ class DonationAdmin(admin.ModelAdmin):
     readonly_fields = [
         "id",
         "created_at",
+        "get_currency_uppercase",
         "updated_at",
         "amount_cents",
         "email",
@@ -225,6 +238,7 @@ class DonationAdmin(admin.ModelAdmin):
                 "fields": (
                     "id",
                     "email",
+                    "get_currency_uppercase",
                     "amount_cents",
                 )
             },
