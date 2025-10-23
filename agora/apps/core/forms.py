@@ -1,5 +1,11 @@
+import unicodedata
+
 import nh3
 from django import forms
+from django.utils.translation import gettext_lazy as _
+
+from agora.apps.core.models import AgoraUser
+from agora.selectors import contains_whitespace, generate_unique_handle
 
 
 class WaitlistSignupForm(forms.Form):
@@ -32,9 +38,34 @@ class EditProfileForm(forms.Form):
     handle = forms.CharField(
         label="Handle",
         max_length=32,
-        required=False,
         widget=forms.TextInput(attrs={"class": "input input-bordered w-full", "required": False}),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.initial.get("handle"):
+            self.initial["handle"] = generate_unique_handle()
+        self.fields["handle"].initial = self.initial.get("handle")
+
+    def clean_handle(self):
+        """Validate the handle."""
+        raw_handle = self.cleaned_data.get("handle")
+        handle = unicodedata.normalize("NFKC", raw_handle).strip()
+
+        # Require ASCII-only
+        try:
+            handle.encode("ascii")
+        except UnicodeEncodeError:
+            raise forms.ValidationError(_("Use only ASCII characters.")) from None
+
+        if handle:
+            handle = nh3.clean(handle.strip())
+            if contains_whitespace(handle):
+                raise forms.ValidationError("Handle cannot contain whitespace characters.")
+            if AgoraUser.objects.filter(handle=handle).exists():
+                raise forms.ValidationError("Handle is already taken.")
+
+        return handle
 
     def clean(self):
         """Clean the form data by sanitizing the string values using nh3."""
@@ -42,7 +73,7 @@ class EditProfileForm(forms.Form):
         for field in self.fields:
             value = cleaned_data.get(field)
             if isinstance(value, str):
-                cleaned_data[field] = nh3.clean(value)
+                cleaned_data[field] = nh3.clean(value.strip())
         return cleaned_data
 
 
