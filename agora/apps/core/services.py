@@ -474,7 +474,7 @@ def collect_donation(
             {
                 "quantity": 1,
                 "price_data": {
-                    "currency": "usd",
+                    "currency": "chf",
                     "unit_amount": cleaned_amount_cents,
                     "product": stripe_product_id,
                 },

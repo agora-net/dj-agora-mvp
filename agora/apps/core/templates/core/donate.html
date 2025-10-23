@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static mathfilters %}
 
 {% block title %}
     Donate to Agora
@@ -11,21 +11,6 @@
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body">
                     <h1 class="card-title text-2xl font-bold text-center mb-6">Support Agora</h1>
-
-                    {% if success %}
-                        <div class="alert alert-success mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 class="stroke-current shrink-0 h-6 w-6"
-                                 fill="none"
-                                 viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <h3 class="font-bold">Thank you for your donation!</h3>
-                                <div class="text-xs">Your donation of ${{ donation_amount|floatformat:2 }} has been received.</div>
-                            </div>
-                        </div>
-                    {% endif %}
 
                     <form method="post" class="space-y-4">
                         {% csrf_token %}
@@ -49,7 +34,7 @@
 
                         <div class="form-control">
                             <label class="label" for="{{ form.amount_cents.id_for_label }}">
-                                <span class="label-text">Donation Amount (USD)</span>
+                                <span class="label-text">Donation Amount (Swiss Francs)</span>
                             </label>
                             <div class="input input-bordered w-full">
                                 <i data-lucide="dollar-sign" class="h-4 w-4"></i>
@@ -61,12 +46,13 @@
                                        id="amount_dollars"
                                        class="grow"
                                        placeholder="10.00"
+                                       value="10.00"
                                        required>
                                 <!-- Hidden field to store the amount in cents -->
                                 <input type="hidden" name="amount_cents" id="amount_cents" value="">
                             </div>
                             <label class="label">
-                                <span class="label-text-alt">Minimum donation is $10.00</span>
+                                <span class="label-text-alt">Minimum donation is CHF10.00</span>
                             </label>
                             {% if form.amount_cents.errors %}
                                 <div class="text-error text-sm mt-1">

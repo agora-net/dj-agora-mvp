@@ -62,20 +62,20 @@ class DonationForm(forms.Form):
     )
 
     amount_cents = forms.IntegerField(
-        label="Donation amount (USD)",
+        label="Donation amount (Swiss Francs)",
         min_value=1000,
         widget=forms.NumberInput(
             attrs={
                 "class": "input input-bordered w-full",
-                "placeholder": "Enter donation amount (minimum $10.00)",
+                "placeholder": "Enter donation amount (minimum 10.00 CHF)",
                 "required": True,
                 "min": "1000",
             }
         ),
-        help_text="Minimum donation is $10.00.",
+        help_text="Minimum donation is 10.00 CHF.",
         error_messages={
             "invalid": "Enter a valid number.",
-            "min_value": "Minimum donation amount is $10.00.",
+            "min_value": "Minimum donation amount is 10.00 CHF.",
         },
     )
 
@@ -90,5 +90,5 @@ class DonationForm(forms.Form):
         """Validate the donation amount."""
         amount_cents = self.cleaned_data.get("amount_cents")
         if amount_cents and amount_cents < 1000:
-            raise forms.ValidationError("Minimum donation amount is $10.00.")
+            raise forms.ValidationError("Minimum donation amount is 10.00 CHF.")
         return amount_cents
