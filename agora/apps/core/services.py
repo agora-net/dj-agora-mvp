@@ -451,7 +451,7 @@ def collect_donation(
     stripe_idempotency_key = stripe_idempotency_key_time_based(
         prefix="donate",
         # If the user changes their email or amount we shouldn't treat that as idempotent
-        unique_key=f"{cleaned_email}_{cleaned_amount_cents}",
+        unique_key=f"{request.session.session_key}_{cleaned_email}_{cleaned_amount_cents}",
     )
 
     stripe_customer = get_stripe_customer(email=cleaned_email)
