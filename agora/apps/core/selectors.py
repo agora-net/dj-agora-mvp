@@ -1,5 +1,6 @@
 import math
 
+import stripe
 from django.core.cache import cache
 from django.utils import timezone
 
@@ -103,3 +104,13 @@ def get_identity_verification_for_user(user: AgoraUser) -> IdentityVerification 
         The latest IdentityVerification record or None if not found
     """
     return IdentityVerification.objects.filter(user=user).order_by("-updated_at").first()
+
+
+def get_stripe_customer(*, email: str) -> stripe.Customer | None:
+    """
+    Get the Stripe customer for the user.
+    """
+    customers = stripe.Customer.search(query=f"email:'{email}'")
+    if customers.data and len(customers.data) > 0:
+        return customers.data[0]
+    return None
