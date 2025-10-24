@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ user.name }} - Profile | Agora
+{% endblock title %}
+
+{% block metaDescription %}
+    {{ user.name }}'s profile on Agora
+{% endblock metaDescription %}
+
+{% block htmlClass %}
+    h-full
+{% endblock htmlClass %}
+
+{% block bodyClass %}
+    h-full bg-base-100
+{% endblock bodyClass %}
+
+{% block content %}
+    <div class="h-full w-full flex items-center justify-center p-4">
+        <div class="w-full max-w-md h-full max-h-[900px] relative rounded-lg overflow-hidden shadow-2xl">
+
+            <!-- Movie poster background image -->
+            <div class="absolute inset-0 bg-cover bg-center"
+                 {% if profile_image_url %} style="background-image: url('{{ profile_image_url }}');" {% else %} style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" {% endif %}>
+                <!-- Dark overlay for text readability -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+            </div>
+
+            <!-- Content overlay - positioned at bottom for movie poster style -->
+            <div class="absolute inset-0 flex flex-col justify-end p-6 text-white z-10">
+
+                <!-- User handle/username - prominent like movie title -->
+                <div class="mb-4">
+                    <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-2">{{ user.handle }}</h1>
+                    <div class="h-1 w-16 bg-primary rounded"></div>
+                </div>
+
+                <!-- User name -->
+                {% if user.name %}<p class="text-lg md:text-xl font-light mb-6 opacity-90">{{ user.name }}</p>{% endif %}
+
+                <!-- User email -->
+                <p class="text-sm md:text-base font-mono opacity-75 mb-6 break-all">{{ user.email }}</p>
+
+                <!-- Member since -->
+                <div class="mb-6 text-xs md:text-sm opacity-80">
+                    <p class="font-semibold mb-1">MEMBER SINCE</p>
+                    <p>{{ user.created_at|date:"F Y" }}</p>
+                </div>
+
+                <!-- Action buttons - styled like movie credits -->
+                <div class="flex gap-3">
+                    <a href="{% url 'dashboard' %}"
+                       class="btn btn-primary btn-sm md:btn-md flex-1">Dashboard</a>
+                    {% if request.user == user %}
+                        <a href="{% url 'onboarding_profile' %}"
+                           class="btn btn-ghost btn-sm md:btn-md flex-1">Edit Profile</a>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

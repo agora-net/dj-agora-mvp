@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 from .forms import DonationForm, EditProfileForm, WaitlistSignupForm
-from .models import IdentityVerification, WaitingList
+from .models import AgoraUser, IdentityVerification, WaitingList
 from .selectors import (
     get_external_verification_details,
     get_identity_verification_for_user,
@@ -328,3 +328,23 @@ def donate(request: HttpRequest):
         "form": form,
     }
     return render(request, "core/donate.html", context)
+
+
+@login_required
+def user_profile(request: HttpRequest, handle: str):
+    """
+    View to display a user's profile.
+
+    Args:
+        request: HTTP request object
+        handle: Handle (username) of the user to display
+
+    Returns:
+        Rendered profile template or 404 if user not found
+    """
+    user = get_object_or_404(AgoraUser, handle=handle)
+
+    context = {
+        "user": user,
+    }
+    return render(request, "profile.html", context=context)

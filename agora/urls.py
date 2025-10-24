@@ -16,6 +16,7 @@ from agora.apps.core.views import (
     onboarding_edit_profile,
     signup,
     signup_status,
+    user_profile,
     verify_identity,
 )
 
@@ -39,6 +40,7 @@ urlpatterns = [
         "onboarding/profile", onboarding_edit_profile, name="onboarding_profile"
     ),  # Profile completion step
     path("dashboard/", dashboard, name="dashboard"),
+    path("profile/<str:handle>/", user_profile, name="user_profile"),
     path("404/", custom_404, name="404"),
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("admin/", admin.site.urls),
