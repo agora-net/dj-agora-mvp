@@ -48,16 +48,16 @@ def contains_whitespace(s: str) -> bool:
 
 def generate_unique_handle() -> str:
     """
-    Generate a unique handle for a user.
+    Generate a unique, URL friendly handle for a user.
 
-    Will output something like "powerful-sphinx#1234"
+    Will output something like "powerful-sphinx-1234"
     """
 
     adjective = random.choice(ADJECTIVES).lower()
     noun = random.choice(NOUNS).lower()
     numeric_hash = random.randint(1000, 9999)
 
-    return f"{adjective}-{noun}#{numeric_hash}"
+    return f"{adjective}-{noun}-{numeric_hash}"
 
 
 def stripe_identity_verification_flow(*, request: HttpRequest) -> str:
