@@ -21,6 +21,7 @@ dependencies = [
     "stripe>=13.0.1",
     "django-shinobi>=1.4.0",
     "django-mathfilters>=1.0.0",
+    "pillow>=12.0.0",
 ]
 
 [dependency-groups]
