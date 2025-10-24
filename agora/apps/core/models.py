@@ -1,3 +1,5 @@
+import secrets
+from datetime import date
 from typing import ClassVar
 
 import uuid6
@@ -9,6 +11,20 @@ from django.utils.translation import gettext_lazy as _
 from typeid import TypeID
 
 from .managers import UserManager
+
+
+def profile_image_upload_path(instance, filename: str) -> str:
+    """
+    Generate upload path for profile images including user ID and date.
+    """
+
+    today = date.today()
+    extension = filename.strip().split(".")[-1]
+    random_filename = f"{secrets.token_hex(3)}.{extension}"
+    return (
+        f"profile_images/{today.year:04d}/{today.month:02d}/{today.day:02d}/"
+        f"{instance.user.id}/{random_filename}"
+    )
 
 
 class BaseModel(models.Model):
@@ -195,3 +211,28 @@ class Donation(BaseModel):
 
     def __str__(self):
         return f"{self.email} - {self.currency.upper()} {self.amount_cents / 100:.2f}"
+
+
+class UserProfile(BaseModel):
+    """
+    User profile information including profile image.
+    """
+
+    user = models.OneToOneField(
+        AgoraUser,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    profile_image = models.ImageField(
+        _("Profile Image"),
+        upload_to=profile_image_upload_path,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = _("User Profile")
+        verbose_name_plural = _("User Profiles")
+
+    def __str__(self):
+        return f"profile_{self.user.handle}"
