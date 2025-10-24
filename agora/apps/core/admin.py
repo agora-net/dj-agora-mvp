@@ -181,6 +181,7 @@ class IdentityVerificationAdmin(admin.ModelAdmin):
         "updated_at",
     ]
     ordering = ["-created_at"]
+    list_select_related = ["user"]
 
 
 @admin.register(Donation)
@@ -296,6 +297,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     ]
 
     ordering = ["-created_at"]
+    list_select_related = ["user"]
 
     fieldsets = (
         (
