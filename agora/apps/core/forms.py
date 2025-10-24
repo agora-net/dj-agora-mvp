@@ -44,7 +44,11 @@ class EditProfileForm(forms.Form):
         validators=[
             validators.ProhibitNullCharactersValidator,
             validate_no_whitespace,
-            validate_handle_available,
+            validators.RegexValidator(
+                r"^[a-zA-Z0-9-]+$",
+                message=_("Handle must contain only letters, numbers, and hyphens."),
+            ),
+            validate_handle_available,  # Computationally heavy so run last
         ],
     )
 
