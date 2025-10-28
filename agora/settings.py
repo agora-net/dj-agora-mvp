@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "django_structlog",
     "django_vite",
     "mathfilters",
+    "colorfield",
     "agora.apps.core",
 ]
 
