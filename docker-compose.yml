@@ -24,8 +24,7 @@ services:
       - --conn-limit=1024
       - --threads=2
       - --memory-limit=64
-      - --max-item-size=1024
-      - --max-item-size=1024
+      - --max-item-size=524288
     ports:
       - 11211:11211
     networks:
