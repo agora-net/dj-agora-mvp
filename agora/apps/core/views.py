@@ -348,3 +348,22 @@ def user_profile(request: HttpRequest, handle: str):
         "user": user,
     }
     return render(request, "profile.html", context=context)
+
+
+@login_required
+def current_user_profile(request: HttpRequest):
+    """
+    View to display the current authenticated user's profile.
+
+    Args:
+        request: HTTP request object
+
+    Returns:
+        Rendered profile template
+    """
+    user = request.user
+
+    context = {
+        "user": user,
+    }
+    return render(request, "profile.html", context=context)

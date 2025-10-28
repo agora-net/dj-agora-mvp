@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 
 from agora.apps.core import api_v1, webhooks_v1
 from agora.apps.core.views import (
+    current_user_profile,
     custom_404,
     dashboard,
     donate,
@@ -40,6 +41,7 @@ urlpatterns = [
         "onboarding/profile", onboarding_edit_profile, name="onboarding_profile"
     ),  # Profile completion step
     path("dashboard/", dashboard, name="dashboard"),
+    path("profile/", current_user_profile, name="current_user_profile"),
     path("profile/<str:handle>/", user_profile, name="user_profile"),
     path("404/", custom_404, name="404"),
     path("oidc/", include("mozilla_django_oidc.urls")),
