@@ -215,6 +215,13 @@ CACHES = {
             "size_limit": 2**30  # 1 gigabyte
         },
     },
+    # Cache for the restricted Stripe client with shorter times and in-memory only
+    "stripe_restricted": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "localhost:11211",
+        "TIMEOUT": 30,
+        "OPTIONS": {},
+    },
 }
 
 
