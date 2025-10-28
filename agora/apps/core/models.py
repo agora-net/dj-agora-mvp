@@ -3,6 +3,7 @@ from datetime import date
 from typing import ClassVar
 
 import uuid6
+from colorfield.fields import ColorField
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
 from django.db import models
@@ -11,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from typeid import TypeID
 
 from .managers import UserManager
+from .selectors import get_dominant_color
 
 
 def profile_image_upload_path(instance, filename: str) -> str:
@@ -229,6 +231,7 @@ class UserProfile(BaseModel):
         null=True,
         blank=True,
     )
+    theme_color = ColorField(blank=True, null=True, format="rgb")
 
     class Meta:
         verbose_name = _("User Profile")
@@ -236,3 +239,8 @@ class UserProfile(BaseModel):
 
     def __str__(self):
         return f"profile_{self.user.handle}"
+
+    def save(self, *args, **kwargs):
+        if not self.theme_color and self.profile_image:
+            self.theme_color = get_dominant_color(image_filepath=self.profile_image.path)
+        super().save(*args, **kwargs)
