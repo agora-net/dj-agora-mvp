@@ -219,7 +219,7 @@ CACHES = {
     "stripe_restricted": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
         "LOCATION": "localhost:11211",
-        "TIMEOUT": 30,
+        "TIMEOUT": 300,
         "OPTIONS": {},
     },
 }
