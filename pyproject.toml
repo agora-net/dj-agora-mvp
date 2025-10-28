@@ -22,6 +22,7 @@ dependencies = [
     "django-shinobi>=1.4.0",
     "django-mathfilters>=1.0.0",
     "pillow>=12.0.0",
+    "pymemcache>=4.0.0",
 ]
 
 [dependency-groups]
