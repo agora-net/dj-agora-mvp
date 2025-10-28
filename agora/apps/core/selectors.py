@@ -4,8 +4,21 @@ import stripe
 from django.conf import settings
 from django.core.cache import cache, caches
 from django.utils import timezone
+from pydantic import BaseModel
 
 from .models import AgoraUser, IdentityVerification, WaitingList
+
+
+class DateOfBirth(BaseModel):
+    day: int | None
+    month: int | None
+    year: int | None
+
+
+class StripeVerificationDetails(BaseModel):
+    first_name: str | None
+    last_name: str | None
+    date_of_birth: DateOfBirth | None
 
 
 def round_to_nearest(n, m):
@@ -126,7 +139,7 @@ def get_stripe_customer(*, email: str) -> stripe.Customer | None:
 
 def get_external_verification_details(
     *, identity_verification: IdentityVerification
-) -> dict | None:
+) -> StripeVerificationDetails | None:
     """
     Get the external verification details for the identity verification.
 
@@ -140,7 +153,7 @@ def get_external_verification_details(
 
     cached_details = restricted_cache.get(cache_key)
     if cached_details:
-        return cached_details
+        return StripeVerificationDetails(**cached_details)
 
     restricted_stripe_client = stripe.StripeClient(
         api_key=settings.STRIPE_RESTRICTED_API_KEY,
@@ -153,11 +166,18 @@ def get_external_verification_details(
                 "expand": ["verified_outputs", "verified_outputs.dob"],
             },
         )
-        details = {
-            "first_name": session.verified_outputs.get("first_name", ""),
-            "last_name": session.verified_outputs.get("last_name", ""),
-            "date_of_birth": session.verified_outputs.get("dob", {}),
-        }
+
+        dob = session.verified_outputs.get("dob", {})
+
+        details = StripeVerificationDetails(
+            first_name=session.verified_outputs.get("first_name", None),
+            last_name=session.verified_outputs.get("last_name", None),
+            date_of_birth=DateOfBirth(
+                day=dob.get("day", None),
+                month=dob.get("month", None),
+                year=dob.get("year", None),
+            ),
+        )
         restricted_cache.set(cache_key, details, timeout=300)
         return details
     else:
