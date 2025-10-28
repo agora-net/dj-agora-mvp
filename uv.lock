@@ -375,6 +375,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "diskcache" },
     { name = "django", extra = ["argon2"] },
+    { name = "django-colorfield" },
     { name = "django-debug-toolbar" },
     { name = "django-environ" },
     { name = "django-mathfilters" },
@@ -407,6 +408,7 @@ dev = [
 requires-dist = [
     { name = "diskcache", specifier = ">=5.6.3" },
     { name = "django", extras = ["argon2"], specifier = ">=5.2.6" },
+    { name = "django-colorfield", specifier = ">=0.14.0" },
     { name = "django-debug-toolbar", specifier = ">=6.0.0" },
     { name = "django-environ", specifier = ">=0.12.0" },
     { name = "django-mathfilters", specifier = ">=1.0.0" },
@@ -452,6 +454,18 @@ wheels = [
 [package.optional-dependencies]
 argon2 = [
     { name = "argon2-cffi" },
+]
+
+[[package]]
+name = "django-colorfield"
+version = "0.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pillow" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/49/4a/dcc1c9a071cf7e32391139843d4eb127a91bf9cbfe19596f924d51cb1680/django_colorfield-0.14.0.tar.gz", hash = "sha256:478dbd3975a88f2ea2a9afc325faaca05c54ebf04ec985ce130f6dea39dfb899", size = 36971, upload-time = "2025-04-30T19:27:39.581Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/63/1226d92ec38286a7c1d41959fb2fb5ba4dd68e4a179d3554c478e8ee6c92/django_colorfield-0.14.0-py3-none-any.whl", hash = "sha256:f169c4e7ad8f336e51d4ea81f866346e7d4f336f3766e54e144cd16ea7d84a0e", size = 34827, upload-time = "2025-04-30T19:27:38.245Z" },
 ]
 
 [[package]]
