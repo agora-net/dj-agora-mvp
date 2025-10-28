@@ -17,6 +17,20 @@ services:
     networks:
       - agora-network
 
+  memcached:
+    image: memcached:1.6-alpine
+    restart: always
+    command:
+      - --conn-limit=1024
+      - --threads=2
+      - --memory-limit=64
+      - --max-item-size=1024
+      - --max-item-size=1024
+    ports:
+      - 11211:11211
+    networks:
+      - agora-network
+
   postgres:
     # Using beta version to have UUID v7 extension available in 18 release
     image: postgres:18beta3
