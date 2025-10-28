@@ -2,7 +2,7 @@ import math
 
 import stripe
 from django.conf import settings
-from django.core.cache import cache
+from django.core.cache import cache, caches
 from django.utils import timezone
 
 from .models import AgoraUser, IdentityVerification, WaitingList
@@ -129,7 +129,18 @@ def get_external_verification_details(
 ) -> dict | None:
     """
     Get the external verification details for the identity verification.
+
+    This function uses a restricted Stripe client to fetch the verification details and
+    a restricted cache to store the results.
     """
+
+    restricted_cache = caches["stripe_restricted"]
+
+    cache_key = f"external_verification_details_{identity_verification.id}"
+
+    cached_details = restricted_cache.get(cache_key)
+    if cached_details:
+        return cached_details
 
     restricted_stripe_client = stripe.StripeClient(
         api_key=settings.STRIPE_RESTRICTED_API_KEY,
@@ -142,10 +153,12 @@ def get_external_verification_details(
                 "expand": ["verified_outputs", "verified_outputs.dob"],
             },
         )
-        return {
+        details = {
             "first_name": session.verified_outputs.get("first_name", ""),
             "last_name": session.verified_outputs.get("last_name", ""),
             "date_of_birth": session.verified_outputs.get("dob", {}),
         }
+        restricted_cache.set(cache_key, details, timeout=300)
+        return details
     else:
         return None
