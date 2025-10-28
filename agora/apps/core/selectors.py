@@ -1,6 +1,7 @@
 import math
 
 import stripe
+from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 
@@ -129,14 +130,22 @@ def get_external_verification_details(
     """
     Get the external verification details for the identity verification.
     """
+
+    restricted_stripe_client = stripe.StripeClient(
+        api_key=settings.STRIPE_RESTRICTED_API_KEY,
+    )
+
     if identity_verification.service == IdentityVerification.IdentityVerificationService.STRIPE:
-        session = stripe.identity.VerificationSession.retrieve(
-            identity_verification.external_id, expand=["verified_outputs"]
+        session = restricted_stripe_client.v1.identity.verification_sessions.retrieve(
+            identity_verification.external_id,
+            params={
+                "expand": ["verified_outputs", "verified_outputs.dob"],
+            },
         )
         return {
-            "first_name": session.verified_outputs.first_name,
-            "last_name": session.verified_outputs.last_name,
-            "date_of_birth": session.verified_outputs.dob,
+            "first_name": session.verified_outputs.get("first_name", ""),
+            "last_name": session.verified_outputs.get("last_name", ""),
+            "date_of_birth": session.verified_outputs.get("dob", {}),
         }
     else:
         return None
