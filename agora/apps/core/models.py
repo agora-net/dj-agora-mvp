@@ -11,8 +11,9 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from typeid import TypeID
 
+from agora.selectors import get_dominant_color
+
 from .managers import UserManager
-from .selectors import get_dominant_color
 
 
 def profile_image_upload_path(instance, filename: str) -> str:
@@ -242,5 +243,6 @@ class UserProfile(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.theme_color and self.profile_image:
-            self.theme_color = get_dominant_color(image_filepath=self.profile_image.path)
+            dominant_color_tuple = get_dominant_color(image_filepath=self.profile_image.path)
+            self.theme_color = f"rgb({dominant_color_tuple[0]}, {dominant_color_tuple[1]}, {dominant_color_tuple[2]})"  # noqa: E501
         super().save(*args, **kwargs)
