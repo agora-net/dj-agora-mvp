@@ -242,7 +242,8 @@ class UserProfile(BaseModel):
         return f"profile_{self.user.handle}"
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Save the model first to get the profile_image upload path
         if not self.theme_color and self.profile_image:
             dominant_color_tuple = get_dominant_color(image_filepath=self.profile_image.path)
             self.theme_color = f"rgb({dominant_color_tuple[0]}, {dominant_color_tuple[1]}, {dominant_color_tuple[2]})"  # noqa: E501
-        super().save(*args, **kwargs)
+            super().save(*args, **kwargs)  # Save the model again to update the theme_color
