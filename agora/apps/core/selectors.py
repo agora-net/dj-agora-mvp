@@ -7,8 +7,6 @@ from django.core.cache import cache, caches
 from django.utils import timezone
 from pydantic import BaseModel
 
-from agora.colorthief import ColorThief
-
 from .models import AgoraUser, IdentityVerification, WaitingList
 
 logger = structlog.get_logger(__name__)
@@ -187,13 +185,3 @@ def get_external_verification_details(
         return details
     else:
         return None
-
-
-def get_dominant_color(*, image_filepath: str) -> tuple[int, int, int]:
-    try:
-        with open(image_filepath, "rb") as image_file:
-            color_thief = ColorThief(image_file)
-            return color_thief.get_color(quality=5)
-    except Exception as e:
-        logger.error(f"Error getting dominant color: {e}")
-        return (0, 0, 0)
