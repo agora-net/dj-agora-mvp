@@ -160,6 +160,9 @@ else:
 ROOT_URLCONF = "agora.urls"
 
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
@@ -286,8 +289,6 @@ RESULTS_CACHE_SIZE = 1000
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-
-# todo: set this from env
 STATIC_HOST = env.str("STATIC_HOST", "") if not DEBUG else ""  # type: ignore
 STATIC_URL = STATIC_HOST + "/static/"  # type: ignore
 
@@ -297,6 +298,10 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_HOST = env.str("MEDIA_HOST", "") if not DEBUG else ""  # type: ignore
+MEDIA_URL = MEDIA_HOST + "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 CLOUDFLARE_TURNSTILE_SECRET = env.str("CLOUDFLARE_TURNSTILE_SECRET", "")  # type: ignore
 
