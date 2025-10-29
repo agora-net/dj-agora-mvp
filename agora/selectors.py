@@ -4,13 +4,17 @@ import string
 from datetime import UTC, datetime
 
 import stripe
+import structlog
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 from django.urls import NoReverseMatch, reverse
 
+from agora.colorthief import ColorThief
 from agora.constants import ADJECTIVES, NOUNS
+
+logger = structlog.get_logger(__name__)
 
 
 def stripe_idempotency_key_time_based(*, prefix: str, unique_key: str) -> str:
@@ -102,3 +106,13 @@ def is_named_url(url_string):
         return True
     except (NoReverseMatch, ImproperlyConfigured):
         return False
+
+
+def get_dominant_color(*, image_filepath: str) -> tuple[int, int, int]:
+    try:
+        with open(image_filepath, "rb") as image_file:
+            color_thief = ColorThief(image_file)
+            return color_thief.get_color(quality=5)
+    except Exception as e:
+        logger.error(f"Error getting dominant color: {e}")
+        return (0, 0, 0)
