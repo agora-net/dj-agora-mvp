@@ -10,6 +10,7 @@ services:
       - 443:443
     volumes:
       - ./config/caddy:/etc/caddy
+      - ./media:/srv/media
       - caddy_data:/data
       - caddy_config:/config
     secrets:

@@ -9,8 +9,17 @@ static.local.agora.gdn {
 	import cloudflare_tls
 }
 
+media.local.agora.gdn {
+	import cloudflare_tls
+	root * /srv
+
+	file_server /media/* {
+		hide .git .DS_Store .gitignore .*
+	}
+}
+
 app.local.agora.gdn {
 	import cors https://app.local.agora.gdn
-	reverse_proxy host.containers.internal:8000
 	import cloudflare_tls
+	reverse_proxy host.containers.internal:8000
 }
