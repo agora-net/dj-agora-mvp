@@ -180,6 +180,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.media",
                 "agora.context_processors.stripe_publishable_key",
             ],
         },
@@ -289,7 +290,7 @@ RESULTS_CACHE_SIZE = 1000
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_HOST = env.str("STATIC_HOST", "") if not DEBUG else ""  # type: ignore
+STATIC_HOST = env.str("STATIC_HOST", "")  # type: ignore
 STATIC_URL = STATIC_HOST + "/static/"  # type: ignore
 
 STATICFILES_DIRS = [
@@ -299,7 +300,7 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_HOST = env.str("MEDIA_HOST", "") if not DEBUG else ""  # type: ignore
+MEDIA_HOST = env.str("MEDIA_HOST", "")  # type: ignore
 MEDIA_URL = MEDIA_HOST + "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
