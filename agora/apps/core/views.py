@@ -344,9 +344,31 @@ def user_profile(request: HttpRequest, handle: str):
     """
     user = get_object_or_404(AgoraUser, handle=handle)
 
+    external_verification_details = None
+    latest_identity_verification = get_identity_verification_for_user(user=user)
+    if latest_identity_verification:
+        external_verification_details = get_external_verification_details(
+            identity_verification=latest_identity_verification
+        )
+
+    if external_verification_details:
+        verified_name = (
+            f"{external_verification_details.first_name} {external_verification_details.last_name}"
+        )
+    else:
+        verified_name = None
+
     context = {
         "user": user,
+        "is_identity_verified": latest_identity_verification is not None
+        and latest_identity_verification.status
+        == IdentityVerification.IdentityVerificationStatus.VERIFIED,
+        "issuing_country_code": external_verification_details.issuing_country
+        if external_verification_details
+        else None,
+        "verified_name": verified_name,
     }
+
     return render(request, "profile.html", context=context)
 
 
@@ -362,8 +384,4 @@ def current_user_profile(request: HttpRequest):
         Rendered profile template
     """
     user = request.user
-
-    context = {
-        "user": user,
-    }
-    return render(request, "profile.html", context=context)
+    return user_profile(request=request, handle=user.handle)
