@@ -1,4 +1,5 @@
 import math
+from enum import Enum
 
 import stripe
 import structlog
@@ -12,15 +13,23 @@ from .models import AgoraUser, IdentityVerification, WaitingList
 logger = structlog.get_logger(__name__)
 
 
+class DocumentTypeEnum(str, Enum):
+    PASSPORT = "passport"
+    DRIVING_LICENSE = "driving_license"
+    ID_CARD = "id_card"
+
+
 class DateOfBirth(BaseModel):
     day: int | None
     month: int | None
     year: int | None
 
 
-class StripeVerificationDetails(BaseModel):
+class VerifiedDocDetails(BaseModel):
     first_name: str | None
     last_name: str | None
+    issuing_country: str | None
+    document_type: DocumentTypeEnum | None
     date_of_birth: DateOfBirth | None
 
 
@@ -142,7 +151,7 @@ def get_stripe_customer(*, email: str) -> stripe.Customer | None:
 
 def get_external_verification_details(
     *, identity_verification: IdentityVerification
-) -> StripeVerificationDetails | None:
+) -> VerifiedDocDetails | None:
     """
     Get the external verification details for the identity verification.
 
@@ -156,7 +165,7 @@ def get_external_verification_details(
 
     cached_details = restricted_cache.get(cache_key)
     if cached_details:
-        return StripeVerificationDetails(**cached_details)
+        return cached_details
 
     restricted_stripe_client = stripe.StripeClient(
         api_key=settings.STRIPE_RESTRICTED_API_KEY,
@@ -166,15 +175,30 @@ def get_external_verification_details(
         session = restricted_stripe_client.v1.identity.verification_sessions.retrieve(
             identity_verification.external_id,
             params={
-                "expand": ["verified_outputs", "verified_outputs.dob"],
+                "expand": [
+                    "last_verification_report",
+                    "last_verification_report.document.sex",
+                    "last_verification_report.document.dob",
+                ],
             },
         )
 
-        dob = session.verified_outputs.get("dob", {})
+        if session.status != "verified":
+            return None
 
-        details = StripeVerificationDetails(
-            first_name=session.verified_outputs.get("first_name", None),
-            last_name=session.verified_outputs.get("last_name", None),
+        last_verification_report = session.last_verification_report
+        document = last_verification_report.document
+
+        if document.status != "verified":
+            return None
+
+        dob = document.get("dob", {})
+
+        details = VerifiedDocDetails(
+            first_name=document.get("first_name", None),
+            last_name=document.get("last_name", None),
+            issuing_country=document.get("issuing_country", None),
+            document_type=document.get("type", None),
             date_of_birth=DateOfBirth(
                 day=dob.get("day", None),
                 month=dob.get("month", None),
