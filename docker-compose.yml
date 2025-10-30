@@ -54,7 +54,9 @@ services:
       - agora-network
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.3
+    build:
+      context: ./docker/keycloak
+      dockerfile: Containerfile
     restart: always
     depends_on:
       - postgres
