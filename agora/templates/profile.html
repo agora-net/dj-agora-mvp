@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block headStyle %}
+    <style>
+        :root {
+            --default-theme-color: #764ba2;
+            --theme-color: {{ user.profile.theme_color | default:'primary' }};
+
+            {% comment %} Creates a lightness value between 0 and 1 {% endcomment %}
+            --theme-lightness: from var(--theme-color) oklch(l c h);
+            --lightness-threshold: 0.5;
+             {% comment %} If L > 0.5, we want black (0%). If L < 0.5, we want white (100%).  {% endcomment %}
+             --theme-text-lightness: calc((var(--theme-lightness) - var(--lightness-threshold)) * 10000%);
+             --theme-text-color: oklch(var(--theme-text-lightness) 0 0);
+        }
+    </style>
+{% endblock headStyle %}
+
 {% block title %}
     {{ user.name }} - Profile | Agora
 {% endblock title %}
@@ -23,7 +39,7 @@
 
             <!-- Movie poster background image -->
             <div class="absolute inset-0 bg-cover bg-center"
-                 {% if profile_image_url %} style="background-image: url('{{ profile_image_url }}');" {% else %} style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" {% endif %}>
+                 {% if user.profile.profile_image %} style="background-image: url('{{ user.profile.profile_image.url }}');" {% else %} style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" {% endif %}>
                 <!-- Dark overlay for text readability -->
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
             </div>
@@ -31,28 +47,49 @@
             <!-- Content overlay - positioned at bottom for movie poster style -->
             <div class="absolute inset-0 flex flex-col justify-end p-6 text-white z-10">
 
-                <!-- User handle/username - prominent like movie title -->
-                <div class="mb-4">
-                    <h1 class="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-2">{{ user.handle }}</h1>
-                    <div class="h-1 w-16 bg-primary rounded"></div>
+                <!-- User name - prominent like movie title -->
+                <div class="mb-6 ">
+                    {% if verified_name %}
+                        <h1 class="text-3xl md:text-5xl font-bold tracking-tight leading-tight mb-2">
+                            {{ verified_name }}
+                            {% if is_identity_verified %}
+                                <i data-lucide="badge-check"
+                                   class="inline-flex items-center h-8 w-8 ml-2 text-success"></i>
+                            {% endif %}
+                        </h1>
+
+                    {% endif %}
+
+                    <!-- User handle -->
+                    {% if user.handle %}<p class="text-xl md:text-3xl font-light mb-4 opacity-90">{{ user.handle }}</p>{% endif %}
+
+                    <div class="h-1 w-16 bg-[var(--theme-color)] rounded"></div>
                 </div>
 
-                <!-- User name -->
-                {% if user.name %}<p class="text-lg md:text-xl font-light mb-6 opacity-90">{{ user.name }}</p>{% endif %}
-
-                <!-- User email -->
-                <p class="text-sm md:text-base font-mono opacity-75 mb-6 break-all">{{ user.email }}</p>
-
                 <!-- Member since -->
-                <div class="mb-6 text-xs md:text-sm opacity-80">
-                    <p class="font-semibold mb-1">MEMBER SINCE</p>
-                    <p>{{ user.created_at|date:"F Y" }}</p>
+                <div class="mb-6 flex items-center justify-between gap-4">
+
+                    <div class="text-xs md:text-sm opacity-80">
+                        <p class="font-semibold mb-1">MEMBER SINCE</p>
+                        <p>{{ user.date_joined|date:"F Y" }}</p>
+                    </div>
+
+                    <div class="text-xs md:text-sm opacity-80">
+                        <p class="font-semibold mb-1">VERIFIED ID</p>
+                        {% if is_identity_verified %}
+                            <div class="tooltip tooltip-left flex justify-between items-center"
+                                 data-tip="Verified with a {{ issuing_country_code | upper }} document">
+                                <p>Yes</p>
+                                <span data-country-code="{{ issuing_country_code }}">{{ issuing_country_code }}</span>
+                            </div>
+                        {% else %}
+                            <p>No</p>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <!-- Action buttons - styled like movie credits -->
                 <div class="flex gap-3">
-                    <a href="{% url 'dashboard' %}"
-                       class="btn btn-primary btn-sm md:btn-md flex-1">Dashboard</a>
                     {% if request.user == user %}
                         <a href="{% url 'onboarding_profile' %}"
                            class="btn btn-ghost btn-sm md:btn-md flex-1">Edit Profile</a>
@@ -64,3 +101,22 @@
     </div>
 
 {% endblock content %}
+
+{% block bodyEndScripts %}
+    <script>
+    const getFlagEmoji = (countryCode) => {
+        const codePoints = countryCode
+          .toUpperCase()
+          .split('')
+          .map(char =>  127397 + char.charCodeAt());
+        return String.fromCodePoint(...codePoints);
+      };
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const countryCodeElements = document.querySelectorAll('[data-country-code]');
+        countryCodeElements.forEach(element => {
+          element.textContent = getFlagEmoji(element.dataset.countryCode);
+        });
+      });
+    </script>
+{% endblock bodyEndScripts %}
