@@ -1,4 +1,7 @@
-FROM quay.io/keycloak/keycloak:26.3 AS builder
+ARG KEYCLOAK_VERSION=26.3
+
+# Build with any custom providers
+FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} AS builder
 
 # Enable health and metrics support
 ENV KC_HEALTH_ENABLED=true
@@ -8,11 +11,17 @@ ENV KC_METRICS_ENABLED=true
 ENV KC_DB=postgres
 
 WORKDIR /opt/keycloak
-# for demonstration purposes only, please make sure to use proper certificates in production instead
-RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
+
+ARG DYNAMIC_AGE_MAPPER_SPI_VERSION=1.0.0
+
+ADD --chown=keycloak:keycloak --chmod=644 \
+    https://github.com/agora-net/keycloak-spis/releases/download/v${DYNAMIC_AGE_MAPPER_SPI_VERSION}/dynamic-scope-spi-${DYNAMIC_AGE_MAPPER_SPI_VERSION}.jar \
+    /opt/keycloak/providers/
+
 RUN /opt/keycloak/bin/kc.sh build
 
-FROM quay.io/keycloak/keycloak:26.3
+# Copy built assets into the runtime image
+FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
