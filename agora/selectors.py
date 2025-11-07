@@ -34,9 +34,11 @@ def stripe_idempotency_key_time_based(*, prefix: str, unique_key: str) -> str:
     now = datetime.now(UTC)
 
     today_str = now.strftime("%Y%m%d")
-    hour_block = now.hour
 
-    unique_key = f"{prefix}_{unique_key}_{today_str}_{hour_block}"
+    # Get the 2 minute block
+    minute_block = now.minute // 2
+
+    unique_key = f"{prefix}_{unique_key}_{today_str}_{minute_block}"
 
     # MD5 hash the resulting string to shorten and obfuscate it
     hashed_key = hashlib.md5(unique_key.encode()).hexdigest()
