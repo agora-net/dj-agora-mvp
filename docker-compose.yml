@@ -73,11 +73,20 @@ services:
       TZ: Europe/Paris
     networks:
       - agora-network
+    ports:
+      - 5005:5005
+    volumes:
+      - ./providers/:/opt/keycloak/providers/
     command:
       - start-dev
       - --features=passkeys
+      - --features=dynamic-scopes
       - --hostname-strict=false
       - --proxy-headers=xforwarded
+      - --log-level=info,gdn.agora:debug
+      - --log=console
+      - --log-console-color=true
+      - --health-enabled=true
 
   mailpit:
     image: axllent/mailpit:v1.27
