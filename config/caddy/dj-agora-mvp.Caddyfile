@@ -1,4 +1,5 @@
 idp.local.agora.gdn {
+	import cors http://localhost:5173
 	reverse_proxy keycloak:8080
 	import cloudflare_tls
 }
