@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 from .forms import DonationForm, EditProfileForm, WaitlistSignupForm
@@ -13,6 +14,7 @@ from .models import AgoraUser, IdentityVerification, WaitingList
 from .selectors import (
     get_external_verification_details,
     get_identity_verification_for_user,
+    get_keycloak_user,
     get_waiting_list_count,
     get_waiting_list_entry,
     is_user_identity_recently_verified,
@@ -212,6 +214,9 @@ def verify_identity(request):
     current_verification = get_identity_verification_for_user(user=request.user)
     context["current_verification"] = current_verification
 
+    timedelta_minutes = (timezone.now() - current_verification.updated_at).total_seconds() / 60
+    context["minutes_since_last_update"] = int(timedelta_minutes)
+
     return render(request, "core/verify_identity.html", context=context)
 
 
@@ -315,6 +320,11 @@ def donate(request: HttpRequest):
                 email=cleaned_email,
                 amount_cents=cleaned_amount_cents,
             )
+
+            # Check if user is already registered
+            keycloak_user = get_keycloak_user(email=cleaned_email)
+            if keycloak_user:
+                return redirect("onboarding")
 
             stripe_checkout_session = collect_donation(
                 request=request,

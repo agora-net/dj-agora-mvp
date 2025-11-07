@@ -18,7 +18,7 @@ from agora.keycloak_admin import keycloak_admin
 from agora.selectors import stripe_donation_product_id, stripe_idempotency_key_time_based
 
 from .models import AgoraUser, Donation, IdentityVerification, WaitingList
-from .selectors import get_stripe_customer, get_waiting_list_entry
+from .selectors import get_stripe_customer, get_stripe_verification_report, get_waiting_list_entry
 
 logger = structlog.get_logger(__name__)
 
@@ -321,7 +321,8 @@ def update_keycloak_identity_verification_attributes(
     keycloak_id: str,
     verified_name: str,
     date_of_birth: str,
-    is_verified: bool,
+    verification_service: IdentityVerification.IdentityVerificationService,
+    verification_external_id: str,
 ) -> None:
     """
     Update a Keycloak user with identity verification attributes.
@@ -334,7 +335,8 @@ def update_keycloak_identity_verification_attributes(
         keycloak_id: The Keycloak user ID
         verified_name: The full verified name from the identity service
         date_of_birth: The verified date of birth in YYYY-MM-DD format
-        is_verified: Whether the user's identity has been verified
+        verification_service: The service used for verification
+        verification_external_id: The external ID from the verification service
 
     Raises:
         KeycloakGetError: If fetching the user from Keycloak fails
@@ -360,7 +362,8 @@ def update_keycloak_identity_verification_attributes(
         **existing_attributes,
         "dob": [date_of_birth],
         "name": [verified_name],
-        "is_identity_verified": ["true" if is_verified else "false"],
+        "verification_service": [verification_service],
+        "external_verification_id": [verification_external_id],
     }
 
     # Prepare update payload
@@ -463,6 +466,57 @@ def handle_stripe_checkout_session_completed(
         expire_waiting_list_entry(waiting_list_entry=waiting_list_entry)
 
 
+def update_keycloak_with_user_identity_verification_attributes(
+    *,
+    user: AgoraUser,
+    verification_service: IdentityVerification.IdentityVerificationService,
+    session: stripe.identity.VerificationSession,
+):
+    last_verification_report_id = session.get("last_verification_report")
+    if last_verification_report_id and type(last_verification_report_id) is str:
+        last_verification_report = get_stripe_verification_report(
+            stripe_verification_report_id=last_verification_report_id
+        )
+
+        if last_verification_report:
+            document = last_verification_report.get("document")
+            verified_name = f"{document.get('first_name')} {document.get('last_name')}".strip()
+            dob = document.get("dob")
+            # Format the date of birth as YYYY-MM-DD
+            # Got to ensure the month and date are 0 padded
+            date_of_birth = f"{dob.get('year')}-{dob.get('month'):02d}-{dob.get('day'):02d}"
+
+            if verified_name and date_of_birth:
+                try:
+                    update_keycloak_identity_verification_attributes(
+                        keycloak_id=user.keycloak_id,
+                        verified_name=verified_name,
+                        date_of_birth=date_of_birth,
+                        verification_service=verification_service,
+                        verification_external_id=session.id,
+                    )
+                except Exception as e:
+                    logger.error(
+                        "failed to update Keycloak attributes in identity verification webhook",
+                        user_id=user.id,
+                        session_id=session.id,
+                        error=str(e),
+                    )
+                    raise
+            else:
+                logger.warning(
+                    "identity verification webhook missing name or DOB in verified_outputs",
+                    user_id=user.id,
+                    session_id=session.id,
+                )
+        else:
+            logger.warning(
+                "identity verification webhook missing verified_outputs",
+                user_id=user.id,
+                session_id=session.id,
+            )
+
+
 def handle_stripe_identity_verification_event(
     *,
     request: HttpRequest,
@@ -501,40 +555,11 @@ def handle_stripe_identity_verification_event(
         status = IdentityVerification.IdentityVerificationStatus.REQUIRES_ACTION
     elif event.type == "identity.verification_session.verified":
         status = IdentityVerification.IdentityVerificationStatus.VERIFIED
-        # Extract verified data and update Keycloak attributes
-        verified_outputs = session.verified_outputs
-        if verified_outputs:
-            verified_name = verified_outputs.get("name")
-            date_of_birth = verified_outputs.get("dob")
-
-            if verified_name and date_of_birth:
-                try:
-                    update_keycloak_identity_verification_attributes(
-                        keycloak_id=user.keycloak_id,
-                        verified_name=verified_name,
-                        date_of_birth=date_of_birth,
-                        is_verified=True,
-                    )
-                except Exception as e:
-                    logger.error(
-                        "failed to update Keycloak attributes in identity verification webhook",
-                        user_id=user.id,
-                        session_id=session.id,
-                        error=str(e),
-                    )
-                    raise
-            else:
-                logger.warning(
-                    "identity verification webhook missing name or DOB in verified_outputs",
-                    user_id=user.id,
-                    session_id=session.id,
-                )
-        else:
-            logger.warning(
-                "identity verification webhook missing verified_outputs",
-                user_id=user.id,
-                session_id=session.id,
-            )
+        update_keycloak_with_user_identity_verification_attributes(
+            user=user,
+            verification_service=IdentityVerification.IdentityVerificationService.STRIPE,
+            session=session,
+        )
 
     if status:
         update_identity_verification_status(

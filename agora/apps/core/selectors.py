@@ -8,6 +8,8 @@ from django.core.cache import cache, caches
 from django.utils import timezone
 from pydantic import BaseModel
 
+from agora.keycloak_admin import keycloak_admin
+
 from .models import AgoraUser, IdentityVerification, WaitingList
 
 logger = structlog.get_logger(__name__)
@@ -167,20 +169,9 @@ def get_external_verification_details(
     if cached_details:
         return cached_details
 
-    restricted_stripe_client = stripe.StripeClient(
-        api_key=settings.STRIPE_RESTRICTED_API_KEY,
-    )
-
     if identity_verification.service == IdentityVerification.IdentityVerificationService.STRIPE:
-        session = restricted_stripe_client.v1.identity.verification_sessions.retrieve(
-            identity_verification.external_id,
-            params={
-                "expand": [
-                    "last_verification_report",
-                    "last_verification_report.document.sex",
-                    "last_verification_report.document.dob",
-                ],
-            },
+        session = get_stripe_verification_session_and_report(
+            stripe_verification_session_id=identity_verification.external_id
         )
 
         if session.status != "verified":
@@ -209,3 +200,63 @@ def get_external_verification_details(
         return details
     else:
         return None
+
+
+def get_stripe_verification_session_and_report(
+    *, stripe_verification_session_id: str
+) -> stripe.identity.VerificationSession | None:
+    """
+    Get the Stripe verification session and report for the verification session ID.
+
+    Returns:
+        The Stripe verification session and report if found, otherwise None.
+    """
+
+    restricted_stripe_client = stripe.StripeClient(
+        api_key=settings.STRIPE_RESTRICTED_API_KEY,
+    )
+    session = restricted_stripe_client.v1.identity.verification_sessions.retrieve(
+        session=stripe_verification_session_id,
+        params={
+            "expand": [
+                "last_verification_report",
+                "last_verification_report.document.sex",
+                "last_verification_report.document.dob",
+            ],
+        },
+    )
+    return session
+
+
+def get_stripe_verification_report(
+    *, stripe_verification_report_id: str
+) -> stripe.identity.VerificationReport | None:
+    """
+    Get the Stripe verification report for the verification report ID.
+    """
+    restricted_stripe_client = stripe.StripeClient(
+        api_key=settings.STRIPE_RESTRICTED_API_KEY,
+    )
+    report = restricted_stripe_client.v1.identity.verification_reports.retrieve(
+        report=stripe_verification_report_id,
+        params={
+            "expand": [
+                "document.sex",
+                "document.dob",
+            ],
+        },
+    )
+    return report
+
+
+def get_keycloak_user(*, email: str) -> dict | None:
+    """
+    Get the Keycloak user for the user by email.
+
+    Returns:
+        The Keycloak user (a [`UserRepresentation`](https://www.keycloak.org/docs-api/latest/rest-api/index.html#UserRepresentation))if found, otherwise None.
+    """  # noqa: E501
+    matching_users = keycloak_admin.get_users(query={"email": email})
+    if matching_users and len(matching_users) > 0:
+        return matching_users[0]
+    return None
