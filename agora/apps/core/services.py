@@ -316,6 +316,74 @@ def fetch_identity_verification_details(
         raise NotImplementedError(f"Fetching details for {verification_service} is not implemented")
 
 
+def update_keycloak_identity_verification_attributes(
+    *,
+    keycloak_id: str,
+    verified_name: str,
+    date_of_birth: str,
+    is_verified: bool,
+) -> None:
+    """
+    Update a Keycloak user with identity verification attributes.
+
+    Fetches the user's current attributes from Keycloak, merges them with the
+    new verification data, and updates the user. This ensures existing attributes
+    are preserved.
+
+    Args:
+        keycloak_id: The Keycloak user ID
+        verified_name: The full verified name from the identity service
+        date_of_birth: The verified date of birth in YYYY-MM-DD format
+        is_verified: Whether the user's identity has been verified
+
+    Raises:
+        KeycloakGetError: If fetching the user from Keycloak fails
+        Exception: If updating the user in Keycloak fails
+    """
+    # Fetch current user to preserve existing attributes
+    try:
+        current_user = keycloak_admin.get_user(user_id=keycloak_id)
+    except KeycloakGetError as e:
+        logger.error(
+            "failed to fetch Keycloak user for identity verification update",
+            keycloak_id=keycloak_id,
+            error=str(e),
+        )
+        raise
+
+    # Preserve existing attributes and merge with new verification data
+    existing_attributes = current_user.get("attributes", {})
+
+    # Update with new verification attributes
+    # Keycloak attributes are stored as lists of strings
+    updated_attributes = {
+        **existing_attributes,
+        "dob": [date_of_birth],
+        "name": [verified_name],
+        "is_identity_verified": ["true" if is_verified else "false"],
+    }
+
+    # Prepare update payload
+    payload = {
+        "email": current_user.get("email"),
+        "attributes": updated_attributes,
+    }
+
+    try:
+        keycloak_admin.update_user(user_id=keycloak_id, payload=payload)
+        logger.info(
+            "successfully updated Keycloak user identity verification attributes",
+            keycloak_id=keycloak_id,
+        )
+    except Exception as e:
+        logger.error(
+            "failed to update Keycloak user identity verification attributes",
+            keycloak_id=keycloak_id,
+            error=str(e),
+        )
+        raise
+
+
 def update_identity_verification_status(
     *,
     user: AgoraUser,
@@ -433,6 +501,40 @@ def handle_stripe_identity_verification_event(
         status = IdentityVerification.IdentityVerificationStatus.REQUIRES_ACTION
     elif event.type == "identity.verification_session.verified":
         status = IdentityVerification.IdentityVerificationStatus.VERIFIED
+        # Extract verified data and update Keycloak attributes
+        verified_outputs = session.verified_outputs
+        if verified_outputs:
+            verified_name = verified_outputs.get("name")
+            date_of_birth = verified_outputs.get("dob")
+
+            if verified_name and date_of_birth:
+                try:
+                    update_keycloak_identity_verification_attributes(
+                        keycloak_id=user.keycloak_id,
+                        verified_name=verified_name,
+                        date_of_birth=date_of_birth,
+                        is_verified=True,
+                    )
+                except Exception as e:
+                    logger.error(
+                        "failed to update Keycloak attributes in identity verification webhook",
+                        user_id=user.id,
+                        session_id=session.id,
+                        error=str(e),
+                    )
+                    raise
+            else:
+                logger.warning(
+                    "identity verification webhook missing name or DOB in verified_outputs",
+                    user_id=user.id,
+                    session_id=session.id,
+                )
+        else:
+            logger.warning(
+                "identity verification webhook missing verified_outputs",
+                user_id=user.id,
+                session_id=session.id,
+            )
 
     if status:
         update_identity_verification_status(
