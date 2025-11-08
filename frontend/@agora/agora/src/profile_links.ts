@@ -1,80 +1,104 @@
 /**
- * Profile Links Dynamic Input Management
+ * Profile Links Dynamic Formset Management
  *
  * Handles dynamic addition and removal of profile link input fields
- * Syncs individual inputs to a hidden textarea for form submission
+ * using Django formset management fields to maintain proper form indices
  */
 
 document.addEventListener("DOMContentLoaded", () => {
 	const container = document.getElementById("profile-links-container");
 	const addBtn = document.getElementById("add-link-btn");
-	const hiddenTextarea = document.getElementById(
-		"id_profile_links",
-	) as HTMLTextAreaElement;
+	const emptyFormTemplate = document.getElementById(
+		"profile-link-empty-form",
+	) as HTMLTemplateElement;
 
-	if (container && addBtn && hiddenTextarea) {
-		// Parse initial links from hidden textarea
-		const initialLinks = hiddenTextarea.value
-			.split("\n")
-			.map((link) => link.trim())
-			.filter((link) => link.length > 0);
-
-		// Initialize with at least one input
-		if (initialLinks.length === 0) {
-			addLinkInput("");
-		} else {
-			initialLinks.forEach((link: string): void => {
-				addLinkInput(link);
-			});
-		}
-
-		// Add new link input
-		addBtn.addEventListener("click", () => {
-			addLinkInput("");
-		});
-
-		// Sync inputs to hidden textarea before form submission
-		const form = container.closest("form");
-		if (form) {
-			form.addEventListener("submit", (): void => {
-				const links = Array.from(
-					container.querySelectorAll(
-						".link-input",
-					) as NodeListOf<HTMLInputElement>,
-				)
-					.map((input) => input.value.trim())
-					.filter((value) => value.length > 0);
-				hiddenTextarea.value = links.join("\n");
-			});
-		}
-
-		const addLinkInput = (value = ""): void => {
-			const wrapper = document.createElement("div");
-			wrapper.className = "flex gap-2";
-
-			const input = document.createElement("input");
-			input.type = "url";
-			input.className = "link-input input input-bordered flex-1";
-			input.placeholder = "https://example.com/profile";
-			input.value = value;
-
-			const removeBtn = document.createElement("button");
-			removeBtn.type = "button";
-			removeBtn.className = "btn btn-square btn-outline btn-error";
-			removeBtn.innerHTML = "<span>−</span>";
-			removeBtn.onclick = () => {
-				// Keep at least one input
-				if (container.children.length > 1) {
-					wrapper.remove();
-				} else {
-					input.value = "";
-				}
-			};
-
-			wrapper.appendChild(input);
-			wrapper.appendChild(removeBtn);
-
-			container.appendChild(wrapper);
-		};
+	if (!container || !addBtn || !emptyFormTemplate) {
+		return;
 	}
+
+	// Get formset management inputs
+	const totalFormsInput = document.querySelector(
+		'input[name$="-TOTAL_FORMS"]',
+	) as HTMLInputElement;
+
+	if (!totalFormsInput) {
+		return;
+	}
+
+	// Auto-detect formset prefix from management field name
+	const prefix = totalFormsInput.name.replace(/-TOTAL_FORMS$/, "");
+
+	/**
+	 * Attach remove handler to a link row
+	 * Marks the form as deleted and hides the row
+	 */
+	const attachRemoveHandler = (row: HTMLElement): void => {
+		const removeBtn = row.querySelector(
+			".remove-link-btn",
+		) as HTMLButtonElement;
+		if (!removeBtn) {
+			return;
+		}
+
+		removeBtn.addEventListener("click", (e: Event) => {
+			e.preventDefault();
+
+			// Find and check the DELETE checkbox
+			const deleteCheckbox = row.querySelector(
+				`input[name$="-DELETE"]`,
+			) as HTMLInputElement;
+			if (deleteCheckbox) {
+				deleteCheckbox.checked = true;
+			}
+
+			// Hide the row
+			row.classList.add("hidden");
+		});
+	};
+
+	// Initialize remove handlers for existing forms
+	document.querySelectorAll(".link-form").forEach((row) => {
+		attachRemoveHandler(row as HTMLElement);
+	});
+
+	// Add new link handler
+	addBtn.addEventListener("click", (e: Event) => {
+		e.preventDefault();
+
+		const currentTotal = parseInt(totalFormsInput.value, 10);
+
+		// Clone the empty form template
+		const newFormHtml = emptyFormTemplate.innerHTML;
+
+		// Replace __prefix__ with the current form index
+		const indexedFormHtml = newFormHtml.replace(
+			/__prefix__/g,
+			`${currentTotal}`,
+		);
+
+		// Create a wrapper div and set its content
+		const tempWrapper = document.createElement("div");
+		tempWrapper.innerHTML = indexedFormHtml;
+		const newRow = tempWrapper.firstElementChild as HTMLElement;
+
+		// Append to container
+		container.appendChild(newRow);
+
+		// Refresh icons
+		document.dispatchEvent(new CustomEvent("agora:icons:refresh"));
+
+		// Attach remove handler to new row
+		attachRemoveHandler(newRow);
+
+		// Increment TOTAL_FORMS
+		totalFormsInput.value = `${currentTotal + 1}`;
+
+		// Focus the new input field
+		const newInput = newRow.querySelector(
+			`input[name$="-url"]`,
+		) as HTMLInputElement;
+		if (newInput) {
+			newInput.focus();
+		}
+	});
 });

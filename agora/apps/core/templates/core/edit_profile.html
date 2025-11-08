@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load django_vite %}
+{% load django_vite widget_tweaks %}
 {% block title %}
     Complete Your Profile - Agora
 {% endblock title %}
@@ -150,33 +150,37 @@
                         {{ formset.management_form }}
 
                         <!-- Link entries -->
-                        <div id="profile-links-container" class="space-y-3 mt-2">
+                        <div id="profile-links-container" class="space-y-2 mt-2">
                             {% for form in formset %}
-                                <div class="link-form p-3 border border-base-300 rounded-lg bg-base-200">
-                                    {{ form.non_field_errors }}
-
-                                    <!-- Position (hidden by default, for ordering) -->
-                                    <div class="form-control hidden">{{ form.position }}</div>
-
-                                    <!-- URL -->
-                                    <div class="form-control mt-2">
-                                        <label class="label">
-                                            <span class="label-text text-sm">URL</span>
-                                        </label>
-                                        {{ form.url }}
+                                <div class="link-form flex gap-2 items-start">
+                                    {{ form.position|add_class:"hidden" }}
+                                    {{ form.DELETE|add_class:"hidden" }}
+                                    <div class="flex-1">
+                                        {{ form.url|add_class:"input input-bordered w-full" }}
                                         {% if form.url.errors %}<span class="text-error text-xs">{{ form.url.errors.0 }}</span>{% endif %}
                                     </div>
-
-                                    <!-- Delete checkbox -->
-                                    <div class="form-control mt-2">
-                                        <label class="label cursor-pointer">
-                                            <span class="label-text text-sm">Remove this link</span>
-                                            {{ form.DELETE }}
-                                        </label>
-                                    </div>
+                                    <button type="button"
+                                            class="remove-link-btn btn btn-square btn-outline btn-error flex-shrink-0"
+                                            aria-label="Remove link">
+                                        <i data-lucide="x" aria-hidden="true" class="w-4 h-4"></i>
+                                    </button>
                                 </div>
                             {% endfor %}
                         </div>
+
+                        <!-- Empty form template for adding new links -->
+                        <template id="profile-link-empty-form">
+                            <div class="link-form flex gap-2 items-start">
+                                {{ formset.empty_form.position|add_class:"hidden" }}
+                                {{ formset.empty_form.DELETE|add_class:"hidden" }}
+                                <div class="flex-1">{{ formset.empty_form.url|add_class:"input input-bordered w-full" }}</div>
+                                <button type="button"
+                                        class="remove-link-btn btn btn-square btn-outline btn-error flex-shrink-0"
+                                        aria-label="Remove link">
+                                    <i data-lucide="x" aria-hidden="true" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </template>
 
                         <!-- Add link button -->
                         <button type="button" id="add-link-btn" class="btn btn-sm btn-outline mt-3">

@@ -1,9 +1,10 @@
 import unicodedata
+from urllib.parse import parse_qsl, quote, unquote, urlencode, urlparse, urlunparse
 
 import nh3
 from django import forms
 from django.core import validators
-from django.forms import inlineformset_factory
+from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
 from agora.apps.core.models import UserProfile, UserProfileLink
@@ -61,7 +62,7 @@ class EditProfileForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "input input-bordered w-full",
-                "placeholder": "e.g., Software Engineer",
+                "placeholder": "Researcher, Engineer, etc.",
             }
         ),
     )
@@ -71,7 +72,7 @@ class EditProfileForm(forms.Form):
         max_length=150,
         required=False,
         widget=forms.TextInput(
-            attrs={"class": "input input-bordered w-full", "placeholder": "e.g., Acme Corp"}
+            attrs={"class": "input input-bordered w-full", "placeholder": "Acme Corp"}
         ),
     )
 
@@ -93,7 +94,10 @@ class EditProfileForm(forms.Form):
         max_length=50,
         required=False,
         widget=forms.TextInput(
-            attrs={"class": "input input-bordered w-full", "placeholder": "e.g., they/them"}
+            attrs={
+                "class": "input input-bordered w-full",
+                "placeholder": "They/Them, He/Him, She/Her ...",
+            }
         ),
     )
 
@@ -103,7 +107,7 @@ class EditProfileForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "input input-bordered w-full",
-                "placeholder": "e.g., coding, music, photography",
+                "placeholder": "coding, music, photography",
             }
         ),
         help_text="Enter comma-separated interests or tags",
@@ -225,10 +229,84 @@ class DonationForm(forms.Form):
         return amount_cents
 
 
+# forms.py (add below your EditProfileForm or near the formset)
+ALLOWED_URL_SCHEMES = {"http", "https"}
+
+
+def normalize_http_url(raw: str) -> str:
+    if not raw:
+        return raw
+    s = nh3.clean(raw.strip())
+
+    # Add default scheme if missing
+    if "://" not in s and not s.startswith(("http://", "https://")):
+        s = f"https://{s}"
+
+    parsed = urlparse(s)
+    scheme = parsed.scheme.lower()
+    if scheme not in ALLOWED_URL_SCHEMES:
+        raise forms.ValidationError("Only http(s) URLs are allowed.")
+
+    netloc = parsed.netloc.lower()
+    path = quote(unquote(parsed.path or ""))
+
+    # Optional: drop common tracking params
+    params = [
+        (k, v)
+        for k, v in parse_qsl(parsed.query, keep_blank_values=True)
+        if not k.lower().startswith("utm_")
+    ]
+    query = urlencode(params, doseq=True)
+
+    # Optional: strip fragments; keep if you want
+    fragment = ""
+
+    return urlunparse((scheme, netloc, path, "", query, fragment))
+
+
+class UserProfileLinkForm(forms.ModelForm):
+    class Meta:
+        model = UserProfileLink
+        fields = ("position", "url")
+        widgets = {
+            "url": forms.URLInput(
+                attrs={
+                    "class": "input input-bordered w-full",
+                    "placeholder": "https://example.com/profile",
+                }
+            )
+        }
+
+    def clean_url(self):
+        url = self.cleaned_data.get("url", "")
+        if not url:
+            return url
+        return normalize_http_url(url)
+
+
+class BaseUserProfileLinkFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        seen = set()
+        for form in self.forms:
+            if not hasattr(form, "cleaned_data"):
+                continue
+            if self.can_delete and form.cleaned_data.get("DELETE"):
+                continue
+            url = form.cleaned_data.get("url")
+            if not url:
+                continue
+            if url in seen:
+                form.add_error("url", "Duplicate URL.")
+            seen.add(url)
+
+
 # Formset for managing user profile links
 UserProfileLinkFormSet = inlineformset_factory(
     UserProfile,
     UserProfileLink,
+    form=UserProfileLinkForm,
+    formset=BaseUserProfileLinkFormSet,
     fields=("position", "url"),
     extra=1,
     can_delete=True,

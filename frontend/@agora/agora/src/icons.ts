@@ -21,26 +21,34 @@ import {
 	X,
 } from "lucide";
 
-createIcons({
-	icons: {
-		BadgeCheck,
-		BadgeSwissFranc,
-		Ban,
-		CircleAlert,
-		CircleUser,
-		DollarSign,
-		Fingerprint,
-		HatGlasses,
-		IdCard,
-		Info,
-		LogIn,
-		Menu,
-		Moon,
-		Palette,
-		RefreshCw,
-		Sun,
-		SunMoon,
-		UserRoundCheck,
-		X,
-	},
+const runIcons = () => {
+	createIcons({
+		icons: {
+			BadgeCheck,
+			BadgeSwissFranc,
+			Ban,
+			CircleAlert,
+			CircleUser,
+			DollarSign,
+			Fingerprint,
+			HatGlasses,
+			IdCard,
+			Info,
+			LogIn,
+			Menu,
+			Moon,
+			Palette,
+			RefreshCw,
+			Sun,
+			SunMoon,
+			UserRoundCheck,
+			X,
+		},
+	});
+};
+
+runIcons();
+
+document.addEventListener("agora:icons:refresh", () => {
+	runIcons();
 });
