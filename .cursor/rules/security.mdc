@@ -1,0 +1,38 @@
+---
+description: Security patterns and sanitization
+globs: ["**/views.py", "**/forms.py", "**/services.py", "**/webhooks_*.py"]
+alwaysApply: false
+---
+
+# Security Patterns
+
+## Input Sanitization
+
+Always sanitize user input using `nh3.clean()`:
+```python
+import nh3
+cleaned_value = nh3.clean(user_input.lower().strip())
+```
+
+Sanitize in forms, views, and services wherever user input is processed.
+
+## Bot Protection
+
+Use Cloudflare Turnstile for form submissions:
+```python
+validate_cloudflare_turnstile(token=token, secret=secret, remoteip=remoteip)
+```
+
+## Webhook Verification
+
+Verify webhook signatures before trusting data from external services. Never skip verification.
+
+## Sensitive Data
+
+- Use `@sensitive_post_parameters('password', 'token')` on view functions
+- Use `@sensitive_variables('secret', 'api_key')` on functions with secrets
+- Never log credentials, API keys, tokens, or personal identifying information
+
+## Environment Variables
+
+All secrets stored in environment variables only. Never hardcode.

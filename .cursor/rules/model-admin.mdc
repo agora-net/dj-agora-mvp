@@ -1,6 +1,6 @@
 ---
-description: 
-globs: **/models.py,**/admin.py
+description: Django admin interface configuration
+globs: ["**/models.py", "**/admin.py"]
 alwaysApply: false
 ---
 

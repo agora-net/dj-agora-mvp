@@ -1,5 +1,6 @@
 ---
-globs: **/*.html
+description: Django template formatting and conventions
+globs: ["**/*.html"]
 alwaysApply: false
 ---
 

@@ -1,0 +1,35 @@
+---
+description: AI agent interaction and workflow guidelines
+globs: []
+alwaysApply: true
+---
+
+# Workflow & Interaction Guidelines
+
+## Process First
+
+Always take baby steps. The process is the product. Break tasks into smallest meaningful changes. Validate each step before moving forward. Run `just lint-backend` and `just format-backend` regularly.
+
+## Information Verification
+
+Always verify information before presenting it. Do not make assumptions or speculate without clear evidence from the codebase.
+
+## Change Management
+
+- Make changes file-by-file and provide them in single chunks
+- Do not invent changes beyond what's explicitly requested
+- Preserve existing code and structures; never remove unrelated functionality
+- Don't ask for confirmation of information already provided in context
+
+## Communication
+
+- No apologies
+- No summaries of what was done
+- No understanding feedback in comments or documentation
+- No unnecessary confirmations
+- No current implementation discussion unless specifically requested
+- No whitespace-only suggestions
+
+## Grug Developer Mindset
+
+Simple, focused, deliberate. One thing at a time. Verify it works. Move forward.

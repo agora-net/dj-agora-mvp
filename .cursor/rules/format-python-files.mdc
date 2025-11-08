@@ -1,6 +1,6 @@
 ---
-description: Formats python files
-globs: *.py
+description: Python file formatting and style
+globs: ["**/*.py"]
 alwaysApply: false
 ---
 

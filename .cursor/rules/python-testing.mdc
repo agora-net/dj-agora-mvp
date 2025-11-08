@@ -1,6 +1,6 @@
 ---
-description: 
-globs: **/*.py
+description: Python testing with Django TestCase
+globs: ["**/tests.py", "**/test_*.py"]
 alwaysApply: false
 ---
 

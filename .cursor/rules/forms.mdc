@@ -1,0 +1,36 @@
+---
+description: Django forms patterns and conventions
+globs: ["**/forms.py"]
+alwaysApply: false
+---
+
+# Django Forms
+
+## Sanitization
+
+- Use `nh3.clean()` in all `clean_*` methods for field-specific sanitization
+- Override `clean()` for form-wide sanitization of string fields
+- Sanitize emails and user inputs before validation
+
+## Widgets & Styling
+
+- Use Tailwind CSS and DaisyUI classes in widget attrs
+- Add semantic color utility classes (e.g., `bg-primary`, not `bg-blue-300`)
+- Example: `widget=forms.EmailInput(attrs={"class": "input input-bordered w-full"})`
+
+## Validators
+
+- Order validators by computational cost: fast checks first, database queries last
+- Custom validators that hit the database should be last in the list
+- Example: `ProhibitNullCharactersValidator` first, `validate_handle_available` last
+
+## User Guidance
+
+- Use `help_text` on fields to explain to users why input is needed
+- Example: `help_text="We'll send you your signup link"`
+- Make validation errors clear and actionable
+
+## Form Initialization
+
+- Override `__init__` to set dynamic defaults using selectors
+- Example: Generate unique handles with `generate_unique_handle()`

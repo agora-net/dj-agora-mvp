@@ -1,6 +1,6 @@
 ---
-description: Project rules for Agora
-globs:
+description: Project setup and development tools
+globs: []
 alwaysApply: true
 ---
 

@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Project build and task commands
+globs: []
 alwaysApply: true
 ---
 

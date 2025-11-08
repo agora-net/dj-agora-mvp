@@ -1,5 +1,6 @@
 ---
 description: When making changes to identities, authentication, oauth, open id connect (OIDC) or authorization
+globs: ["agora/auth.py", "agora/keycloak_admin.py", "**/services.py"]
 alwaysApply: false
 ---
 

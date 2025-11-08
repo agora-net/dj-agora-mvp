@@ -1,0 +1,40 @@
+---
+description: Django-specific patterns and conventions
+globs: ["**/*.py"]
+alwaysApply: false
+---
+
+# Django Patterns and Best Practices
+
+## Architecture & Patterns
+
+- Follow the MVT (Model-View-Template) pattern strictly
+- Use services (data manipulation) and selectors (data retrieval) to keep views thin
+- Services contain write operations; selectors contain read operations
+- All functions in services and selectors must use named arguments: `def function(*, arg: str)`
+
+## ORM & Query Optimization
+
+- Leverage Django's ORM; avoid raw SQL unless absolutely necessary for performance
+- Use `select_related()` for forward FK and OneToOne relationships
+- Use `prefetch_related()` for reverse FK and ManyToMany relationships
+- Disable Django's automatic indexes on FKs; define explicitly in Meta
+- Use database indexing for common queries
+
+## Authentication
+
+- Assume requests are pre-authenticated via Keycloak OAuth proxy
+- Follow Django's `REMOTE_USER` middleware documentation
+- Authentication logic lives in `agora/auth.py` and `agora/keycloak_admin.py`
+
+## Logging
+
+- Use `structlog` with appropriate log levels
+- Import: `import structlog; logger = structlog.get_logger(__name__)`
+- Include relevant context in log calls: `logger.info("message", user_id=user.id, key=value)`
+
+## Testing
+
+- Use `django.test.TestCase` and `unittest` built-ins
+- Run tests with `just test-backend`
+- Test frequently during development, especially after changes

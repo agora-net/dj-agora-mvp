@@ -1,0 +1,39 @@
+---
+description: API and webhook patterns using Django Shinobi
+globs: ["**/api_*.py", "**/webhooks_*.py"]
+alwaysApply: false
+---
+
+# API & Webhook Patterns
+
+## Django Shinobi (Ninja Fork)
+
+Use Django Shinobi for all API endpoints and webhooks. Endpoints are namespaced in separate API instances.
+
+```python
+from ninja import NinjaAPI, Schema
+
+api = NinjaAPI(version="1.0.0", title="API Title", csrf=True)
+webhooks = NinjaAPI(version="1.0.0", csrf=False)
+```
+
+## Patterns
+
+- API endpoints: `csrf=True` (client requests are authenticated)
+- Webhooks: `csrf=False` (external services call us)
+- Use Pydantic `Schema` classes for request/response validation
+- Return proper status codes: `201` for creation, `200` for success, `4xx` for client errors
+
+## Webhook Signature Verification
+
+Always verify external webhook signatures before processing:
+```python
+stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+```
+
+## Logging
+
+Log all API/webhook operations with context:
+```python
+logger.info("event handled", event_type=event.type, user_id=user.id)
+```

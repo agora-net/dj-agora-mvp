@@ -1,6 +1,6 @@
 ---
-description: 
-globs: **/models.py
+description: Django model definitions and configuration
+globs: ["**/models.py"]
 alwaysApply: false
 ---
 

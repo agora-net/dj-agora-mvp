@@ -1,6 +1,6 @@
 ---
-description: 
-globs: **/*.html
+description: HTML styling with Tailwind and DaisyUI
+globs: ["**/*.html"]
 alwaysApply: false
 ---
 

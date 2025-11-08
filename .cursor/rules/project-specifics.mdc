@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Project-specific package management and file tracking
+globs: []
 alwaysApply: true
 ---
 

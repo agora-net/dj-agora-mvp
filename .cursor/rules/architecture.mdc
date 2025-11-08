@@ -1,0 +1,24 @@
+---
+description: Project architecture patterns
+globs: ["**/services.py", "**/selectors.py", "**/views.py"]
+alwaysApply: false
+---
+
+# Project Architecture
+
+## Services & Selectors Pattern
+
+- `services.py`: Write operations and data manipulation. Functions transform and persist data.
+- `selectors.py`: Read operations and data retrieval. Functions query and calculate without side effects.
+- `views.py`: Stay thin. Handle requests, delegate to services/selectors, return responses.
+
+## Naming Conventions
+
+- All functions in services and selectors use named arguments: `def function(*, arg: str)`
+- Global selectors live in `agora/selectors.py` (cross-app, utility functions)
+- App-specific selectors live in each app's `selectors.py`
+- Services are always app-specific in `services.py`
+
+## Key Principle
+
+Keep business logic out of views. Views orchestrate, services and selectors execute.
