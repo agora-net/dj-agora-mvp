@@ -17,6 +17,7 @@
 		"django-html": "html"
 	},
 	"cSpell.words": [
+		"accesslog",
 		"Caddyfile",
 		"csrftoken",
 		"Docstrings",
@@ -26,6 +27,7 @@
 		"endwith",
 		"fieldset",
 		"floatformat",
+		"journalctl",
 		"Justfile",
 		"linecap",
 		"linejoin",
