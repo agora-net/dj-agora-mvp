@@ -6,7 +6,14 @@ from django.urls import path, reverse
 from django.urls.resolvers import URLPattern
 from django.utils.translation import gettext_lazy as _
 
-from .models import AgoraUser, Donation, IdentityVerification, UserProfile, WaitingList
+from .models import (
+    AgoraUser,
+    Donation,
+    IdentityVerification,
+    UserProfile,
+    UserProfileLink,
+    WaitingList,
+)
 from .services import send_waiting_list_invite_email
 
 logger = structlog.get_logger(__name__)
@@ -269,6 +276,17 @@ class DonationAdmin(admin.ModelAdmin):
     )
 
 
+class UserProfileLinkInline(admin.TabularInline):
+    """
+    Inline admin for UserProfileLink within UserProfile.
+    """
+
+    model = UserProfileLink
+    fields = ("position", "label", "url")
+    extra = 1
+    ordering = ("position",)
+
+
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     """
@@ -277,16 +295,21 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     list_display = [
         "user",
+        "job_title",
+        "company",
         "created_at",
     ]
 
     list_filter = [
         "created_at",
+        "relationship_status",
     ]
 
     search_fields = [
         "user__email",
         "user__handle",
+        "job_title",
+        "company",
     ]
 
     readonly_fields = [
@@ -297,6 +320,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     ordering = ["-created_at"]
     list_select_related = ["user"]
+    inlines = [UserProfileLinkInline]
 
     fieldsets = (
         (
@@ -307,6 +331,26 @@ class UserProfileAdmin(admin.ModelAdmin):
                     "user",
                     "profile_image",
                     "theme_color",
+                )
+            },
+        ),
+        (
+            "Professional Information",
+            {
+                "fields": (
+                    "job_title",
+                    "company",
+                )
+            },
+        ),
+        (
+            "Personal Information",
+            {
+                "fields": (
+                    "bio",
+                    "pronouns",
+                    "interests",
+                    "relationship_status",
                 )
             },
         ),

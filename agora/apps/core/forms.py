@@ -3,8 +3,10 @@ import unicodedata
 import nh3
 from django import forms
 from django.core import validators
+from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
+from agora.apps.core.models import UserProfile, UserProfileLink
 from agora.selectors import generate_unique_handle
 from agora.validators import validate_handle_available, validate_no_whitespace
 
@@ -52,6 +54,68 @@ class EditProfileForm(forms.Form):
         ],
     )
 
+    job_title = forms.CharField(
+        label="Job Title",
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "input input-bordered w-full",
+                "placeholder": "e.g., Software Engineer",
+            }
+        ),
+    )
+
+    company = forms.CharField(
+        label="Company",
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(
+            attrs={"class": "input input-bordered w-full", "placeholder": "e.g., Acme Corp"}
+        ),
+    )
+
+    bio = forms.CharField(
+        label="Bio",
+        max_length=500,
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "textarea textarea-bordered w-full",
+                "placeholder": "Tell us about yourself",
+                "rows": 4,
+            }
+        ),
+    )
+
+    pronouns = forms.CharField(
+        label="Pronouns",
+        max_length=50,
+        required=False,
+        widget=forms.TextInput(
+            attrs={"class": "input input-bordered w-full", "placeholder": "e.g., they/them"}
+        ),
+    )
+
+    interests = forms.CharField(
+        label="Interests",
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "input input-bordered w-full",
+                "placeholder": "e.g., coding, music, photography",
+            }
+        ),
+        help_text="Enter comma-separated interests or tags",
+    )
+
+    relationship_status = forms.ChoiceField(
+        label="Relationship Status",
+        choices=[("", "-- Select --")] + list(UserProfile.RelationshipStatus.choices),
+        required=False,
+        widget=forms.Select(attrs={"class": "select select-bordered w-full"}),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.initial.get("handle"):
@@ -71,14 +135,45 @@ class EditProfileForm(forms.Form):
         handle = nh3.clean(handle)
         return handle
 
-    def clean(self):
-        """Clean the form data by sanitizing the string values using nh3."""
-        cleaned_data = super().clean()
-        for field in self.fields:
-            value = cleaned_data.get(field)
-            if isinstance(value, str):
-                cleaned_data[field] = nh3.clean(value.strip())
-        return cleaned_data
+    def clean_bio(self):
+        """Validate and sanitize bio."""
+        bio = self.cleaned_data.get("bio", "")
+        if bio:
+            bio = nh3.clean(bio.strip())
+        return bio
+
+    def clean_interests(self):
+        """Parse interests from comma-separated string to list."""
+        interests_str = self.cleaned_data.get("interests", "")
+        if not interests_str:
+            return []
+
+        # Split by comma and clean each interest
+        interests = [nh3.clean(interest.strip()) for interest in interests_str.split(",")]
+        # Filter out empty strings
+        interests = [interest for interest in interests if interest]
+        return interests
+
+    def clean_pronouns(self):
+        """Validate and sanitize pronouns."""
+        pronouns = self.cleaned_data.get("pronouns", "")
+        if pronouns:
+            pronouns = nh3.clean(pronouns.strip())
+        return pronouns
+
+    def clean_job_title(self):
+        """Validate and sanitize job title."""
+        job_title = self.cleaned_data.get("job_title", "")
+        if job_title:
+            job_title = nh3.clean(job_title.strip())
+        return job_title
+
+    def clean_company(self):
+        """Validate and sanitize company."""
+        company = self.cleaned_data.get("company", "")
+        if company:
+            company = nh3.clean(company.strip())
+        return company
 
 
 class DonationForm(forms.Form):
@@ -128,3 +223,13 @@ class DonationForm(forms.Form):
         if amount_cents and amount_cents < 1000:
             raise forms.ValidationError("Minimum donation amount is 10.00 CHF.")
         return amount_cents
+
+
+# Formset for managing user profile links
+UserProfileLinkFormSet = inlineformset_factory(
+    UserProfile,
+    UserProfileLink,
+    fields=("position", "label", "url"),
+    extra=1,
+    can_delete=True,
+)

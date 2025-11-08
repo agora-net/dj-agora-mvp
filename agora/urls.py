@@ -10,6 +10,7 @@ from agora.apps.core.views import (
     custom_404,
     dashboard,
     donate,
+    edit_profile,
     home,
     invite,
     login,
@@ -42,6 +43,7 @@ urlpatterns = [
     ),  # Profile completion step
     path("dashboard/", dashboard, name="dashboard"),
     path("profile/", current_user_profile, name="current_user_profile"),
+    path("profile/edit/", edit_profile, name="edit_profile"),
     path("profile/<str:handle>/", user_profile, name="user_profile"),
     path("404/", custom_404, name="404"),
     path("oidc/", include("mozilla_django_oidc.urls")),

@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
-from .forms import DonationForm, EditProfileForm, WaitlistSignupForm
+from .forms import DonationForm, EditProfileForm, UserProfileLinkFormSet, WaitlistSignupForm
 from .models import AgoraUser, IdentityVerification, WaitingList
 from .selectors import (
     get_external_verification_details,
@@ -29,6 +29,31 @@ from .services import (
 )
 
 logger = structlog.get_logger(__name__)
+
+
+def _normalize_and_save_link_formset(formset):
+    """
+    Normalize link positions to a contiguous 1..N sequence and save the formset.
+
+    Iterates over non-deleted forms, sorts them by submitted position, and
+    reassigns positions to 1..N before saving.
+    """
+    # Collect non-deleted forms with their cleaned positions
+    forms_with_positions = []
+    for form in formset.forms:
+        if not form.cleaned_data.get("DELETE", False):
+            position = form.cleaned_data.get("position", 1)
+            forms_with_positions.append((position, form))
+
+    # Sort by submitted position
+    forms_with_positions.sort(key=lambda x: x[0])
+
+    # Reassign positions to 1..N
+    for new_position, form in enumerate(forms_with_positions, start=1):
+        form.instance.position = new_position
+
+    # Save the formset
+    formset.save()
 
 
 def home(request):
@@ -225,24 +250,113 @@ def onboarding_edit_profile(request):
     """
     View for editing user profile during onboarding.
     """
+    # Ensure user has a profile
+    if hasattr(request.user, "profile"):
+        profile = request.user.profile
+    else:
+        from .models import UserProfile
+
+        profile = UserProfile.objects.create(user=request.user)
+
     if request.method == "POST":
         form = EditProfileForm(request.POST)
-        if form.is_valid():
+        formset = UserProfileLinkFormSet(request.POST, instance=profile)
+        if form.is_valid() and formset.is_valid():
             # Update user profile
             request.user.handle = form.cleaned_data.get("handle")
             request.user.save()
+
+            # Set profile fields
+            profile.job_title = form.cleaned_data.get("job_title", "")
+            profile.company = form.cleaned_data.get("company", "")
+            profile.bio = form.cleaned_data.get("bio", "")
+            profile.pronouns = form.cleaned_data.get("pronouns", "")
+            profile.interests = form.cleaned_data.get("interests", [])
+            profile.relationship_status = form.cleaned_data.get("relationship_status") or None
+            profile.save()
+
+            # Normalize link positions and save formset
+            _normalize_and_save_link_formset(formset)
 
             # Redirect back to onboarding to check next step
             return redirect("onboarding")
     else:
         # Pre-populate form with existing data
-        form = EditProfileForm(
-            initial={
-                "handle": request.user.handle,
-            }
-        )
+        initial_data = {
+            "handle": request.user.handle,
+            "job_title": profile.job_title or "",
+            "company": profile.company or "",
+            "bio": profile.bio or "",
+            "pronouns": profile.pronouns or "",
+            "interests": ", ".join(profile.interests) if profile.interests else "",
+            "relationship_status": profile.relationship_status or "",
+        }
 
-    return render(request, "core/edit_profile.html", {"form": form})
+        form = EditProfileForm(initial=initial_data)
+        formset = UserProfileLinkFormSet(instance=profile)
+
+    return render(
+        request,
+        "core/edit_profile.html",
+        {"form": form, "formset": formset},
+    )
+
+
+@login_required
+def edit_profile(request):
+    """
+    View for users to manage their profile after onboarding.
+    """
+    # Ensure user has a profile
+    if hasattr(request.user, "profile"):
+        profile = request.user.profile
+    else:
+        from .models import UserProfile
+
+        profile = UserProfile.objects.create(user=request.user)
+
+    if request.method == "POST":
+        form = EditProfileForm(request.POST)
+        formset = UserProfileLinkFormSet(request.POST, instance=profile)
+        if form.is_valid() and formset.is_valid():
+            # Update user profile
+            request.user.handle = form.cleaned_data.get("handle")
+            request.user.save()
+
+            # Set profile fields
+            profile.job_title = form.cleaned_data.get("job_title", "")
+            profile.company = form.cleaned_data.get("company", "")
+            profile.bio = form.cleaned_data.get("bio", "")
+            profile.pronouns = form.cleaned_data.get("pronouns", "")
+            profile.interests = form.cleaned_data.get("interests", [])
+            profile.relationship_status = form.cleaned_data.get("relationship_status") or None
+            profile.save()
+
+            # Normalize link positions and save formset
+            _normalize_and_save_link_formset(formset)
+
+            # Redirect to the user's profile page
+            return redirect("current_user_profile")
+    else:
+        # Pre-populate form with existing data
+        initial_data = {
+            "handle": request.user.handle,
+            "job_title": profile.job_title or "",
+            "company": profile.company or "",
+            "bio": profile.bio or "",
+            "pronouns": profile.pronouns or "",
+            "interests": ", ".join(profile.interests) if profile.interests else "",
+            "relationship_status": profile.relationship_status or "",
+        }
+
+        form = EditProfileForm(initial=initial_data)
+        formset = UserProfileLinkFormSet(instance=profile)
+
+    return render(
+        request,
+        "core/edit_profile.html",
+        {"form": form, "formset": formset},
+    )
 
 
 def invite(request: HttpRequest):

@@ -216,10 +216,56 @@ class Donation(BaseModel):
         return f"{self.email} - {self.currency.upper()} {self.amount_cents / 100:.2f}"
 
 
+class UserProfileLink(BaseModel):
+    """
+    A link associated with a user's profile, ordered by position.
+    """
+
+    profile = models.ForeignKey(
+        "UserProfile",
+        on_delete=models.CASCADE,
+        related_name="links",
+    )
+    url = models.URLField()
+    label = models.CharField(
+        _("Label"),
+        max_length=100,
+        blank=True,
+    )
+    position = models.PositiveIntegerField(
+        _("Position"),
+        default=1,
+        db_index=True,
+    )
+
+    class Meta:
+        ordering = ["position", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["profile", "position"],
+                name="uniq_profile_link_position",
+            ),
+        ]
+        verbose_name = _("User Profile Link")
+        verbose_name_plural = _("User Profile Links")
+
+    def __str__(self):
+        return f"{self.profile.user.handle} - {self.label or self.url}"
+
+
 class UserProfile(BaseModel):
     """
-    User profile information including profile image.
+    User profile information including profile image and extended profile details.
     """
+
+    class RelationshipStatus(models.TextChoices):
+        SINGLE = "single", _("Single")
+        IN_A_RELATIONSHIP = "in_a_relationship", _("In a relationship")
+        MARRIED = "married", _("Married")
+        DIVORCED = "divorced", _("Divorced")
+        WIDOWED = "widowed", _("Widowed")
+        ITS_COMPLICATED = "its_complicated", _("It's complicated")
+        PREFER_NOT_TO_SAY = "prefer_not_to_say", _("Prefer not to say")
 
     user = models.OneToOneField(
         AgoraUser,
@@ -233,6 +279,42 @@ class UserProfile(BaseModel):
         blank=True,
     )
     theme_color = ColorField(blank=True, null=True, format="rgb")
+    job_title = models.CharField(
+        _("Job Title"),
+        max_length=150,
+        blank=True,
+        null=True,
+    )
+    company = models.CharField(
+        _("Company"),
+        max_length=150,
+        blank=True,
+        null=True,
+    )
+    bio = models.TextField(
+        _("Bio"),
+        max_length=500,
+        blank=True,
+        null=True,
+    )
+    pronouns = models.CharField(
+        _("Pronouns"),
+        max_length=50,
+        blank=True,
+        null=True,
+    )
+    interests = models.JSONField(
+        _("Interests"),
+        default=list,
+        blank=True,
+    )
+    relationship_status = models.CharField(
+        _("Relationship Status"),
+        max_length=20,
+        choices=RelationshipStatus.choices,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = _("User Profile")

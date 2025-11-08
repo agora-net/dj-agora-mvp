@@ -63,6 +63,18 @@
                     <!-- User handle -->
                     {% if user.handle %}<p class="text-xl md:text-3xl font-light mb-4 opacity-90">{{ user.handle }}</p>{% endif %}
 
+                    <!-- Job title and company -->
+                    {% if user.profile.job_title or user.profile.company %}
+                        <p class="text-sm md:text-base opacity-90 mb-2">
+                            {% if user.profile.job_title %}{{ user.profile.job_title }}{% endif %}
+                            {% if user.profile.job_title and user.profile.company %}at{% endif %}
+                            {% if user.profile.company %}<span class="font-semibold">{{ user.profile.company }}</span>{% endif %}
+                        </p>
+                    {% endif %}
+
+                    <!-- Pronouns -->
+                    {% if user.profile.pronouns %}<p class="text-xs md:text-sm opacity-80 mb-3">{{ user.profile.pronouns }}</p>{% endif %}
+
                     <div class="h-1 w-16 bg-[var(--theme-color)] rounded"></div>
                 </div>
 
@@ -88,10 +100,58 @@
                     </div>
                 </div>
 
+                <!-- Bio -->
+                {% if user.profile.bio %}
+                    <div class="mb-6">
+                        <p class="text-xs md:text-sm opacity-80 font-semibold mb-2">ABOUT</p>
+                        <p class="text-xs md:text-sm opacity-90">{{ user.profile.bio }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- Interests -->
+                {% if user.profile.interests %}
+                    <div class="mb-6">
+                        <p class="text-xs md:text-sm opacity-80 font-semibold mb-2">INTERESTS</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for interest in user.profile.interests %}
+                                <span class="badge badge-sm badge-outline opacity-90">{{ interest }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Relationship Status -->
+                {% if user.profile.relationship_status %}
+                    <div class="mb-6">
+                        <p class="text-xs md:text-sm opacity-80 font-semibold mb-2">RELATIONSHIP STATUS</p>
+                        <p class="text-xs md:text-sm opacity-90">
+                            {% with status=user.profile.get_relationship_status_display %}{{ status }}{% endwith %}
+                        </p>
+                    </div>
+                {% endif %}
+
+                <!-- Profile Links -->
+                {% if user.profile.links.all %}
+                    <div class="mb-6">
+                        <p class="text-xs md:text-sm opacity-80 font-semibold mb-2">LINKS</p>
+                        <div class="flex flex-wrap gap-3">
+                            {% for link in user.profile.links.all %}
+                                <a href="{{ link.url }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="link link-hover text-xs md:text-sm opacity-90 break-all"
+                                   title="{{ link.label|default:link.url }}">
+                                    {{ link.label|default:link.url | truncatechars:30 }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
                 <!-- Action buttons - styled like movie credits -->
                 <div class="flex gap-3">
                     {% if request.user == user %}
-                        <a href="{% url 'onboarding_profile' %}"
+                        <a href="{% url 'edit_profile' %}"
                            class="btn btn-ghost btn-sm md:btn-md flex-1">Edit Profile</a>
                     {% endif %}
                 </div>

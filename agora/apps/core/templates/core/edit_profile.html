@@ -4,8 +4,8 @@
     Complete Your Profile - Agora
 {% endblock title %}
 {% block content %}
-    <div class="min-h-screen flex items-center justify-center bg-base-100">
-        <div class="card w-full max-w-md bg-base-100 shadow-xl">
+    <div class="min-h-screen flex items-center justify-center bg-base-100 py-8">
+        <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
             <div class="card-body">
                 <h2 class="card-title justify-center text-2xl mb-4">Complete Your Profile</h2>
 
@@ -19,13 +19,16 @@
                     </svg>
                     <div>
                         <h3 class="font-bold">Almost There!</h3>
-                        <div class="text-xs">Please complete your profile to finish setting up your Agora account.</div>
+                        <div class="text-xs">
+                            Please complete your profile to finish setting up your Agora account. All fields except Handle are optional.
+                        </div>
                     </div>
                 </div>
 
                 <form method="post" class="space-y-4">
                     {% csrf_token %}
 
+                    <!-- Handle (Required) -->
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Handle</span>
@@ -35,6 +38,151 @@
                         {% if form.handle.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.handle.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Optional Profile Fields -->
+                    <div class="divider my-2">Additional Information</div>
+
+                    <!-- Job Title -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Job Title</span>
+                        </label>
+                        {{ form.job_title }}
+                        {% if form.job_title.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.job_title.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Company -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Company</span>
+                        </label>
+                        {{ form.company }}
+                        {% if form.company.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.company.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Pronouns -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Pronouns</span>
+                        </label>
+                        {{ form.pronouns }}
+                        {% if form.pronouns.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.pronouns.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Relationship Status -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Relationship Status</span>
+                        </label>
+                        {{ form.relationship_status }}
+                        {% if form.relationship_status.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.relationship_status.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Bio</span>
+                            <span class="label-text-alt"><span id="bio-count">0</span>/500</span>
+                        </label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.bio.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Interests -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Interests</span>
+                            <span class="label-text-alt">{{ form.interests.help_text }}</span>
+                        </label>
+                        {{ form.interests }}
+                        <div id="interests-tags" class="flex flex-wrap gap-2 mt-2"></div>
+                        {% if form.interests.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.interests.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Profile Links Formset -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Profile Links</span>
+                            <span class="label-text-alt">URLs to your profiles (LinkedIn, GitHub, etc.)</span>
+                        </label>
+
+                        <!-- Formset management form (required for all formsets) -->
+                        {{ formset.management_form }}
+
+                        <!-- Link entries -->
+                        <div id="profile-links-container" class="space-y-3 mt-2">
+                            {% for form in formset %}
+                                <div class="link-form p-3 border border-base-300 rounded-lg bg-base-200">
+                                    {{ form.non_field_errors }}
+
+                                    <!-- Position (hidden by default, for ordering) -->
+                                    <div class="form-control hidden">{{ form.position }}</div>
+
+                                    <!-- Label -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text text-sm">Label (optional)</span>
+                                        </label>
+                                        {{ form.label }}
+                                        {% if form.label.errors %}<span class="text-error text-xs">{{ form.label.errors.0 }}</span>{% endif %}
+                                    </div>
+
+                                    <!-- URL -->
+                                    <div class="form-control mt-2">
+                                        <label class="label">
+                                            <span class="label-text text-sm">URL</span>
+                                        </label>
+                                        {{ form.url }}
+                                        {% if form.url.errors %}<span class="text-error text-xs">{{ form.url.errors.0 }}</span>{% endif %}
+                                    </div>
+
+                                    <!-- Delete checkbox -->
+                                    <div class="form-control mt-2">
+                                        <label class="label cursor-pointer">
+                                            <span class="label-text text-sm">Remove this link</span>
+                                            {{ form.DELETE }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Add link button -->
+                        <button type="button" id="add-link-btn" class="btn btn-sm btn-outline mt-3">
+                            <span>+</span>
+                            <span>Add Link</span>
+                        </button>
+
+                        {% if formset.non_form_errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ formset.non_form_errors.0 }}</span>
                             </div>
                         {% endif %}
                     </div>
@@ -50,4 +198,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Bio character counter
+        document.addEventListener('DOMContentLoaded', function() {
+            const bioField = document.getElementById('id_bio');
+            const bioCount = document.getElementById('bio-count');
+
+            if (bioField) {
+                const updateBioCount = () => {
+                    bioCount.textContent = bioField.value.length;
+                };
+
+                bioField.addEventListener('input', updateBioCount);
+                updateBioCount();
+            }
+        });
+    </script>
 {% endblock content %}
+
+{% block bodyEndScripts %}
+    {% vite_asset 'src/profile_links.ts' %}
+{% endblock bodyEndScripts %}
