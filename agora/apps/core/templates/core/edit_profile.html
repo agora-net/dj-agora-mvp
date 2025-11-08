@@ -32,7 +32,11 @@
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Handle</span>
-                            <span class="label-text-alt">Your unique username on Agora</span>
+                            <span class="label-text-alt">
+                                <span class="tooltip" data-tip="Your unique username on Agora">
+                                    <i data-lucide="info" aria-hidden="true" class="w-4 h-4"></i>
+                                </span>
+                            </span>
                         </label>
                         {{ form.handle }}
                         {% if form.handle.errors %}
@@ -99,7 +103,7 @@
 
                     <!-- Bio -->
                     <div class="form-control">
-                        <label class="label">
+                        <label class="label w-full flex justify-between">
                             <span class="label-text">Bio</span>
                             <span class="label-text-alt"><span id="bio-count">0</span>/500</span>
                         </label>
@@ -115,7 +119,11 @@
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Interests</span>
-                            <span class="label-text-alt">{{ form.interests.help_text }}</span>
+                            <span class="label-text-alt">
+                                <span class="tooltip" data-tip="{{ form.interests.help_text }}">
+                                    <i data-lucide="info" aria-hidden="true" class="w-4 h-4"></i>
+                                </span>
+                            </span>
                         </label>
                         {{ form.interests }}
                         <div id="interests-tags" class="flex flex-wrap gap-2 mt-2"></div>
@@ -130,7 +138,12 @@
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Profile Links</span>
-                            <span class="label-text-alt">URLs to your profiles (LinkedIn, GitHub, etc.)</span>
+                            <span class="label-text-alt">
+                                <span class="tooltip"
+                                      data-tip="URLs to your profiles (LinkedIn, GitHub, etc.)">
+                                    <i data-lucide="info" aria-hidden="true" class="w-4 h-4"></i>
+                                </span>
+                            </span>
                         </label>
 
                         <!-- Formset management form (required for all formsets) -->
@@ -144,15 +157,6 @@
 
                                     <!-- Position (hidden by default, for ordering) -->
                                     <div class="form-control hidden">{{ form.position }}</div>
-
-                                    <!-- Label -->
-                                    <div class="form-control">
-                                        <label class="label">
-                                            <span class="label-text text-sm">Label (optional)</span>
-                                        </label>
-                                        {{ form.label }}
-                                        {% if form.label.errors %}<span class="text-error text-xs">{{ form.label.errors.0 }}</span>{% endif %}
-                                    </div>
 
                                     <!-- URL -->
                                     <div class="form-control mt-2">
