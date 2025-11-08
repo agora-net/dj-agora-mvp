@@ -11,50 +11,159 @@
         </a>
     </div>
     <div class="navbar-end">
-        <div class="dropdown dropdown-end">
-            <button tabindex="0"
-                    role="button"
-                    class="btn btn-ghost m-1"
-                    aria-label="Theme switcher"
-                    aria-expanded="false"
-                    aria-haspopup="menu"
-                    data-dropdown-toggle="theme-menu">
-                <i data-lucide="palette" aria-hidden="true"></i>
-                <span class="sr-only">Change theme</span>
-            </button>
-            <ul tabindex="0"
-                class="dropdown-content menu rounded-box z-1 w-52 p-2"
-                role="menu"
-                aria-labelledby="theme-menu"
-                id="theme-menu">
-                <li role="none">
-                    <button data-set-theme="light"
-                            class="btn btn-ghost"
-                            role="menuitem"
-                            aria-label="Switch to light theme">
-                        <i data-lucide="sun" aria-hidden="true"></i>
-                        <span>Light</span>
+        <!-- Mobile Menu Button (hidden on lg screens) -->
+        <button id="mobile-menu-btn"
+                role="button"
+                class="btn btn-ghost m-1 lg:hidden"
+                aria-label="Main menu"
+                aria-expanded="false"
+                aria-haspopup="menu"
+                aria-controls="mobile-menu">
+            <i data-lucide="menu" aria-hidden="true"></i>
+            <span class="sr-only">Open menu</span>
+        </button>
+
+        <!-- Mobile Menu Modal (hidden on lg screens) -->
+        <div id="mobile-menu-modal"
+             class="fixed inset-0 z-50 hidden lg:hidden bg-base-100"
+             role="dialog"
+             aria-labelledby="mobile-menu-btn"
+             aria-modal="true">
+            <div class="flex flex-col h-screen p-4">
+                <!-- Close Button -->
+                <div class="flex justify-end mb-4">
+                    <button id="mobile-menu-close" class="btn btn-ghost" aria-label="Close menu">
+                        <i data-lucide="x" aria-hidden="true"></i>
                     </button>
-                </li>
-                <li role="none">
-                    <button data-set-theme="dark"
-                            class="btn btn-ghost"
-                            role="menuitem"
-                            aria-label="Switch to dark theme">
-                        <i data-lucide="moon" aria-hidden="true"></i>
-                        <span>Dark</span>
-                    </button>
-                </li>
-                <li role="none">
-                    <button data-set-theme="auto"
-                            class="btn btn-ghost"
-                            role="menuitem"
-                            aria-label="Switch to automatic theme (follows system preference)">
-                        <i data-lucide="sun-moon" aria-hidden="true"></i>
-                        <span>Auto</span>
-                    </button>
-                </li>
-            </ul>
+                </div>
+
+                <!-- Menu Content -->
+                <ul id="mobile-menu" class="menu flex-1 w-full" role="menu">
+                    <!-- Theme Options -->
+                    <li role="none" class="menu-title">
+                        <span>Theme</span>
+                    </li>
+                    <li role="none" class="w-full">
+                        <button data-set-theme="light"
+                                class="btn btn-ghost w-full justify-start"
+                                role="menuitem"
+                                aria-label="Switch to light theme">
+                            <i data-lucide="sun" aria-hidden="true"></i>
+                            <span>Light</span>
+                        </button>
+                    </li>
+                    <li role="none" class="w-full">
+                        <button data-set-theme="dark"
+                                class="btn btn-ghost w-full justify-start"
+                                role="menuitem"
+                                aria-label="Switch to dark theme">
+                            <i data-lucide="moon" aria-hidden="true"></i>
+                            <span>Dark</span>
+                        </button>
+                    </li>
+                    <li role="none" class="w-full">
+                        <button data-set-theme="auto"
+                                class="btn btn-ghost w-full justify-start"
+                                role="menuitem"
+                                aria-label="Switch to automatic theme (follows system preference)">
+                            <i data-lucide="sun-moon" aria-hidden="true"></i>
+                            <span>Auto</span>
+                        </button>
+                    </li>
+                    <!-- Authentication -->
+                    <li role="none" class="menu-title">
+                        <span>Account</span>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                        <li role="none" class="w-full">
+                            <a href="{% url 'current_user_profile' %}"
+                               class="btn btn-ghost w-full justify-start"
+                               role="menuitem"
+                               aria-label="Go to profile">
+                                <i data-lucide="circle-user" aria-hidden="true"></i>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li role="none" class="w-full">
+                            <a href="{% url 'login' %}"
+                               class="btn btn-ghost w-full justify-start"
+                               role="menuitem"
+                               aria-label="Login to Agora">
+                                <i data-lucide="log-in" aria-hidden="true"></i>
+                                <span>Login</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Desktop Controls (visible on lg screens and up) -->
+        <div class="hidden lg:flex lg:gap-2 lg:items-center">
+            <!-- Theme Switcher -->
+            <div class="dropdown dropdown-end">
+                <button tabindex="0"
+                        role="button"
+                        class="btn btn-ghost m-1"
+                        aria-label="Theme switcher"
+                        aria-expanded="false"
+                        aria-haspopup="menu"
+                        data-dropdown-toggle="theme-menu">
+                    <i data-lucide="palette" aria-hidden="true"></i>
+                    <span class="sr-only">Change theme</span>
+                </button>
+                <ul tabindex="0"
+                    class="dropdown-content menu rounded-box z-1 w-52 p-2"
+                    role="menu"
+                    aria-labelledby="theme-menu"
+                    id="theme-menu">
+                    <li role="none">
+                        <button data-set-theme="light"
+                                class="btn btn-ghost"
+                                role="menuitem"
+                                aria-label="Switch to light theme">
+                            <i data-lucide="sun" aria-hidden="true"></i>
+                            <span>Light</span>
+                        </button>
+                    </li>
+                    <li role="none">
+                        <button data-set-theme="dark"
+                                class="btn btn-ghost"
+                                role="menuitem"
+                                aria-label="Switch to dark theme">
+                            <i data-lucide="moon" aria-hidden="true"></i>
+                            <span>Dark</span>
+                        </button>
+                    </li>
+                    <li role="none">
+                        <button data-set-theme="auto"
+                                class="btn btn-ghost"
+                                role="menuitem"
+                                aria-label="Switch to automatic theme (follows system preference)">
+                            <i data-lucide="sun-moon" aria-hidden="true"></i>
+                            <span>Auto</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Login/Profile Button -->
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'current_user_profile' %}"
+                   class="btn btn-ghost"
+                   aria-label="Go to profile">
+                    <i data-lucide="circle-user" aria-hidden="true"></i>
+                    <span>Profile</span>
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}"
+                   class="btn btn-primary"
+                   aria-label="Login to Agora">
+                    <i data-lucide="log-in" aria-hidden="true"></i>
+                    <span>Login</span>
+                </a>
+            {% endif %}
         </div>
     </div>
 </nav>

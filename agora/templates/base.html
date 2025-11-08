@@ -61,5 +61,47 @@
             </script>
         {% endif %}
         {% vite_asset 'src/theme-change.ts' %} {% vite_asset 'src/icons.ts' %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                const mobileMenuModal = document.getElementById('mobile-menu-modal');
+                const mobileMenuClose = document.getElementById('mobile-menu-close');
+                const mobileMenu = document.getElementById('mobile-menu');
+                
+                if (mobileMenuBtn && mobileMenuModal) {
+                    const openMenu = () => {
+                        mobileMenuModal.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                        mobileMenuBtn.setAttribute('aria-expanded', 'true');
+                    };
+                    
+                    const closeMenu = () => {
+                        mobileMenuModal.classList.add('hidden');
+                        document.body.style.overflow = '';
+                        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                    };
+                    
+                    mobileMenuBtn.addEventListener('click', openMenu);
+                    
+                    if (mobileMenuClose) {
+                        mobileMenuClose.addEventListener('click', closeMenu);
+                    }
+                    
+                    if (mobileMenu) {
+                        mobileMenu.addEventListener('click', (e) => {
+                            if (e.target.tagName === 'A') {
+                                closeMenu();
+                            }
+                        });
+                    }
+                    
+                    mobileMenuModal.addEventListener('click', (e) => {
+                        if (e.target === mobileMenuModal) {
+                            closeMenu();
+                        }
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
