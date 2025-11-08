@@ -1,4 +1,6 @@
+import glob
 import multiprocessing
+import os
 
 bind = "unix:/run/gunicorn_mvp.sock"
 workers = multiprocessing.cpu_count() * 2 + 1
@@ -20,6 +22,13 @@ max_requests_jitter = 150
 errorlog = "-"  # Log errors to stderr, where they'll be captured by journalctl.
 accesslog = "-"  # Log access requests to stdout, also captured by journalctl.
 
-# Reload on static file changes
-# https://stackoverflow.com/a/78227489/1401034
-reload_extra_file = ["agora/templates/*.html"]
+if os.environ.get("GUNICORN_RELOAD") == "1":
+    reload = True
+    reload_engine = "auto"
+    reload_extra_files = (
+        glob.glob("agora/templates/**/*.html", recursive=True)
+        + glob.glob("agora/apps/**/templates/**/*.html", recursive=True)  # app templates
+        + glob.glob("templates/**/*.html", recursive=True)  # project templates
+    )
+
+    print(f"Reloading on static file changes: {reload_extra_files}")

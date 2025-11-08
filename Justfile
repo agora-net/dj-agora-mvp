@@ -30,8 +30,8 @@ migrate:
     @just manage migrate
 
 # Run the development server
-runserver:
-    @uv run gunicorn --reload --log-level debug --workers 1 --bind 0.0.0.0:8000 --worker-tmp-dir /tmp --config config/gunicorn/gunicorn.conf.py agora.wsgi:application
+runserver $GUNICORN_RELOAD="1":
+    @uv run gunicorn --log-level debug --workers 1 --bind 0.0.0.0:8000 --worker-tmp-dir /tmp --config config/gunicorn/gunicorn.conf.py agora.wsgi:application
 
 # Run the frontend hot reload
 [working-directory: "frontend/@agora/agora"]
