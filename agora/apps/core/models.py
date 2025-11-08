@@ -227,11 +227,6 @@ class UserProfileLink(BaseModel):
         related_name="links",
     )
     url = models.URLField()
-    label = models.CharField(
-        _("Label"),
-        max_length=100,
-        blank=True,
-    )
     position = models.PositiveIntegerField(
         _("Position"),
         default=1,

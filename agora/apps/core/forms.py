@@ -229,7 +229,7 @@ class DonationForm(forms.Form):
 UserProfileLinkFormSet = inlineformset_factory(
     UserProfile,
     UserProfileLink,
-    fields=("position", "label", "url"),
+    fields=("position", "url"),
     extra=1,
     can_delete=True,
 )

@@ -282,7 +282,7 @@ class UserProfileLinkInline(admin.TabularInline):
     """
 
     model = UserProfileLink
-    fields = ("position", "label", "url")
+    fields = ("position", "url")
     extra = 1
     ordering = ("position",)
 
