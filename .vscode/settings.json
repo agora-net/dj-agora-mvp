@@ -1,42 +1,46 @@
 {
-  "[python]": {
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
-      "source.organizeImports": "explicit"
-    },
-    "editor.defaultFormatter": "charliermarsh.ruff"
-  },
-  "files.associations": {
-    "**/*.html": "html",
-    "**/templates/*/*.html": "django-html",
-    "**/templates/*.html": "django-html",
-    "**/templates/*": "django-txt"
-  },
-  "emmet.includeLanguages": {
-    "django-html": "html"
-},
-"cSpell.words": [
-    "Caddyfile",
-    "csrftoken",
-    "elif",
-    "endcomment",
-    "endfor",
-    "endwith",
-    "fieldset",
-    "floatformat",
-    "Justfile",
-    "linecap",
-    "linejoin",
-    "lucide",
-    "mathfilters",
-    "nbytes",
-    "nostatic",
-    "remoteip",
-    "signup",
-    "stylesheet",
-    "toastify",
-    "vite",
-    "waitlist"
-]
+	"[python]": {
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit",
+			"source.organizeImports": "explicit"
+		},
+		"editor.defaultFormatter": "charliermarsh.ruff"
+	},
+	"files.associations": {
+		"**/*.html": "html",
+		"**/templates/*/*.html": "django-html",
+		"**/templates/*.html": "django-html",
+		"**/templates/*": "django-txt"
+	},
+	"emmet.includeLanguages": {
+		"django-html": "html"
+	},
+	"cSpell.words": [
+		"Caddyfile",
+		"csrftoken",
+		"Docstrings",
+		"elif",
+		"endcomment",
+		"endfor",
+		"endwith",
+		"fieldset",
+		"floatformat",
+		"Justfile",
+		"linecap",
+		"linejoin",
+		"lucide",
+		"makemigrations",
+		"mathfilters",
+		"nbytes",
+		"nostatic",
+		"Ondato",
+		"remoteip",
+		"signup",
+		"staticfiles",
+		"stylesheet",
+		"toastify",
+		"vite",
+		"waitlist"
+	]
 }
