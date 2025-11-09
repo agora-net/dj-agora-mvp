@@ -38,7 +38,7 @@
         <div class="w-full max-w-md h-full max-h-[900px] relative rounded-lg overflow-hidden shadow-2xl">
 
             <!-- Movie poster background image -->
-            <div class="absolute inset-0 bg-cover bg-center"
+            <div class="absolute inset-0 bg-cover bg-no-repeat bg-top"
                  {% if user.profile.profile_image %} style="background-image: url('{{ user.profile.profile_image.url }}');" {% else %} style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" {% endif %}>
                 <!-- Dark overlay for text readability -->
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>

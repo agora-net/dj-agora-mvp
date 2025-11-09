@@ -306,7 +306,7 @@ def onboarding_edit_profile(request):
 
     return render(
         request,
-        "core/edit_profile.html",
+        "core/onboarding_setup_profile.html",
         {"form": form, "formset": formset, "profile": profile},
     )
 

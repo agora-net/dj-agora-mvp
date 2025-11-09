@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load django_vite widget_tweaks %}
+{% block title %}
+    Complete Your Profile - Agora
+{% endblock title %}
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center bg-base-100 py-8">
+        <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title justify-center text-2xl mb-4">Complete Your Profile</h2>
+
+                <div class="alert alert-info mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         class="stroke-current shrink-0 w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    <div>
+                        <h3 class="font-bold">Almost There!</h3>
+                        <div class="text-xs">
+                            Please complete your profile to finish setting up your Agora account. All fields except Handle are optional.
+                        </div>
+                    </div>
+                </div>
+
+                {% include "includes/profile_form.html" with submit_button_text="Complete Profile" %}
+
+                <div class="divider">Need Help?</div>
+
+                <p class="text-sm text-base-content/60 text-center">Having trouble? Contact our support team for assistance.</p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block bodyEndScripts %}
+    {% vite_asset 'src/profile_links.ts' %}
+    {% vite_asset 'src/profile_image_upload.ts' %}
+    {% vite_asset 'src/profile_visibility.ts' %}
+{% endblock bodyEndScripts %}

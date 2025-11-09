@@ -1,0 +1,306 @@
+{% load widget_tweaks %}
+
+{% with submit_button_text|default:"Save Profile" as button_text %}
+    <form method="post" class="space-y-4" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Profile Image Upload -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Profile Picture</span>
+            </label>
+
+            <!-- Hidden file input -->
+            {{ form.profile_image }}
+            <input type="checkbox"
+                   name="delete_profile_image"
+                   id="delete_profile_image"
+                   value="1"
+                   class="hidden">
+
+            <!-- Existing image display -->
+            {% if profile.profile_image %}
+                <div id="profile-image-existing" class="mb-4">
+                    <div class="flex items-center gap-4">
+                        <img src="{{ profile.profile_image.url }}"
+                             alt="Current profile picture"
+                             width="128"
+                             height="128"
+                             class="w-32 h-32 object-contain border-2 border-base-300">
+                        <div class="flex gap-2">
+                            <button type="button"
+                                    id="profile-image-replace-btn"
+                                    class="btn btn-sm btn-outline">Replace</button>
+                            <button type="button"
+                                    id="profile-image-delete-btn"
+                                    class="btn btn-sm btn-error btn-outline">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div id="profile-image-existing" class="hidden"></div>
+            {% endif %}
+
+            <!-- Drop zone / Upload area -->
+            <div id="profile-image-dropzone"
+                 class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors {% if profile.profile_image %}hidden{% endif %}">
+                <div id="profile-image-upload-text">
+                    <i data-lucide="upload"
+                       class="w-12 h-12 mx-auto mb-2 text-base-content/40"></i>
+                    <p class="text-sm text-base-content/60 mb-1">
+                        <span class="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p class="text-xs text-base-content/40">JPEG, PNG, WebP, HEIC, JPEGXL, JPEG2000 (Max 5MB)</p>
+                </div>
+            </div>
+
+            <!-- Preview container (hidden by default) -->
+            <div id="profile-image-preview" class="hidden mt-4">
+                <div class="flex items-center gap-4">
+                    <img id="profile-image-preview-img"
+                         src=""
+                         alt="Preview"
+                         width="128"
+                         height="128"
+                         class="w-32 h-32 object-contain border-2 border-base-300">
+                    <div class="flex gap-2">
+                        <button type="button"
+                                id="profile-image-replace-btn-2"
+                                class="btn btn-sm btn-outline">Change</button>
+                        <button type="button"
+                                id="profile-image-delete-btn-2"
+                                class="btn btn-sm btn-error btn-outline">Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            {% if form.profile_image.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.profile_image.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Handle (Required) -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Handle</span>
+                <span class="label-text-alt">
+                    <span class="tooltip" data-tip="Your unique username on Agora">
+                        <i data-lucide="info" aria-hidden="true" class="w-4 h-4"></i>
+                    </span>
+                </span>
+            </label>
+            {{ form.handle }}
+            {% if form.handle.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.handle.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Profile Visibility Selection -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">
+                    {{ form.is_public.label }}
+                    {% if form.is_public.help_text %}
+                        <span class="label-text-alt block mt-1 text-xs opacity-70">{{ form.is_public.help_text }}</span>
+                    {% endif %}
+                </span>
+            </label>
+            <!-- Hidden checkbox for form submission -->
+            {{ form.is_public|add_class:"hidden" }}
+            <!-- Two large buttons for visibility selection -->
+            <div class="flex gap-3 mt-2">
+                <button type="button"
+                        id="profile-visibility-private"
+                        class="btn flex-1 flex-col h-auto py-6 gap-2 {% if form.is_public.value %}bg-base-300{% else %}btn-accent text-accent-content{% endif %}">
+                    <i data-lucide="hat-glasses" class="w-6 h-6"></i>
+                    <span class="text-sm font-medium">only you can see it</span>
+                </button>
+                <button type="button"
+                        id="profile-visibility-public"
+                        class="btn flex-1 flex-col h-auto py-6 gap-2 {% if form.is_public.value %}btn-accent text-accent-content{% else %}bg-base-300{% endif %}">
+                    <i data-lucide="globe" class="w-6 h-6"></i>
+                    <span class="text-sm font-medium">anyone can see it</span>
+                </button>
+            </div>
+            {% if form.is_public.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.is_public.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Optional Profile Fields -->
+        <div class="divider my-2">Additional Information</div>
+
+        <!-- Job Title -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Job Title</span>
+            </label>
+            {{ form.job_title }}
+            {% if form.job_title.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.job_title.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Company -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Company</span>
+            </label>
+            {{ form.company }}
+            {% if form.company.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.company.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pronouns -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Pronouns</span>
+            </label>
+            {{ form.pronouns }}
+            {% if form.pronouns.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.pronouns.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Relationship Status -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Relationship Status</span>
+            </label>
+            {{ form.relationship_status }}
+            {% if form.relationship_status.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.relationship_status.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Bio -->
+        <div class="form-control">
+            <label class="label w-full flex justify-between">
+                <span class="label-text">Bio</span>
+                <span class="label-text-alt"><span id="bio-count">0</span>/500</span>
+            </label>
+            {{ form.bio }}
+            {% if form.bio.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.bio.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Interests -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Interests</span>
+                <span class="label-text-alt">
+                    <span class="tooltip" data-tip="{{ form.interests.help_text }}">
+                        <i data-lucide="info" aria-hidden="true" class="w-4 h-4"></i>
+                    </span>
+                </span>
+            </label>
+            {{ form.interests }}
+            <div id="interests-tags" class="flex flex-wrap gap-2 mt-2"></div>
+            {% if form.interests.errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ form.interests.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Profile Links Formset -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Profile Links</span>
+                <span class="label-text-alt">
+                    <span class="tooltip"
+                          data-tip="URLs to your profiles (LinkedIn, GitHub, etc.)">
+                        <i data-lucide="info" aria-hidden="true" class="w-4 h-4"></i>
+                    </span>
+                </span>
+            </label>
+
+            <!-- Formset management form (required for all formsets) -->
+            {{ formset.management_form }}
+
+            <!-- Link entries -->
+            <div id="profile-links-container" class="space-y-2 mt-2">
+                {% for form in formset %}
+                    <div class="link-form flex gap-2 items-start">
+                        {{ form.position|add_class:"hidden" }}
+                        {{ form.DELETE|add_class:"hidden" }}
+                        <div class="flex-1">
+                            {{ form.url|add_class:"input input-bordered w-full" }}
+                            {% if form.url.errors %}<span class="text-error text-xs">{{ form.url.errors.0 }}</span>{% endif %}
+                        </div>
+                        <button type="button"
+                                class="remove-link-btn btn btn-square btn-outline btn-error flex-shrink-0"
+                                aria-label="Remove link">
+                            <i data-lucide="x" aria-hidden="true" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Empty form template for adding new links -->
+            <template id="profile-link-empty-form">
+                <div class="link-form flex gap-2 items-start">
+                    {{ formset.empty_form.position|add_class:"hidden" }}
+                    {{ formset.empty_form.DELETE|add_class:"hidden" }}
+                    <div class="flex-1">{{ formset.empty_form.url|add_class:"input input-bordered w-full" }}</div>
+                    <button type="button"
+                            class="remove-link-btn btn btn-square btn-outline btn-error flex-shrink-0"
+                            aria-label="Remove link">
+                        <i data-lucide="x" aria-hidden="true" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </template>
+
+            <!-- Add link button -->
+            <button type="button" id="add-link-btn" class="btn btn-sm btn-outline mt-3">
+                <span>+</span>
+                <span>Add Link</span>
+            </button>
+
+            {% if formset.non_form_errors %}
+                <div class="label">
+                    <span class="label-text-alt text-error">{{ formset.non_form_errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-control mt-6">
+            <button type="submit" class="btn btn-primary w-full">{{ button_text }}</button>
+        </div>
+    </form>
+
+    <script>
+        // Bio character counter
+        document.addEventListener('DOMContentLoaded', function() {
+            const bioField = document.getElementById('id_bio');
+            const bioCount = document.getElementById('bio-count');
+
+            if (bioField) {
+                const updateBioCount = () => {
+                    bioCount.textContent = bioField.value.length;
+                };
+
+                bioField.addEventListener('input', updateBioCount);
+                updateBioCount();
+            }
+        });
+    </script>
+{% endwith %}

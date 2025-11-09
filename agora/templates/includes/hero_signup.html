@@ -1,0 +1,97 @@
+<div class="hero bg-base-200 py-16 lg:py-32">
+    <div class="hero-content max-w-6xl mx-auto flex-col gap-8">
+        <!-- Hero Title Section -->
+        <div class="text-center">
+            {% if not has_signed_up %}
+                <h1 class="text-5xl font-bold">Get Started with Agora</h1>
+                <p class="py-6 text-balance max-w-3xl mx-auto">
+                    Choose how you'd like to join Agora. Join our free waitlist or get
+                    instant access with a donation to support our mission.
+                </p>
+            {% else %}
+                <h1 class="text-5xl font-bold">Thank you</h1>
+                <p class="py-6 text-balance">You're on the waitlist! We'll notify you when it's your turn to join.</p>
+            {% endif %}
+        </div>
+
+        <!-- Options Cards Section -->
+        <div class="w-full flex flex-col lg:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto">
+            {% if has_signed_up %}
+                <div class="card bg-base-100 w-full shadow-2xl">
+                    <div class="card-body flex flex-col gap-4">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-xl font-bold mb-2">You're on the waitlist!</h3>
+                            <a href="{% url 'signup_status' signup_id=signup_id %}"
+                               class="btn btn-primary">View Your Status</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Donation Option -->
+                <div class="card bg-base-100 w-full lg:w-1/2 shadow-xl border-2 border-base-300">
+                    <div class="card-body flex flex-col justify-between gap-4">
+                        <div class="text-center">
+                            <div class="text-4xl mb-2">⚡</div>
+                            <h3 class="text-xl font-bold mb-2">Get Instant Access</h3>
+                            <p class="text-sm text-base-content/70 mb-4 text-balance">
+                                By donating to support our mission you cover the cost of your
+                                Agora identity verification and someone from the free waitlist.
+                            </p>
+                        </div>
+                        <a href="{% url 'donate' %}" class="btn btn-primary w-full">
+                            <i data-lucide="heart" aria-hidden="true" class="w-5 h-5"></i>
+                            Donate CHF10+
+                            <span class="hidden md:inline">for Instant Access</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Free Waitlist Option -->
+                <div class="card bg-base-100 w-full lg:w-1/2 shadow-xl border-2 border-base-300">
+                    <div class="card-body flex flex-col justify-between gap-4">
+                        <div class="text-center">
+                            <div class="text-4xl mb-2">📧</div>
+                            <h3 class="text-xl font-bold mb-2">Join Free Waitlist</h3>
+                            <p class="text-sm text-base-content/70 mb-4">Get notified when it's your turn to join</p>
+                        </div>
+                        <form method="post"
+                              action="{% url 'signup' %}"
+                              aria-label="Waitlist signup form">
+                            {% csrf_token %}
+                            <fieldset class="fieldset p-0">
+                                <legend class="sr-only">Waitlist signup form</legend>
+                                <label class="label">{{ form.email.label_tag }}</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="label">
+                                        <span class="label-text-alt text-error">{{ form.email.errors.0 }}</span>
+                                    </div>
+                                {% endif %}
+                                <button class="btn btn-primary mt-4 w-full">Join Waitlist</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Privacy Policy -->
+        {% if not has_signed_up %}
+            <p class="text-xs text-base-content/70 text-center">
+                By signing up or joining the waitlist, you agree to our
+                <a href="{% url 'home' %}" class="link link-primary">privacy policy</a>.
+            </p>
+        {% endif %}
+
+        <!-- Waitlist Count -->
+        {% if not has_signed_up and waiting_list_count > 10 %}
+            <div class="flex items-center gap-2 justify-center">
+                <span class="text-sm text-base-content/70">
+                    <i data-lucide="circle-user" aria-hidden="true" class="w-8 h-8"></i>
+                </span>
+                <p class="text-sm">Join {{ waiting_list_count|intcomma }}+ others on the waitlist</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
