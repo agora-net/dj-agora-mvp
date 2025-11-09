@@ -35,10 +35,10 @@
 
 {% block content %}
     <div class="h-full w-full flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-base-100 rounded-lg overflow-hidden shadow-2xl flex flex-col h-full">
+        <div class="w-full max-w-md lg:max-w-6xl bg-base-100 rounded-lg overflow-hidden shadow-2xl flex flex-col lg:flex-row h-full lg:h-full lg:max-h-[90vh]">
 
             <!-- Image container -->
-            <div class="relative h-svh">
+            <div class="relative h-svh lg:h-full lg:flex-shrink-0 lg:w-1/2">
                 <!-- Movie poster background image -->
                 <div class="absolute inset-0 bg-cover bg-no-repeat bg-top"
                      {% if user.profile.profile_image %} style="background-image: url('{{ user.profile.profile_image.url }}');" {% else %} style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" {% endif %}>
@@ -105,7 +105,7 @@
             </div>
 
             <!-- New section for content below the image -->
-            <div class="p-6 flex-grow overflow-y-auto">
+            <div class="p-6 flex-grow overflow-y-auto lg:w-1/2 lg:flex-shrink-0">
                 <!-- Bio -->
                 {% if user.profile.bio %}
                     <div class="mb-6">
