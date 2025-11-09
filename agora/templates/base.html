@@ -21,7 +21,7 @@
         {% vite_hmr_client %}
         {% vite_react_refresh %}
     </head>
-    <body class="{% block bodyClass %}h-full{% endblock bodyClass %}">
+    <body class="h-full flex flex-col {% block bodyClass %}{% endblock bodyClass %}">
         {% comment %} https://design-system.service.gov.uk/styles/page-template/ {% endcomment %}
         {% block bodyStart %}
         {% endblock bodyStart %}
@@ -30,14 +30,16 @@
         {% block header %}
             {% include "includes/header.html" %}
         {% endblock header %}
-        {% block main %}
-            {% block beforeContent %}
-            {% endblock beforeContent %}
-            {% block content %}
-            {% endblock content %}
-            {% block afterContent %}
-            {% endblock afterContent %}
-        {% endblock main %}
+        <main class="flex-grow">
+            {% block main %}
+                {% block beforeContent %}
+                {% endblock beforeContent %}
+                {% block content %}
+                {% endblock content %}
+                {% block afterContent %}
+                {% endblock afterContent %}
+            {% endblock main %}
+        </main>
         {% block footer %}
             {% include "includes/footer.html" %}
         {% endblock footer %}

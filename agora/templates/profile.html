@@ -30,76 +30,82 @@
 {% endblock htmlClass %}
 
 {% block bodyClass %}
-    h-full bg-base-100
+    bg-base-100
 {% endblock bodyClass %}
 
 {% block content %}
     <div class="h-full w-full flex items-center justify-center p-4">
-        <div class="w-full max-w-md h-full max-h-[900px] relative rounded-lg overflow-hidden shadow-2xl">
+        <div class="w-full max-w-md bg-base-100 rounded-lg overflow-hidden shadow-2xl flex flex-col h-full">
 
-            <!-- Movie poster background image -->
-            <div class="absolute inset-0 bg-cover bg-no-repeat bg-top"
-                 {% if user.profile.profile_image %} style="background-image: url('{{ user.profile.profile_image.url }}');" {% else %} style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" {% endif %}>
-                <!-- Dark overlay for text readability -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+            <!-- Image container -->
+            <div class="relative h-svh">
+                <!-- Movie poster background image -->
+                <div class="absolute inset-0 bg-cover bg-no-repeat bg-top"
+                     {% if user.profile.profile_image %} style="background-image: url('{{ user.profile.profile_image.url }}');" {% else %} style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" {% endif %}>
+                    <!-- Dark overlay for text readability -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+                </div>
+
+                <!-- Content overlay - positioned at bottom for movie poster style -->
+                <div class="absolute inset-0 flex flex-col justify-end p-6 text-white z-10">
+
+                    <!-- User name - prominent like movie title -->
+                    <div class="mb-6 ">
+                        {% if verified_name %}
+                            <h1 class="text-3xl md:text-5xl font-bold tracking-tight leading-tight mb-2">
+                                {{ verified_name }}
+                                {% if is_identity_verified %}
+                                    <i data-lucide="badge-check"
+                                       class="inline-flex items-center h-8 w-8 ml-2 text-success"></i>
+                                {% endif %}
+                            </h1>
+
+                        {% endif %}
+
+                        <!-- User handle -->
+                        {% if user.handle %}<p class="text-xl md:text-3xl font-light mb-4 opacity-90">{{ user.handle }}</p>{% endif %}
+
+                        <!-- Job title and company -->
+                        {% if user.profile.job_title or user.profile.company %}
+                            <p class="text-sm md:text-base opacity-90 mb-2">
+                                {% if user.profile.job_title %}{{ user.profile.job_title }}{% endif %}
+                                {% if user.profile.job_title and user.profile.company %}at{% endif %}
+                                {% if user.profile.company %}<span class="font-semibold">{{ user.profile.company }}</span>{% endif %}
+                            </p>
+                        {% endif %}
+
+                        <!-- Pronouns -->
+                        {% if user.profile.pronouns %}<p class="text-xs md:text-sm opacity-80 mb-3">{{ user.profile.pronouns }}</p>{% endif %}
+
+                        <div class="h-1 w-16 bg-[var(--theme-color)] rounded"></div>
+                    </div>
+
+                    <!-- Member since -->
+                    <div class="mb-6 flex items-center justify-between gap-4">
+
+                        <div class="text-xs md:text-sm opacity-80">
+                            <p class="font-semibold mb-1">MEMBER SINCE</p>
+                            <p>{{ user.date_joined|date:"F Y" }}</p>
+                        </div>
+
+                        <div class="text-xs md:text-sm opacity-80">
+                            <p class="font-semibold mb-1">VERIFIED ID</p>
+                            {% if is_identity_verified %}
+                                <div class="tooltip tooltip-left flex justify-between items-center"
+                                     data-tip="Verified with a {{ issuing_country_code | upper }} document">
+                                    <p>Yes</p>
+                                    <span data-country-code="{{ issuing_country_code }}">{{ issuing_country_code }}</span>
+                                </div>
+                            {% else %}
+                                <p>No</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Content overlay - positioned at bottom for movie poster style -->
-            <div class="absolute inset-0 flex flex-col justify-end p-6 text-white z-10">
-
-                <!-- User name - prominent like movie title -->
-                <div class="mb-6 ">
-                    {% if verified_name %}
-                        <h1 class="text-3xl md:text-5xl font-bold tracking-tight leading-tight mb-2">
-                            {{ verified_name }}
-                            {% if is_identity_verified %}
-                                <i data-lucide="badge-check"
-                                   class="inline-flex items-center h-8 w-8 ml-2 text-success"></i>
-                            {% endif %}
-                        </h1>
-
-                    {% endif %}
-
-                    <!-- User handle -->
-                    {% if user.handle %}<p class="text-xl md:text-3xl font-light mb-4 opacity-90">{{ user.handle }}</p>{% endif %}
-
-                    <!-- Job title and company -->
-                    {% if user.profile.job_title or user.profile.company %}
-                        <p class="text-sm md:text-base opacity-90 mb-2">
-                            {% if user.profile.job_title %}{{ user.profile.job_title }}{% endif %}
-                            {% if user.profile.job_title and user.profile.company %}at{% endif %}
-                            {% if user.profile.company %}<span class="font-semibold">{{ user.profile.company }}</span>{% endif %}
-                        </p>
-                    {% endif %}
-
-                    <!-- Pronouns -->
-                    {% if user.profile.pronouns %}<p class="text-xs md:text-sm opacity-80 mb-3">{{ user.profile.pronouns }}</p>{% endif %}
-
-                    <div class="h-1 w-16 bg-[var(--theme-color)] rounded"></div>
-                </div>
-
-                <!-- Member since -->
-                <div class="mb-6 flex items-center justify-between gap-4">
-
-                    <div class="text-xs md:text-sm opacity-80">
-                        <p class="font-semibold mb-1">MEMBER SINCE</p>
-                        <p>{{ user.date_joined|date:"F Y" }}</p>
-                    </div>
-
-                    <div class="text-xs md:text-sm opacity-80">
-                        <p class="font-semibold mb-1">VERIFIED ID</p>
-                        {% if is_identity_verified %}
-                            <div class="tooltip tooltip-left flex justify-between items-center"
-                                 data-tip="Verified with a {{ issuing_country_code | upper }} document">
-                                <p>Yes</p>
-                                <span data-country-code="{{ issuing_country_code }}">{{ issuing_country_code }}</span>
-                            </div>
-                        {% else %}
-                            <p>No</p>
-                        {% endif %}
-                    </div>
-                </div>
-
+            <!-- New section for content below the image -->
+            <div class="p-6 flex-grow overflow-y-auto">
                 <!-- Bio -->
                 {% if user.profile.bio %}
                     <div class="mb-6">
@@ -155,7 +161,6 @@
                            class="btn btn-ghost btn-sm md:btn-md flex-1">Edit Profile</a>
                     {% endif %}
                 </div>
-
             </div>
         </div>
     </div>
