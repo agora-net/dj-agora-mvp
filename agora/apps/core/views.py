@@ -15,10 +15,13 @@ from .selectors import (
     get_external_verification_details,
     get_identity_verification_for_user,
     get_keycloak_user,
+    get_profile_stats,
+    get_verification_history,
     get_waiting_list_count,
     get_waiting_list_entry,
     is_user_identity_recently_verified,
     is_user_profile_complete,
+    is_verification_expired,
 )
 from .services import (
     add_to_waiting_list,
@@ -187,7 +190,7 @@ def login(request):
 def dashboard(request):
     """
     Dashboard view that requires authentication.
-    Shows a placeholder dashboard for authenticated users.
+    Shows identity verification status and profile management.
     """
 
     identity_verification = get_identity_verification_for_user(user=request.user)
@@ -204,8 +207,40 @@ def dashboard(request):
     if not external_verification_details:
         raise Http404("No external verification details found")
 
+    # Get verification history
+    verification_history = get_verification_history(user=request.user)
+
+    # Check if verification is expired
+    verification_expired = is_verification_expired(verification=identity_verification)
+
+    # Get profile stats
+    profile_stats = get_profile_stats(user=request.user)
+
+    # Get user profile if it exists
+    profile = getattr(request.user, "profile", None)
+
+    # Format date of birth for display
+    dob_display = None
+    if external_verification_details.date_of_birth:
+        dob = external_verification_details.date_of_birth
+        if dob.year and dob.month and dob.day:
+            dob_display = f"{dob.year}-{dob.month:02d}-{dob.day:02d}"
+
+    # Format document type for display
+    document_type_display = None
+    if external_verification_details.document_type:
+        doc_type = external_verification_details.document_type.value
+        document_type_display = doc_type.replace("_", " ").title()
+
     context = {
-        "verified_details": external_verification_details,  # first_name, last_name, date_of_birth
+        "identity_verification": identity_verification,
+        "verified_details": external_verification_details,
+        "verification_history": verification_history,
+        "verification_expired": verification_expired,
+        "profile_stats": profile_stats,
+        "profile": profile,
+        "dob_display": dob_display,
+        "document_type_display": document_type_display,
     }
     return render(request, "dashboard.html", context=context)
 

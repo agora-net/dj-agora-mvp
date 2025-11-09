@@ -260,3 +260,67 @@ def get_keycloak_user(*, email: str) -> dict | None:
     if matching_users and len(matching_users) > 0:
         return matching_users[0]
     return None
+
+
+def get_verification_history(*, user: AgoraUser) -> list[IdentityVerification]:
+    """
+    Get all identity verification attempts for a user, ordered by most recent first.
+
+    Args:
+        user: The user to get verification history for
+    Returns:
+        List of IdentityVerification records, ordered by updated_at descending
+    """
+    return list(IdentityVerification.objects.filter(user=user).order_by("-updated_at"))
+
+
+def is_verification_expired(*, verification: IdentityVerification) -> bool:
+    """
+    Check if a verification needs renewal (older than 1 year).
+
+    Args:
+        verification: The identity verification to check
+    Returns:
+        True if verification is expired, False otherwise
+    """
+    if verification.status != IdentityVerification.IdentityVerificationStatus.VERIFIED:
+        return False
+    one_year_ago = timezone.now() - timezone.timedelta(days=365)
+    return verification.updated_at < one_year_ago
+
+
+def get_profile_stats(*, user: AgoraUser) -> dict:
+    """
+    Get profile completeness statistics for a user.
+
+    Args:
+        user: The user to get profile stats for
+    Returns:
+        Dictionary with profile statistics:
+        - is_complete: bool
+        - has_handle: bool
+        - has_bio: bool
+        - has_profile_image: bool
+        - links_count: int
+        - is_public: bool
+    """
+    profile = getattr(user, "profile", None)
+    links_count = 0
+    has_profile_image = False
+    has_bio = False
+    is_public = False
+
+    if profile:
+        links_count = profile.links.count()
+        has_profile_image = bool(profile.profile_image)
+        has_bio = bool(profile.bio)
+        is_public = profile.is_public
+
+    return {
+        "is_complete": is_user_profile_complete(user),
+        "has_handle": bool(user.handle),
+        "has_bio": has_bio,
+        "has_profile_image": has_profile_image,
+        "links_count": links_count,
+        "is_public": is_public,
+    }

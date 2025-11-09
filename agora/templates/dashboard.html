@@ -1,172 +1,290 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}
     Dashboard - Agora
 {% endblock title %}
 
 {% block metaDescription %}
-    Your Agora dashboard - manage your account and settings.
+    Your Agora dashboard - manage your verified identity and profile.
 {% endblock metaDescription %}
 
 {% block content %}
-    <div class="min-h-screen bg-gray-50 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white shadow rounded-lg">
-                <div class="px-4 py-5 sm:p-6">
-                    <div class="mb-6">
-                        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-                        <p class="mt-2 text-gray-600">Welcome back, {{ user.name|default:user.username }}!</p>
+    <div class="container max-w-6xl mx-auto px-4 py-8 lg:py-12">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Dashboard</h1>
+            <p class="text-base-content/70">Manage your verified identity and profile</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Identity Verification Status Card -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="card-title">
+                            <i data-lucide="badge-check" aria-hidden="true" class="w-6 h-6"></i>
+                            Identity Verification
+                        </h2>
+                        {% if verification_expired %}
+                            <span class="badge badge-warning">Expired</span>
+                        {% else %}
+                            <span class="badge badge-success">Verified</span>
+                        {% endif %}
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- User Info Card -->
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-8 w-8 text-blue-600"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-blue-900">Account Info</h3>
-                                    <p class="text-sm text-blue-700">Username: {{ user.username }}</p>
-                                    <p class="text-sm text-blue-700">Email: {{ user.email|default:"Not provided" }}</p>
-                                </div>
+                    {% if verified_details %}
+                        <div class="space-y-4">
+                            <!-- Verified Name -->
+                            <div>
+                                <p class="text-sm text-base-content/60 mb-1">Verified Name</p>
+                                <p class="font-semibold">{{ verified_details.first_name }} {{ verified_details.last_name }}</p>
                             </div>
-                        </div>
 
-                        <!-- Authentication Status Card -->
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-8 w-8 text-green-600"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                            <!-- Date of Birth -->
+                            {% if dob_display %}
+                                <div>
+                                    <p class="text-sm text-base-content/60 mb-1">Date of Birth</p>
+                                    <p class="font-semibold">{{ dob_display }}</p>
                                 </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-green-900">Authentication</h3>
-                                    <p class="text-sm text-green-700">Status: Authenticated</p>
-                                    <p class="text-sm text-green-700">Last login: {{ user.last_login|date:"M d, Y H:i"|default:"Unknown" }}</p>
-                                </div>
-                            </div>
-                        </div>
+                            {% endif %}
 
-                        <!-- Identity Verification Card -->
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-8 w-8 text-green-600"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4s-3 1.567-3 3.5S10.343 11 12 11zm0 2c-2.761 0-5 2.015-5 4.5V19a1 1 0 001 1h8a1 1 0 001-1v-1.5c0-2.485-2.239-4.5-5-4.5z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-4 w-full">
-                                    <div class="flex items-center justify-between">
-                                        <h3 class="text-lg font-medium text-green-900">Identity</h3>
-                                        {% if verified_details %}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Verified</span>
-                                        {% else %}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Not verified</span>
-                                        {% endif %}
+                            <!-- Issuing Country -->
+                            {% if verified_details.issuing_country %}
+                                <div>
+                                    <p class="text-sm text-base-content/60 mb-1">Issuing Country</p>
+                                    <div class="flex items-center gap-2">
+                                        <span data-country-code="{{ verified_details.issuing_country }}"
+                                              class="text-2xl"></span>
+                                        <p class="font-semibold">{{ verified_details.issuing_country|upper }}</p>
                                     </div>
-
-                                    {% if verified_details %}
-                                        <dl class="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
-                                            <div>
-                                                <dt class="text-sm font-medium text-green-700">Name</dt>
-                                                <dd class="mt-1 text-sm text-green-900">
-                                                    {{ verified_details.first_name }} {{ verified_details.last_name }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-sm font-medium text-green-700">Date of birth</dt>
-                                                <dd class="mt-1 text-sm text-green-900">
-                                                    {{ verified_details.date_of_birth }}
-                                                </dd>
-                                            </div>
-                                        </dl>
-                                    {% else %}
-                                        <p class="mt-3 text-sm text-green-700">Identity verification not completed yet.</p>
-                                    {% endif %}
                                 </div>
+                            {% endif %}
+
+                            <!-- Document Type -->
+                            {% if document_type_display %}
+                                <div>
+                                    <p class="text-sm text-base-content/60 mb-1">Document Type</p>
+                                    <p class="font-semibold">{{ document_type_display }}</p>
+                                </div>
+                            {% endif %}
+
+                            <!-- Verification Date -->
+                            <div>
+                                <p class="text-sm text-base-content/60 mb-1">Verified On</p>
+                                <p class="font-semibold">{{ identity_verification.updated_at|date:"F d, Y" }}</p>
+                            </div>
+
+                            <!-- Verification Service -->
+                            <div>
+                                <p class="text-sm text-base-content/60 mb-1">Verification Service</p>
+                                <p class="font-semibold capitalize">{{ identity_verification.service }}</p>
                             </div>
                         </div>
+                    {% endif %}
 
-                        <!-- Groups/Roles Card -->
-                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-8 w-8 text-purple-600"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-purple-900">Roles</h3>
-                                    {% if user.groups.all %}
-                                        {% for group in user.groups.all %}
-                                            <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mr-1">{{ group.name }}</span>
-                                        {% endfor %}
-                                    {% else %}
-                                        <p class="text-sm text-purple-700">No roles assigned</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Placeholder Content -->
-                    <div class="mt-8">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out">
-                                View Profile
-                            </button>
-                            <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out">
-                                Settings
-                            </button>
-                            <button class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out">
-                                Notifications
-                            </button>
-                            <a href="{% url 'oidc_logout' %}"
-                               class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out text-center">
-                                Logout
+                    <!-- Actions -->
+                    <div class="card-actions justify-end mt-6">
+                        {% if verification_expired %}
+                            <a href="{% url 'verify_identity' %}" class="btn btn-primary">
+                                <i data-lucide="refresh-cw" aria-hidden="true" class="w-4 h-4"></i>
+                                Re-verify Identity
                             </a>
+                        {% endif %}
+                        {% if verification_history|length > 1 %}
+                            <button class="btn btn-ghost"
+                                    onclick="document.getElementById('verification-history').showModal()">
+                                <i data-lucide="history" aria-hidden="true" class="w-4 h-4"></i>
+                                View History
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Management Card -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i data-lucide="circle-user" aria-hidden="true" class="w-6 h-6"></i>
+                        Profile Management
+                    </h2>
+
+                    <div class="space-y-4">
+                        <!-- Profile Preview -->
+                        <div class="flex items-center gap-4 p-4 bg-base-200 rounded-lg">
+                            {% if profile and profile.profile_image %}
+                                <div class="avatar">
+                                    <div class="w-16 rounded-full">
+                                        <img src="{{ profile.profile_image.url }}"
+                                             alt="Profile image"
+                                             width="64"
+                                             height="64" />
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="avatar placeholder">
+                                    <div class="bg-neutral text-neutral-content rounded-full w-16">
+                                        <span class="text-2xl">{{ user.name|first|default:user.email|first|upper }}</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="flex-1">
+                                <p class="font-semibold">
+                                    {% if user.handle %}
+                                        @{{ user.handle }}
+                                    {% else %}
+                                        {{ user.name|default:user.email }}
+                                    {% endif %}
+                                </p>
+                                <p class="text-sm text-base-content/60">
+                                    {% if profile_stats.is_public %}
+                                        <span class="badge badge-sm badge-success">Public</span>
+                                    {% else %}
+                                        <span class="badge badge-sm badge-ghost">Private</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Profile Stats -->
+                        <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
+                            <div class="stat py-4">
+                                <div class="stat-title text-xs">Completeness</div>
+                                <div class="stat-value text-2xl">
+                                    {% if profile_stats.is_complete %}
+                                        <i data-lucide="check-circle"
+                                           aria-hidden="true"
+                                           class="w-6 h-6 text-success"></i>
+                                    {% else %}
+                                        <i data-lucide="circle"
+                                           aria-hidden="true"
+                                           class="w-6 h-6 text-base-content/30"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="stat-desc text-xs">
+                                    {% if profile_stats.is_complete %}
+                                        Complete
+                                    {% else %}
+                                        Incomplete
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="stat py-4">
+                                <div class="stat-title text-xs">Links</div>
+                                <div class="stat-value text-2xl">{{ profile_stats.links_count }}</div>
+                                <div class="stat-desc text-xs">Profile links</div>
+                            </div>
+                        </div>
+
+                        <!-- Profile Details -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-base-content/60">Handle</span>
+                                <span class="font-semibold">
+                                    {% if profile_stats.has_handle %}
+                                        @{{ user.handle }}
+                                    {% else %}
+                                        <span class="text-base-content/40">Not set</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-base-content/60">Bio</span>
+                                <span class="font-semibold">
+                                    {% if profile_stats.has_bio %}
+                                        <i data-lucide="check" aria-hidden="true" class="w-4 h-4 text-success"></i>
+                                    {% else %}
+                                        <span class="text-base-content/40">Not set</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-base-content/60">Profile Image</span>
+                                <span class="font-semibold">
+                                    {% if profile_stats.has_profile_image %}
+                                        <i data-lucide="check" aria-hidden="true" class="w-4 h-4 text-success"></i>
+                                    {% else %}
+                                        <span class="text-base-content/40">Not set</span>
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Development Note -->
-                    <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-yellow-400"
-                                     fill="currentColor"
-                                     viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-yellow-800">Development Note</h3>
-                                <div class="mt-2 text-sm text-yellow-700">
-                                    <p>
-                                        This is a placeholder dashboard. The actual dashboard functionality will be implemented based on your requirements.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Actions -->
+                    <div class="card-actions justify-end mt-6 gap-2">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                            <i data-lucide="edit" aria-hidden="true" class="w-4 h-4"></i>
+                            Edit Profile
+                        </a>
+                        {% if profile_stats.is_public and user.handle %}
+                            <a href="{% url 'user_profile' handle=user.handle %}"
+                               class="btn btn-ghost"
+                               target="_blank">
+                                <i data-lucide="external-link" aria-hidden="true" class="w-4 h-4"></i>
+                                View Public
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Verification History Modal -->
+    {% if verification_history|length > 1 %}
+        <dialog id="verification-history" class="modal">
+            <div class="modal-box">
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                </form>
+                <h3 class="font-bold text-lg mb-4">Verification History</h3>
+                <div class="space-y-3">
+                    {% for verification in verification_history %}
+                        <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-sm">{{ verification.get_status_display }}</p>
+                                <p class="text-xs text-base-content/60">{{ verification.updated_at|date:"F d, Y g:i A" }}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                {% if verification.status == "verified" %}
+                                    <span class="badge badge-success badge-sm">Verified</span>
+                                {% elif verification.status == "processing" %}
+                                    <span class="badge badge-info badge-sm">Processing</span>
+                                {% elif verification.status == "requires_action" %}
+                                    <span class="badge badge-warning badge-sm">Action Required</span>
+                                {% elif verification.status == "failed" %}
+                                    <span class="badge badge-error badge-sm">Failed</span>
+                                {% endif %}
+                                <span class="badge badge-ghost badge-sm capitalize">{{ verification.get_service_display }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
+        </dialog>
+    {% endif %}
 {% endblock content %}
+
+{% block bodyEndScripts %}
+    <script>
+        const getFlagEmoji = (countryCode) => {
+            const codePoints = countryCode
+                .toUpperCase()
+                .split('')
+                .map(char => 127397 + char.charCodeAt());
+            return String.fromCodePoint(...codePoints);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const countryCodeElements = document.querySelectorAll('[data-country-code]');
+            countryCodeElements.forEach(element => {
+                element.textContent = getFlagEmoji(element.dataset.countryCode);
+            });
+        });
+    </script>
+{% endblock bodyEndScripts %}
