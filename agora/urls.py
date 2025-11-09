@@ -18,6 +18,7 @@ from agora.apps.core.views import (
     onboarding_edit_profile,
     signup,
     signup_status,
+    support,
     user_profile,
     verify_identity,
 )
@@ -34,6 +35,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="core/donate_success.html"),
         name="donate_success",
     ),
+    path("support/", support, name="support"),
     path("onboarding/", onboarding, name="onboarding"),  # Auto redirects to next onboarding step
     path(
         "onboarding/verify/identity", verify_identity, name="verify_identity"

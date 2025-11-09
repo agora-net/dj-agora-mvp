@@ -1,1 +1,21 @@
 {% extends "error_base.html" %}
+
+{% block title %}
+    500 - Server error
+{% endblock title %}
+
+{% block content %}
+    <main class="grid min-h-full place-items-center bg-base-100 px-6 py-24 sm:py-32 lg:px-8">
+        <div class="text-center">
+            <p class="text-base font-semibold text-primary">500</p>
+            <h1 class="mt-4 text-5xl font-semibold tracking-tight text-balance text-base-content sm:text-7xl">Server error</h1>
+            <p class="mt-6 text-lg font-medium text-pretty text-base-content/70 sm:text-xl/8">
+                Something went wrong on our end. We're working to fix it.
+            </p>
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+                <a href="{% url "home" %}" class="btn btn-primary">Go back home</a>
+                <a href="{% url "support" %}" class="btn btn-ghost">Contact support</a>
+            </div>
+        </div>
+    </main>
+{% endblock content %}

@@ -104,6 +104,19 @@
                             </a>
                         </li>
                     {% endif %}
+                    <!-- Support -->
+                    <li role="none" class="menu-title">
+                        <span>Help</span>
+                    </li>
+                    <li role="none" class="w-full">
+                        <a href="{% url 'support' %}"
+                           class="btn btn-ghost w-full justify-start"
+                           role="menuitem"
+                           aria-label="Contact support">
+                            <i data-lucide="mail" aria-hidden="true"></i>
+                            <span>Support</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -156,6 +169,14 @@
                     </li>
                 </ul>
             </div>
+
+            <!-- Support Link -->
+            <a href="{% url 'support' %}"
+               class="btn btn-ghost"
+               aria-label="Contact support">
+                <i data-lucide="mail" aria-hidden="true"></i>
+                <span>Support</span>
+            </a>
 
             <!-- Login/Dashboard Button -->
             {% if request.user.is_authenticated %}

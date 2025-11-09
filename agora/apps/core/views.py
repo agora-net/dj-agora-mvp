@@ -502,6 +502,19 @@ def donate(request: HttpRequest):
     return render(request, "core/donate.html", context)
 
 
+def support(request: HttpRequest):
+    """
+    View to display the support page with contact information.
+
+    Args:
+        request: HTTP request object
+
+    Returns:
+        Rendered support template
+    """
+    return render(request, "support.html")
+
+
 def user_profile(request: HttpRequest, handle: str):
     """
     View to display a user's profile.

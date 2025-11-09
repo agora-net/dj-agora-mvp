@@ -6,6 +6,7 @@
         {% for flatpage in flatpages %}
             <a class="link link-hover" href="{{ flatpage.url }}">{{ flatpage.title }}</a>
         {% endfor %}
+        <a class="link link-hover" href="{% url 'support' %}">Support</a>
     </nav>
     <aside class="text-xs">
         <p>
