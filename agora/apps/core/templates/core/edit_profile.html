@@ -123,17 +123,33 @@
                         {% endif %}
                     </div>
 
-                    <!-- Public Profile Toggle -->
+                    <!-- Profile Visibility Selection -->
                     <div class="form-control">
-                        <label class="label cursor-pointer justify-start gap-4">
-                            <span class="label-text flex-1">
+                        <label class="label">
+                            <span class="label-text">
                                 {{ form.is_public.label }}
                                 {% if form.is_public.help_text %}
                                     <span class="label-text-alt block mt-1 text-xs opacity-70">{{ form.is_public.help_text }}</span>
                                 {% endif %}
                             </span>
-                            {{ form.is_public }}
                         </label>
+                        <!-- Hidden checkbox for form submission -->
+                        {{ form.is_public|add_class:"hidden" }}
+                        <!-- Two large buttons for visibility selection -->
+                        <div class="flex gap-3 mt-2">
+                            <button type="button"
+                                    id="profile-visibility-private"
+                                    class="btn flex-1 flex-col h-auto py-6 gap-2 {% if form.is_public.value %}bg-base-300{% else %}btn-accent text-accent-content{% endif %}">
+                                <i data-lucide="hat-glasses" class="w-6 h-6"></i>
+                                <span class="text-sm font-medium">only you can see it</span>
+                            </button>
+                            <button type="button"
+                                    id="profile-visibility-public"
+                                    class="btn flex-1 flex-col h-auto py-6 gap-2 {% if form.is_public.value %}btn-accent text-accent-content{% else %}bg-base-300{% endif %}">
+                                <i data-lucide="globe" class="w-6 h-6"></i>
+                                <span class="text-sm font-medium">anyone can see it</span>
+                            </button>
+                        </div>
                         {% if form.is_public.errors %}
                             <div class="label">
                                 <span class="label-text-alt text-error">{{ form.is_public.errors.0 }}</span>
@@ -323,4 +339,5 @@
 {% block bodyEndScripts %}
     {% vite_asset 'src/profile_links.ts' %}
     {% vite_asset 'src/profile_image_upload.ts' %}
+    {% vite_asset 'src/profile_visibility.ts' %}
 {% endblock bodyEndScripts %}

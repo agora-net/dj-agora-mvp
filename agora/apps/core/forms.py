@@ -121,12 +121,10 @@ class EditProfileForm(forms.Form):
     )
 
     is_public = forms.BooleanField(
-        label="Make profile public",
+        label="Profile Visibility",
         required=False,
         widget=forms.CheckboxInput(attrs={"class": "toggle toggle-primary"}),
-        help_text=(
-            "If checked, your profile will be visible to everyone, including unauthenticated users."
-        ),
+        help_text=("Choose who can see your profile."),
     )
 
     profile_image = forms.ImageField(
