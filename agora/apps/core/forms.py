@@ -51,7 +51,7 @@ class EditProfileForm(forms.Form):
                 r"^[a-zA-Z0-9-]+$",
                 message=_("Handle must contain only letters, numbers, and hyphens."),
             ),
-            validate_handle_available,  # Computationally heavy so run last
+            # validate_handle_available is called in clean_handle with user context
         ],
     )
 
@@ -120,7 +120,15 @@ class EditProfileForm(forms.Form):
         widget=forms.Select(attrs={"class": "select select-bordered w-full"}),
     )
 
+    profile_image = forms.ImageField(
+        label="Profile Image",
+        required=False,
+        widget=forms.FileInput(attrs={"accept": "image/*", "class": "hidden"}),
+        help_text="Upload a profile picture (JPEG, PNG, WebP, HEIC, JPEGXL, JPEG2000). Max 5MB.",
+    )
+
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         if not self.initial.get("handle"):
             self.initial["handle"] = generate_unique_handle()
@@ -137,6 +145,10 @@ class EditProfileForm(forms.Form):
             raise forms.ValidationError(_("Use only ASCII characters.")) from None
 
         handle = nh3.clean(handle)
+
+        # Validate handle availability, excluding current user if provided
+        validate_handle_available(handle, user=self.user)
+
         return handle
 
     def clean_bio(self):
@@ -178,6 +190,39 @@ class EditProfileForm(forms.Form):
         if company:
             company = nh3.clean(company.strip())
         return company
+
+    def clean_profile_image(self):
+        """Validate profile image file."""
+        from django.core.exceptions import ValidationError
+
+        image = self.cleaned_data.get("profile_image")
+        if not image:
+            return image
+
+        # Check file size (5MB max)
+        max_size = 5 * 1024 * 1024  # 5MB in bytes
+        if image.size > max_size:
+            raise ValidationError(_("Image file too large. Maximum size is 5MB."))
+
+        # Check file format
+        allowed_formats = {
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/heic",
+            "image/heif",
+            "image/jxl",  # JPEG XL
+            "image/jp2",  # JPEG 2000
+        }
+        if image.content_type not in allowed_formats:
+            raise ValidationError(
+                _(
+                    "Unsupported image format. "
+                    "Allowed formats: JPEG, PNG, WebP, HEIC/HEIF, JPEGXL, JPEG2000."
+                )
+            )
+
+        return image
 
 
 class DonationForm(forms.Form):

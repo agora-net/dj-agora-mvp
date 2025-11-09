@@ -1,14 +1,17 @@
 import secrets
 from datetime import date
+from io import BytesIO
 from typing import ClassVar
 
 import uuid6
 from colorfield.fields import ColorField
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
+from django.core.files.base import ContentFile
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 from typeid import TypeID
 
 from agora.selectors import get_dominant_color
@@ -22,12 +25,49 @@ def profile_image_upload_path(instance, filename: str) -> str:
     """
 
     today = date.today()
-    extension = filename.strip().split(".")[-1]
-    random_filename = f"{secrets.token_hex(3)}.{extension}"
+    # Always use .webp extension since we convert to WebP
+    random_filename = f"{secrets.token_hex(3)}.webp"
     return (
         f"profile_images/{today.year:04d}/{today.month:02d}/{today.day:02d}/"
         f"{instance.user.id}/{random_filename}"
     )
+
+
+def process_profile_image(image_file) -> ContentFile:
+    """
+    Process profile image: resize to max 2048x2048, convert to WebP, optimize quality.
+
+    Args:
+        image_file: Django uploaded file object
+
+    Returns:
+        ContentFile: Processed image as WebP
+    """
+    # Open image with Pillow
+    img = Image.open(image_file)
+    # Convert RGBA to RGB if necessary (for PNG with transparency)
+    if img.mode in ("RGBA", "LA", "P"):
+        # Create white background
+        background = Image.new("RGB", img.size, (255, 255, 255))
+        if img.mode == "P":
+            img = img.convert("RGBA")
+        background.paste(img, mask=img.split()[-1] if img.mode in ("RGBA", "LA") else None)
+        img = background
+    elif img.mode != "RGB":
+        img = img.convert("RGB")
+
+    # Resize if larger than 2048x2048, maintaining aspect ratio
+    max_dimension = 2048
+    if img.width > max_dimension or img.height > max_dimension:
+        img.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
+
+    # Save to BytesIO as WebP
+    output = BytesIO()
+    img.save(output, format="WEBP", quality=85, method=6)
+    output.seek(0)
+
+    # Return as ContentFile with just the filename (Django will handle the path via upload_to)
+    return ContentFile(output.read(), name="image.webp")
 
 
 class BaseModel(models.Model):
@@ -319,8 +359,24 @@ class UserProfile(BaseModel):
         return f"profile_{self.user.handle}"
 
     def save(self, *args, **kwargs):
+        # Process image if a new one is being uploaded
+        # Check if profile_image is an uploaded file (has 'read' method)
+        # vs an existing FieldFile (has 'path')
+        if (
+            self.profile_image
+            and hasattr(self.profile_image, "read")
+            and not hasattr(self.profile_image, "path")
+        ):
+            # This is a new upload - process it
+            # Reset file pointer to beginning
+            self.profile_image.seek(0)
+            processed_image = process_profile_image(self.profile_image)
+            # Replace the uploaded file with the processed image
+            # Django will use upload_to function to determine the full path
+            self.profile_image = processed_image
+
         super().save(*args, **kwargs)  # Save the model first to get the profile_image upload path
-        if not self.theme_color and self.profile_image:
+        if self.profile_image:
             dominant_color_tuple = get_dominant_color(image_filepath=self.profile_image.path)
             self.theme_color = f"rgb({dominant_color_tuple[0]}, {dominant_color_tuple[1]}, {dominant_color_tuple[2]})"  # noqa: E501
             super().save(*args, **kwargs)  # Save the model again to update the theme_color

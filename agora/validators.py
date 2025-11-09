@@ -11,7 +11,11 @@ def validate_no_whitespace(value: str) -> None:
         raise ValidationError(_("Whitespace characters are not allowed.")) from None
 
 
-def validate_handle_available(value: str) -> None:
+def validate_handle_available(value: str, user=None) -> None:
     """Validate that a handle is available."""
-    if AgoraUser.objects.filter(handle=value).exists():
+    queryset = AgoraUser.objects.filter(handle=value)
+    # If user is provided, exclude them from the check
+    if user:
+        queryset = queryset.exclude(id=user.id)
+    if queryset.exists():
         raise ValidationError(_("Handle is already taken.")) from None

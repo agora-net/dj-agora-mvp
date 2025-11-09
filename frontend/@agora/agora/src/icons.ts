@@ -17,6 +17,7 @@ import {
 	RefreshCw,
 	Sun,
 	SunMoon,
+	Upload,
 	UserRoundCheck,
 	X,
 } from "lucide";
@@ -41,6 +42,7 @@ const runIcons = () => {
 			RefreshCw,
 			Sun,
 			SunMoon,
+			Upload,
 			UserRoundCheck,
 			X,
 		},

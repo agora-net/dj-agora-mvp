@@ -50,7 +50,7 @@ def _normalize_and_save_link_formset(formset):
 
     # Reassign positions to 1..N
     for new_position, form in enumerate(forms_with_positions, start=1):
-        form.instance.position = new_position
+        form[1].instance.position = new_position
 
     # Save the formset
     formset.save()
@@ -259,7 +259,7 @@ def onboarding_edit_profile(request):
         profile = UserProfile.objects.create(user=request.user)
 
     if request.method == "POST":
-        form = EditProfileForm(request.POST)
+        form = EditProfileForm(request.POST, request.FILES, user=request.user)
         formset = UserProfileLinkFormSet(request.POST, instance=profile)
         if form.is_valid() and formset.is_valid():
             # Update user profile
@@ -273,6 +273,13 @@ def onboarding_edit_profile(request):
             profile.pronouns = form.cleaned_data.get("pronouns", "")
             profile.interests = form.cleaned_data.get("interests", [])
             profile.relationship_status = form.cleaned_data.get("relationship_status") or None
+
+            # Handle profile image upload or deletion
+            if "delete_profile_image" in request.POST:
+                profile.profile_image = None
+            elif form.cleaned_data.get("profile_image"):
+                profile.profile_image = form.cleaned_data.get("profile_image")
+
             profile.save()
 
             # Normalize link positions and save formset
@@ -292,13 +299,13 @@ def onboarding_edit_profile(request):
             "relationship_status": profile.relationship_status or "",
         }
 
-        form = EditProfileForm(initial=initial_data)
+        form = EditProfileForm(initial=initial_data, user=request.user)
         formset = UserProfileLinkFormSet(instance=profile)
 
     return render(
         request,
         "core/edit_profile.html",
-        {"form": form, "formset": formset},
+        {"form": form, "formset": formset, "profile": profile},
     )
 
 
@@ -316,7 +323,7 @@ def edit_profile(request):
         profile = UserProfile.objects.create(user=request.user)
 
     if request.method == "POST":
-        form = EditProfileForm(request.POST)
+        form = EditProfileForm(request.POST, request.FILES, user=request.user)
         formset = UserProfileLinkFormSet(request.POST, instance=profile)
         if form.is_valid() and formset.is_valid():
             # Update user profile
@@ -330,6 +337,13 @@ def edit_profile(request):
             profile.pronouns = form.cleaned_data.get("pronouns", "")
             profile.interests = form.cleaned_data.get("interests", [])
             profile.relationship_status = form.cleaned_data.get("relationship_status") or None
+
+            # Handle profile image upload or deletion
+            if "delete_profile_image" in request.POST:
+                profile.profile_image = None
+            elif form.cleaned_data.get("profile_image"):
+                profile.profile_image = form.cleaned_data.get("profile_image")
+
             profile.save()
 
             # Normalize link positions and save formset
@@ -349,13 +363,13 @@ def edit_profile(request):
             "relationship_status": profile.relationship_status or "",
         }
 
-        form = EditProfileForm(initial=initial_data)
+        form = EditProfileForm(initial=initial_data, user=request.user)
         formset = UserProfileLinkFormSet(instance=profile)
 
     return render(
         request,
         "core/edit_profile.html",
-        {"form": form, "formset": formset},
+        {"form": form, "formset": formset, "profile": profile},
     )
 
 
