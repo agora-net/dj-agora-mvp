@@ -240,6 +240,7 @@
             <div id="profile-links-container" class="space-y-2 mt-2">
                 {% for form in formset %}
                     <div class="link-form flex gap-2 items-start">
+                        {{ form.id|add_class:"hidden" }}
                         {{ form.position|add_class:"hidden" }}
                         {{ form.DELETE|add_class:"hidden" }}
                         <div class="flex-1">
@@ -258,6 +259,7 @@
             <!-- Empty form template for adding new links -->
             <template id="profile-link-empty-form">
                 <div class="link-form flex gap-2 items-start">
+                    {{ formset.empty_form.id|add_class:"hidden" }}
                     {{ formset.empty_form.position|add_class:"hidden" }}
                     {{ formset.empty_form.DELETE|add_class:"hidden" }}
                     <div class="flex-1">{{ formset.empty_form.url|add_class:"input input-bordered w-full" }}</div>

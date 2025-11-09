@@ -350,8 +350,6 @@ def edit_profile(request):
     if hasattr(request.user, "profile"):
         profile = request.user.profile
     else:
-        from .models import UserProfile
-
         profile = UserProfile.objects.create(user=request.user)
 
     if request.method == "POST":
@@ -384,6 +382,8 @@ def edit_profile(request):
 
             # Redirect to the user's profile page
             return redirect("current_user_profile")
+        else:
+            logger.error("edit profile form is not valid", form=form.errors, formset=formset.errors)
     else:
         # Pre-populate form with existing data
         initial_data = {
