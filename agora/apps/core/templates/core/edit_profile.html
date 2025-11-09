@@ -178,6 +178,24 @@
                         {% endif %}
                     </div>
 
+                    <!-- Public Profile Toggle -->
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-4">
+                            <span class="label-text flex-1">
+                                {{ form.is_public.label }}
+                                {% if form.is_public.help_text %}
+                                    <span class="label-text-alt block mt-1 text-xs opacity-70">{{ form.is_public.help_text }}</span>
+                                {% endif %}
+                            </span>
+                            {{ form.is_public }}
+                        </label>
+                        {% if form.is_public.errors %}
+                            <div class="label">
+                                <span class="label-text-alt text-error">{{ form.is_public.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
                     <!-- Bio -->
                     <div class="form-control">
                         <label class="label w-full flex justify-between">

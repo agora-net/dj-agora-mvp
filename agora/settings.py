@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "mathfilters",
     "colorfield",
     "widget_tweaks",
+    "guardian",
     "agora.apps.core",
 ]
 
@@ -252,6 +253,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = [
     "agora.auth.AgoraOIDCAuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",
+    "guardian.backends.ObjectPermissionBackend",
 ]
 
 PASSWORD_HASHERS = [

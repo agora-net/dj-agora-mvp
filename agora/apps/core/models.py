@@ -11,6 +11,7 @@ from django.core.files.base import ContentFile
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from guardian.shortcuts import assign_perm
 from PIL import Image
 from typeid import TypeID
 
@@ -350,6 +351,13 @@ class UserProfile(BaseModel):
         blank=True,
         null=True,
     )
+    is_public = models.BooleanField(
+        _("Is Public"),
+        default=False,
+        help_text=_(
+            "If checked, this profile will be visible to everyone, including unauthenticated users."
+        ),
+    )
 
     class Meta:
         verbose_name = _("User Profile")
@@ -359,6 +367,9 @@ class UserProfile(BaseModel):
         return f"profile_{self.user.handle}"
 
     def save(self, *args, **kwargs):
+        # Check if this is a new profile (before first save)
+        is_new = self.pk is None
+
         # Process image if a new one is being uploaded
         # Check if profile_image is an uploaded file (has 'read' method)
         # vs an existing FieldFile (has 'path')
@@ -376,6 +387,11 @@ class UserProfile(BaseModel):
             self.profile_image = processed_image
 
         super().save(*args, **kwargs)  # Save the model first to get the profile_image upload path
+
+        # Assign view permission to owner on creation
+        if is_new:
+            assign_perm("core.view_userprofile", self.user, self)
+
         if self.profile_image:
             dominant_color_tuple = get_dominant_color(image_filepath=self.profile_image.path)
             self.theme_color = f"rgb({dominant_color_tuple[0]}, {dominant_color_tuple[1]}, {dominant_color_tuple[2]})"  # noqa: E501

@@ -120,6 +120,15 @@ class EditProfileForm(forms.Form):
         widget=forms.Select(attrs={"class": "select select-bordered w-full"}),
     )
 
+    is_public = forms.BooleanField(
+        label="Make profile public",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "toggle toggle-primary"}),
+        help_text=(
+            "If checked, your profile will be visible to everyone, including unauthenticated users."
+        ),
+    )
+
     profile_image = forms.ImageField(
         label="Profile Image",
         required=False,

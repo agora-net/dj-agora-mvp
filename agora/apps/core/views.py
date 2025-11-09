@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 from .forms import DonationForm, EditProfileForm, UserProfileLinkFormSet, WaitlistSignupForm
-from .models import AgoraUser, IdentityVerification, WaitingList
+from .models import AgoraUser, IdentityVerification, UserProfile, WaitingList
 from .selectors import (
     get_external_verification_details,
     get_identity_verification_for_user,
@@ -273,6 +273,7 @@ def onboarding_edit_profile(request):
             profile.pronouns = form.cleaned_data.get("pronouns", "")
             profile.interests = form.cleaned_data.get("interests", [])
             profile.relationship_status = form.cleaned_data.get("relationship_status") or None
+            profile.is_public = form.cleaned_data.get("is_public", False)
 
             # Handle profile image upload or deletion
             if "delete_profile_image" in request.POST:
@@ -297,6 +298,7 @@ def onboarding_edit_profile(request):
             "pronouns": profile.pronouns or "",
             "interests": ", ".join(profile.interests) if profile.interests else "",
             "relationship_status": profile.relationship_status or "",
+            "is_public": profile.is_public,
         }
 
         form = EditProfileForm(initial=initial_data, user=request.user)
@@ -337,6 +339,7 @@ def edit_profile(request):
             profile.pronouns = form.cleaned_data.get("pronouns", "")
             profile.interests = form.cleaned_data.get("interests", [])
             profile.relationship_status = form.cleaned_data.get("relationship_status") or None
+            profile.is_public = form.cleaned_data.get("is_public", False)
 
             # Handle profile image upload or deletion
             if "delete_profile_image" in request.POST:
@@ -361,6 +364,7 @@ def edit_profile(request):
             "pronouns": profile.pronouns or "",
             "interests": ", ".join(profile.interests) if profile.interests else "",
             "relationship_status": profile.relationship_status or "",
+            "is_public": profile.is_public,
         }
 
         form = EditProfileForm(initial=initial_data, user=request.user)
@@ -468,7 +472,6 @@ def donate(request: HttpRequest):
     return render(request, "core/donate.html", context)
 
 
-@login_required
 def user_profile(request: HttpRequest, handle: str):
     """
     View to display a user's profile.
@@ -478,9 +481,26 @@ def user_profile(request: HttpRequest, handle: str):
         handle: Handle (username) of the user to display
 
     Returns:
-        Rendered profile template or 404 if user not found
+        Rendered profile template or 404 if user not found or profile is private
     """
     user = get_object_or_404(AgoraUser, handle=handle)
+
+    # Ensure user has a profile
+    if not hasattr(user, "profile"):
+        profile = UserProfile.objects.create(user=user)
+    else:
+        profile = user.profile
+
+    # Check if profile is accessible: public or user has view permission
+    if profile.is_public:
+        # Public profiles are accessible to everyone
+        pass
+    elif request.user.is_authenticated and request.user.has_perm("core.view_userprofile", profile):
+        # Private profiles are only accessible to users with view permission (owner)
+        pass
+    else:
+        # Profile is private and user doesn't have permission
+        raise Http404("Profile not found")
 
     external_verification_details = None
     latest_identity_verification = get_identity_verification_for_user(user=user)
