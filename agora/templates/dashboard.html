@@ -101,7 +101,7 @@
 
                     <div class="space-y-4">
                         <!-- Profile Preview -->
-                        <div class="flex items-center gap-4 p-4 bg-base-200 rounded-lg">
+                        <div class="flex items-center gap-4 p-4 bg-base-200">
                             {% if profile and profile.profile_image %}
                                 <div class="avatar">
                                     <div class="w-16 rounded-full">
@@ -130,7 +130,7 @@
                                     {% if profile_stats.is_public %}
                                         <span class="badge badge-sm badge-success">Public</span>
                                     {% else %}
-                                        <span class="badge badge-sm badge-ghost">Private</span>
+                                        <span class="badge badge-sm badge-neutral">Private</span>
                                     {% endif %}
                                 </p>
                             </div>
