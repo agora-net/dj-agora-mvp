@@ -21,7 +21,6 @@ from .selectors import (
     get_waiting_list_entry,
     is_user_identity_recently_verified,
     is_user_profile_complete,
-    is_verification_expired,
 )
 from .services import (
     add_to_waiting_list,
@@ -210,9 +209,6 @@ def dashboard(request):
     # Get verification history
     verification_history = get_verification_history(user=request.user)
 
-    # Check if verification is expired
-    verification_expired = is_verification_expired(verification=identity_verification)
-
     # Get profile stats
     profile_stats = get_profile_stats(user=request.user)
 
@@ -236,7 +232,6 @@ def dashboard(request):
         "identity_verification": identity_verification,
         "verified_details": external_verification_details,
         "verification_history": verification_history,
-        "verification_expired": verification_expired,
         "profile_stats": profile_stats,
         "profile": profile,
         "dob_display": dob_display,

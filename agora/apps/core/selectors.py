@@ -274,21 +274,6 @@ def get_verification_history(*, user: AgoraUser) -> list[IdentityVerification]:
     return list(IdentityVerification.objects.filter(user=user).order_by("-updated_at"))
 
 
-def is_verification_expired(*, verification: IdentityVerification) -> bool:
-    """
-    Check if a verification needs renewal (older than 1 year).
-
-    Args:
-        verification: The identity verification to check
-    Returns:
-        True if verification is expired, False otherwise
-    """
-    if verification.status != IdentityVerification.IdentityVerificationStatus.VERIFIED:
-        return False
-    one_year_ago = timezone.now() - timezone.timedelta(days=365)
-    return verification.updated_at < one_year_ago
-
-
 def get_profile_stats(*, user: AgoraUser) -> dict:
     """
     Get profile completeness statistics for a user.
