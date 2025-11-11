@@ -13,15 +13,35 @@
         {% include "includes/hero_signup.html" %}
     {% endif %}
 
-    <div class="container max-w-2xl mx-auto py-8 px-4 lg:py-16 flex flex-col gap-8">
-        <h2 class="text-2xl font-bold">What is Agora?</h2>
+    <section class="container max-w-2xl mx-auto py-8 px-4 lg:py-16 prose">
+        <h2 class="text-2xl font-bold">A Simple, Secure Login for a Human-Friendly Web</h2>
+        <p>In simple terms, Agora is a non-profit, universal login service for humans.</p>
+        <ul>
+            <li>
+                <strong>We are a Swiss non-profit association.</strong> We are not a for-profit company and have no shareholders. Our only mission is to protect your privacy.
+            </li>
+            <li>
+                <strong>We verify your identity</strong> once using a secure check of your government ID. After that, you use your Agora pass to prove to websites that you're a real, verified human—or that you're over a certain age—without ever sharing your ID, your birthday, or other personal data.
+            </li>
+            <li>
+                <strong>You log in securely.</strong> Platforms know you're human. Your private information is never shared or sold.
+            </li>
+        </ul>
+    </section>
+
+    <section class="container max-w-2xl mx-auto py-8 px-4 lg:py-16 prose">
+        <h2 class="text-2xl font-bold">The Web is Overrun. We're Taking It Back.</h2>
         <p>
-            The future of the internet requires trust, and that starts with identity. Agora is a Swiss non-profit creating a privacy-respecting alternative to today's log-in methods.
+            Every <em>"Log in with..."</em> button is a trade. You get convenience; they get your data. Big Tech tracks your behavior, and platforms are drowning in bots, fakes, and manipulation. The old model is broken. We're building the new one.
         </p>
+    </section>
+
+    <section class="container max-w-2xl mx-auto py-8 px-4 lg:py-16 prose">
+        <h2 class="text-2xl font-bold">Your Reusable Digital Passport</h2>
         <p>
-            By verifying your identity with us, you can prove you are a real person online without sharing sensitive information with every website you visit. Our service helps prevent fraud and provides a trusted online presence while protecting your privacy.
+            Agora separates proof from data. Instead of handing over your personal files to every site, our one-time verification creates a secure "pass" that's yours to control.
         </p>
-    </div>
+    </section>
     <div class="container max-w-4xl mx-auto flex flex-col lg:flex-row gap-8">
         <div class="card bg-base-100 w-96">
             <div class="card-body">
@@ -52,6 +72,31 @@
                 </p>
             </div>
         </div>
+    </div>
+
+    <section class="container max-w-2xl mx-auto py-8 px-4 lg:py-16 prose">
+        <h2 class="text-2xl font-bold">An Internet Built for People, Not for Profit</h2>
+        <h3 class="text-lg font-bold">We are a non-profit</h3>
+        <p>
+            Our mission is to protect you. We are a Swiss non-profit. We don't track you. We don't sell your data. We can't be bought. Our entire model is built on your trust, not your ad profile.
+        </p>
+        <h3 class="text-lg font-bold">An end to the bot epidemic</h3>
+        <p>
+            This is bigger than a login. This is about building a web for humans. By using Agora, you support platforms that foster genuine conversation and starve the bot-driven economies that thrive on manipulation.
+        </p>
+        <h3 class="text-lg font-bold">Your data stays yours</h3>
+        <p>
+            Prove your age without revealing your birthday. Prove your identity without showing your ID. Agora confirms your status to a site for you, so you never have to hand over your personal files again.
+        </p>
+    </section>
+
+    <div class="container max-w-2xl mx-auto py-8 px-4 lg:py-16 prose">
+        <p>
+            The future of the internet requires trust, and that starts with identity. Agora is a Swiss non-profit creating a privacy-respecting alternative to today's log-in methods.
+        </p>
+        <p>
+            By verifying your identity with us, you can prove you are a real person online without sharing sensitive information with every website you visit. Our service helps prevent fraud and provides a trusted online presence while protecting your privacy.
+        </p>
     </div>
     <div class="container max-w-2xl mx-auto px-4 py-8 lg:py-12">{% include "includes/faq.html" %}</div>
 {% endblock content %}
